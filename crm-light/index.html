@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1e293b">
+  <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiUHJvamVjdCBNYW5hZ2VyIiwic2hvcnRfbmFtZSI6IlByb2plY3RzIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2YyZjFmYiIsInRoZW1lX2NvbG9yIjoiIzFlMjkzYiJ9">
+  <title>Project Manager</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration to use the custom palette -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            bg: 'var(--color-bg)',
+            primary: 'var(--color-primary)',
+            secondary: 'var(--color-secondary)',
+            title: 'var(--color-title)',
+            text: 'var(--color-text)',
+            card: 'var(--color-card)',
+            /* New Dynamic Settings for Metric Counters */
+            'metric-icon': 'var(--color-metric-icon)',
+            'metric-bg': 'var(--color-metric-bg)',
+            'metric-border': 'var(--color-metric-border)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Iconify for robust icon rendering -->
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Base Colors */
+      --color-bg: #f2f1fb;
+      --color-primary: #000000;
+      --color-secondary: #000000;
+      --color-title: #000000;
+      --color-text: #707070;
+      --color-card: #ffffff;
+
+      /* Metric Counter Icon Settings (Replaced Blue with Black/Grayscale) */
+      --color-metric-icon: #000000;       /* The icon color itself */
+      --color-metric-bg: #f3f4f6;         /* The background of the icon box (light gray for contrast) */
+      --color-metric-border: #e5e7eb;     /* The border around the icon box */
+    }
+
+    body { font-family: 'Inter', sans-serif; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .confetti-piece {
+      position: absolute;
+      top: -20px;
+      width: 8px;
+      height: 16px;
+      border-radius: 2px;
+      animation-name: fall;
+      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      animation-fill-mode: forwards;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .toast-enter { animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    
+    @keyframes slideUpFade {
+      from { transform: translate(-50%, 100%); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    .bulk-bar-enter { animation: slideUpFade 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+  </style>
+</head>
+<body class="bg-bg text-text font-sans antialiased overflow-x-hidden">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+    const IconWrapper = ({ icon, className, ...rest }) => (
+      <span className={`inline-flex items-center justify-center flex-shrink-0 ${className || ''}`} {...rest}>
+         <iconify-icon icon={icon} width="100%" height="100%" style={{ color: 'inherit' }}></iconify-icon>
+      </span>
+    );
+
+    const IcoLayoutDashboard = (p) => <IconWrapper icon="lucide:layout-dashboard" {...p} />;
+    const IcoPlus = (p) => <IconWrapper icon="lucide:plus" {...p} />;
+    const IcoCalendar = (p) => <IconWrapper icon="lucide:calendar" {...p} />;
+    const IcoTag = (p) => <IconWrapper icon="lucide:tag" {...p} />;
+    const IcoTrash2 = (p) => <IconWrapper icon="lucide:trash-2" {...p} />;
+    const IcoEdit3 = (p) => <IconWrapper icon="lucide:edit-3" {...p} />;
+    const IcoX = (p) => <IconWrapper icon="lucide:x" {...p} />;
+    const IcoBuilding2 = (p) => <IconWrapper icon="lucide:building-2" {...p} />;
+    const IcoUserCircle = (p) => <IconWrapper icon="lucide:user-circle" {...p} />;
+    const IcoUpload = (p) => <IconWrapper icon="lucide:upload" {...p} />;
+    const IcoSettings = (p) => <IconWrapper icon="lucide:settings" {...p} />;
+    const IcoCopy = (p) => <IconWrapper icon="lucide:copy" {...p} />;
+    const IcoCheck = (p) => <IconWrapper icon="lucide:check" {...p} />;
+    const IcoFileText = (p) => <IconWrapper icon="lucide:file-text" {...p} />;
+    const IcoReceipt = (p) => <IconWrapper icon="lucide:receipt" {...p} />;
+    const IcoFileArchive = (p) => <IconWrapper icon="lucide:file-archive" {...p} />;
+    const IcoBell = (p) => <IconWrapper icon="lucide:bell" {...p} />;
+    const IcoAlertCircle = (p) => <IconWrapper icon="lucide:alert-circle" {...p} />;
+    const IcoCheckSquare = (p) => <IconWrapper icon="lucide:check-square" {...p} />;
+    const IcoMessageSquare = (p) => <IconWrapper icon="lucide:message-square" {...p} />;
+    const IcoMail = (p) => <IconWrapper icon="lucide:mail" {...p} />;
+    const IcoClock = (p) => <IconWrapper icon="lucide:clock" {...p} />;
+    const IcoZap = (p) => <IconWrapper icon="lucide:zap" {...p} />;
+    const IcoDollarSign = (p) => <IconWrapper icon="lucide:dollar-sign" {...p} />;
+    const IcoAlertTriangle = (p) => <IconWrapper icon="lucide:alert-triangle" {...p} />;
+    const IcoSearch = (p) => <IconWrapper icon="lucide:search" {...p} />;
+    const IcoUndo = (p) => <IconWrapper icon="lucide:undo" {...p} />;
+    const IcoRedo = (p) => <IconWrapper icon="lucide:redo" {...p} />;
+    const IcoImage = (p) => <IconWrapper icon="lucide:image" {...p} />;
+    const IcoGripVertical = (p) => <IconWrapper icon="lucide:grip-vertical" {...p} />;
+    const IcoDownload = (p) => <IconWrapper icon="lucide:download" {...p} />;
+    const IcoList = (p) => <IconWrapper icon="lucide:list" {...p} />;
+    const IcoGrid = (p) => <IconWrapper icon="lucide:grid" {...p} />;
+    const IcoGlobe = (p) => <IconWrapper icon="lucide:globe" {...p} />;
+    const IcoArrowUp = (p) => <IconWrapper icon="lucide:arrow-up" {...p} />;
+    const IcoArrowDown = (p) => <IconWrapper icon="lucide:arrow-down" {...p} />;
+    const IcoFolder = (p) => <IconWrapper icon="lucide:folder" {...p} />;
+    const IcoFolders = (p) => <IconWrapper icon="ph:folders" {...p} />;
+    const IcoArchiveBox = (p) => <IconWrapper icon="lucide:archive" {...p} />;
+
+    const TRANSLATIONS = {
+      en: {
+        appTitle: "",
+        searchPlaceholder: "Search (Cmd+K)",
+        manageDesc: "Manage projects, track stages, and monitor relationships.",
+        newProject: "New Project",
+        totalProjects: "Total Projects",
+        exportCSV: "Export to CSV",
+        settings: "Settings",
+        kanbanView: "Kanban View",
+        listView: "List View",
+        galleryView: "Gallery View",
+        dragHere: "Drag projects here",
+        expand: "Expand",
+        more: "more",
+        noProjects: "No projects found.",
+        selected: "selected",
+        changeStatus: "Change Status...",
+        editProject: "Edit Project",
+        applyTemplate: "Apply Project Template (Optional)",
+        startScratch: "-- Start from scratch --",
+        projectName: "Project Name *",
+        status: "Status",
+        deadline: "Deadline",
+        labelColor: "Label Color",
+        org: "Organization",
+        contact: "Contact",
+        bannerUrl: "Banner Image URL",
+        desc: "Description",
+        customFields: "Custom Fields & Properties",
+        priority: "Priority",
+        estHours: "Est. Hours *",
+        budget: "Client Budget",
+        risk: "Risk Level",
+        subtasks: "Subtasks",
+        comments: "Comments & Activity",
+        cancel: "Cancel",
+        createBtn: "Create Project",
+        saveBtn: "Save Changes",
+        sysSettings: "System Settings",
+        emailDigests: "Email Digests",
+        api: "Apps Script API",
+        workflowSettings: "Workflow & Stages",
+        help: "Help & Shortcuts",
+        close: "Close",
+        saveSettings: "Save Settings",
+        selectImage: "Select Image",
+        addTag: "Add tag (e.g. urgent)...",
+        addBtn: "Add",
+        writeComment: "Write a comment or type @mention...",
+        post: "Post",
+        thName: "Project Name",
+        thStatus: "Status",
+        thDeadline: "Deadline",
+        thPriority: "Priority",
+        thClient: "Client/Org",
+        stageEn: "Name (English)",
+        stageEs: "Name (Spanish)",
+        addStage: "Add Stage",
+        cantDeleteStage: "Cannot delete: Stage has projects",
+        confirmDeleteStage: "Are you sure you want to delete this stage?",
+        editSelection: "Edit Selection",
+        deleteSelection: "Delete Selection"
+      },
+      es: {
+        appTitle: "",
+        searchPlaceholder: "Buscar (Cmd+K)",
+        manageDesc: "Gestiona proyectos, rastrea etapas y monitorea relaciones.",
+        newProject: "Nuevo Proyecto",
+        totalProjects: "Proyectos Totales",
+        exportCSV: "Exportar a CSV",
+        settings: "Configuración",
+        kanbanView: "Vista Kanban",
+        listView: "Vista de Lista",
+        galleryView: "Vista de Galería",
+        dragHere: "Arrastra proyectos aquí",
+        expand: "Expandir",
+        more: "más",
+        noProjects: "No se encontraron proyectos.",
+        selected: "seleccionados",
+        changeStatus: "Cambiar Estado...",
+        editProject: "Editar Proyecto",
+        applyTemplate: "Aplicar Plantilla (Opcional)",
+        startScratch: "-- Empezar desde cero --",
+        projectName: "Nombre del Proyecto *",
+        status: "Estado",
+        deadline: "Fecha Límite",
+        labelColor: "Color de Etiqueta",
+        org: "Organización",
+        contact: "Contacto",
+        bannerUrl: "URL del Banner",
+        desc: "Descripción",
+        customFields: "Campos Personalizados",
+        priority: "Prioridad",
+        estHours: "Horas Est. *",
+        budget: "Presupuesto Cliente",
+        risk: "Nivel de Riesgo",
+        subtasks: "Subtareas",
+        comments: "Comentarios y Actividad",
+        cancel: "Cancelar",
+        createBtn: "Crear Proyecto",
+        saveBtn: "Guardar Cambios",
+        sysSettings: "Configuración del Sistema",
+        emailDigests: "Resúmenes de Correo",
+        api: "API de Apps Script",
+        workflowSettings: "Flujo de Trabajo",
+        help: "Ayuda y Atajos",
+        close: "Cerrar",
+        saveSettings: "Guardar Configuración",
+        selectImage: "Seleccionar Imagen",
+        addTag: "Añadir etiqueta...",
+        addBtn: "Añadir",
+        writeComment: "Escribe un comentario o usa @mención...",
+        post: "Publicar",
+        thName: "Nombre del Proyecto",
+        thStatus: "Estado",
+        thDeadline: "Fecha Límite",
+        thPriority: "Prioridad",
+        thClient: "Cliente/Org",
+        stageEn: "Nombre (Inglés)",
+        stageEs: "Nombre (Español)",
+        addStage: "Añadir Etapa",
+        cantDeleteStage: "No se puede eliminar: Tiene proyectos",
+        confirmDeleteStage: "¿Seguro que deseas eliminar esta etapa?",
+        editSelection: "Editar Selección",
+        deleteSelection: "Eliminar Selección"
+      }
+    };
+
+    const t = (key, lang) => TRANSLATIONS[lang][key] || key;
+
+    const defaultStages = [
+      { id: 'stage-1', en: 'New Projects', es: 'Nuevos Proyectos' },
+      { id: 'stage-2', en: 'In Progress', es: 'En Progreso' },
+      { id: 'stage-3', en: 'Completed', es: 'Completados', isDone: true },
+      { id: 'stage-4', en: 'Cancelled', es: 'Cancelados' }
+    ];
+
+    const initialOrganizations = [
+      { id: 'org-1', name: 'Acme Corp', industry: 'Manufacturing', notes: 'Top client', logo: 'https://ui-avatars.com/api/?name=Acme+Corp&background=1e293b&color=fff&size=128' },
+      { id: 'org-2', name: 'Globex', industry: 'Technology', notes: '', logo: 'https://ui-avatars.com/api/?name=Globex&background=f59e0b&color=fff&size=128' },
+      { id: 'org-3', name: 'Initech', industry: 'Software', notes: 'Requires weekly updates', logo: 'https://ui-avatars.com/api/?name=Initech&background=10b981&color=fff&size=128' },
+    ];
+
+    const initialContacts = [
+      { id: 'con-1', name: 'Alice Smith', email: 'alice@acme.com', phone: '555-0101', organizationId: 'org-1' },
+      { id: 'con-2', name: 'Bob Jones', email: 'bob@globex.com', phone: '555-0202', organizationId: 'org-2' },
+      { id: 'con-3', name: 'Charlie Davis', email: 'charlie@initech.com', phone: '555-0303', organizationId: 'org-3' },
+    ];
+
+    const addDays = (days) => {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
+    };
+
+    const initialProjects = [
+      {
+        id: 'proj-1',
+        name: 'Website Redesign',
+        description: 'Overhaul the corporate site with new branding.',
+        status: 'stage-2', // In Progress
+        deadline: addDays(2), 
+        color: '#1e293b',
+        tags: ['design', 'frontend'],
+        contactId: 'con-1',
+        organizationId: 'org-1',
+        bannerUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=500&q=60',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        customFields: { priority: 'High', estimatedHours: 80, clientBudget: 10000, riskLevel: '3' },
+        subtasks: [
+          { id: 'st-1', title: 'Design Mockups', completed: true },
+          { id: 'st-2', title: 'Frontend Implementation', completed: false }
+        ],
+        comments: []
+      },
+      {
+        id: 'proj-2',
+        name: 'Q3 Marketing Campaign',
+        description: 'Prepare ad assets and copy for Q3.',
+        status: 'stage-1', // New Projects
+        deadline: addDays(-1),
+        color: '#10b981',
+        tags: ['marketing', 'ads'],
+        contactId: 'con-2',
+        organizationId: 'org-2',
+        bannerUrl: '',
+        createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+        customFields: { priority: 'Medium', estimatedHours: 40, clientBudget: 5000, riskLevel: '2' },
+        subtasks: [],
+        comments: []
+      },
+      {
+        id: 'proj-3',
+        name: 'Legacy API Migration',
+        description: 'Move off v1 endpoints to v2.',
+        status: 'stage-3', // Completed
+        deadline: addDays(10),
+        color: '#8b5cf6',
+        tags: ['backend', 'urgent'],
+        contactId: 'con-3',
+        organizationId: 'org-3',
+        bannerUrl: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        customFields: { priority: 'High', estimatedHours: 120, clientBudget: 15000, riskLevel: '5' },
+        subtasks: [{ id: 'st-3', title: 'Migrate DB', completed: true }],
+        comments: []
+      }
+    ];
+
+    const extraProjects = Array.from({ length: 5 }).map((_, i) => ({
+      id: `proj-extra-${i}`,
+      name: `Pagination Test Project ${i + 1}`,
+      description: 'Testing the expand feature and multiple cards.',
+      status: 'stage-1',
+      deadline: '',
+      color: '#000000',
+      tags: ['test'],
+      contactId: '',
+      organizationId: '',
+      quoteId: '', invoiceId: '', receiptId: '',
+      bannerUrl: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      customFields: { priority: 'Low', estimatedHours: 5, clientBudget: '', riskLevel: '1' },
+      subtasks: [],
+      comments: []
+    }));
+    initialProjects.push(...extraProjects);
+
+    const PROJECT_TEMPLATES = [
+      {
+        id: 'tpl-1', name: 'Website Launch Workflow', description: 'End-to-end framework for launching a new web property.', tags: 'web, launch, frontend',
+        customFields: { priority: 'High', estimatedHours: 120, clientBudget: 8000, riskLevel: '3' },
+        subtasks: [{ title: 'Requirements Gathering', completed: false }, { title: 'UX/UI Wireframes', completed: false }, { title: 'Development Phase', completed: false }, { title: 'QA & Testing', completed: false }]
+      },
+      {
+        id: 'tpl-2', name: 'Standard Marketing Campaign', description: 'Template for quarterly social media ad deployments.', tags: 'marketing, ads, social',
+        customFields: { priority: 'Medium', estimatedHours: 40, clientBudget: 2500, riskLevel: '1' },
+        subtasks: [{ title: 'Ad Copywriting', completed: false }, { title: 'Graphics Approval', completed: false }, { title: 'Budget Allocation', completed: false }]
+      }
+    ];
+
+    const initialQuotes = [{ id: 'qt-1', name: 'QT-2026-001 ($5,000)' }, { id: 'qt-2', name: 'QT-2026-002 ($12,500)' }];
+    const initialInvoices = [{ id: 'inv-1', name: 'INV-2026-001 (Paid)' }, { id: 'inv-2', name: 'INV-2026-002 (Pending)' }];
+    const initialReceipts = [{ id: 'rec-1', name: 'REC-001 (Hosting)' }, { id: 'rec-2', name: 'REC-002 (Assets)' }];
+
+    const DEFAULT_BANNERS = [
+      'https://bucket.mlcdn.com/a/3336/3336910/images/62ae60a9a162effdfbe2e62a495b8ba98b721dba.png'
+    ];
+    
+    const getDefaultBanner = (id) => {
+      if (!id) return DEFAULT_BANNERS[0];
+      const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
+      return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+    };
+
+    const Confetti = () => {
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[100] flex justify-center overflow-hidden">
+          {Array.from({ length: 80 }).map((_, i) => {
+            const style = {
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 0.5}s`,
+              animationDuration: `${1.5 + Math.random() * 2}s`,
+              backgroundColor: ['#ef4444', '#1e293b', '#10b981', '#f59e0b', '#e07dd1', '#ec4899'][Math.floor(Math.random() * 6)],
+              transform: `rotate(${Math.random() * 360}deg)`
+            };
+            return <div key={i} className="confetti-piece" style={style} />;
+          })}
+        </div>
+      );
+    };
+
+    const ToastContainer = ({ toasts, removeToast }) => {
+      return (
+        <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none max-w-sm w-full">
+          {toasts.map(toast => (
+            <div key={toast.id} className={`toast-enter pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border ${
+              toast.type === 'alert' ? 'bg-rose-50 border-rose-200 text-rose-800' :
+              toast.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+              toast.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' :
+              'bg-white border-gray-200 text-gray-800'
+            }`}>
+              <div className="mt-0.5 flex-shrink-0">
+                {toast.type === 'alert' && <IcoAlertCircle className="w-5 h-5" />}
+                {toast.type === 'warning' && <IcoClock className="w-5 h-5" />}
+                {toast.type === 'success' && <IcoCheckSquare className="w-5 h-5" />}
+                {toast.type === 'info' && <IcoBell className="w-5 h-5 text-primary" />}
+                {toast.type === 'mention' && <IcoMessageSquare className="w-5 h-5 text-secondary" />}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-semibold text-sm leading-snug">{toast.title}</h4>
+                {toast.message && <p className="text-sm opacity-90 mt-0.5 leading-snug">{toast.message}</p>}
+              </div>
+              <button onClick={() => removeToast(toast.id)} className="p-1 hover:bg-black/5 rounded-md transition-colors">
+                <IcoX className="w-4 h-4 opacity-50 hover:opacity-100" />
+              </button>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    const AnimatedCounter = ({ value }) => {
+      const [count, setCount] = useState(0);
+
+      useEffect(() => {
+        let start = 0;
+        const end = parseInt(value, 10) || 0;
+        if (start === end) { setCount(end); return; }
+        
+        const duration = 1000;
+        const incrementTime = Math.max(10, Math.abs(Math.floor(duration / (end - start))));
+        const timer = setInterval(() => {
+          start += 1;
+          setCount(start);
+          if (start === end) clearInterval(timer);
+        }, incrementTime);
+        return () => clearInterval(timer);
+      }, [value]);
+      return <span>{count}</span>;
+    };
+
+    const SettingsModal = ({ isOpen, onClose, addToast, lang, onSaveSettings, initialStages, requestConfirm }) => {
+      const [activeTab, setActiveTab] = useState('workflow');
+      const [digestSettings, setDigestSettings] = useState({ daily: true, weekly: true, email: 'admin@bebell.com' });
+      const [copied, setCopied] = useState(false);
+      const [scriptUrl, setScriptUrl] = useState('');
+      
+      const [tempStages, setTempStages] = useState(initialStages);
+
+      const gasCode = `// Google Apps Script Backend for Kanban CRM
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "API is running" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    
+    // Gets the active sheet in the spreadsheet the script is bound to
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+    // 1. Setup headers if sheet is empty
+    const headers = ["ID", "Name", "Status", "Deadline", "Priority", "Estimated Hours", "Contact ID", "Org ID"];
+    if (sheet.getLastRow() === 0) sheet.appendRow(headers);
+
+    // 2. Map frontend data to the row format
+    const rowData = [
+      data.id || "",
+      data.name || "",
+      data.status || "",
+      data.deadline || "",
+      data.customFields ? data.customFields.priority : "",
+      data.customFields ? data.customFields.estimatedHours : "",
+      data.contactId || "",
+      data.organizationId || ""
+    ];
+
+    // 3. Check if project exists to Update, otherwise Append
+    const records = sheet.getDataRange().getValues();
+    let updated = false;
+    
+    // Start loop at 1 to skip the header row
+    for (let i = 1; i < records.length; i++) {
+      if (records[i][0] === data.id) {
+        // ID found, update the specific row
+        sheet.getRange(i + 1, 1, 1, rowData.length).setValues([rowData]);
+        updated = true;
+        break;
+      }
+    }
+
+    // ID not found, insert as a new row at the bottom
+    if (!updated) sheet.appendRow(rowData);
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", action: updated ? "updated" : "appended" }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+      useEffect(() => {
+        if(isOpen) setTempStages(initialStages);
+      }, [isOpen, initialStages]);
+
+      useEffect(() => {
+        const savedDigests = localStorage.getItem('digestSettings');
+        if (savedDigests) setDigestSettings(JSON.parse(savedDigests));
+        const savedUrl = localStorage.getItem('gasScriptUrl');
+        if (savedUrl) setScriptUrl(savedUrl);
+      }, []);
+
+      const handleCopy = () => {
+        const textArea = document.createElement("textarea");
+        textArea.value = gasCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (e) { console.error('Failed to copy', e); }
+        document.body.removeChild(textArea);
+      };
+
+      const handleSaveAll = () => {
+        localStorage.setItem('digestSettings', JSON.stringify(digestSettings));
+        localStorage.setItem('gasScriptUrl', scriptUrl);
+        onSaveSettings(tempStages);
+        addToast(lang === 'en' ? 'Settings saved successfully.' : 'Configuración guardada.', t('saveSettings', lang), 'success');
+        onClose();
+      };
+
+      const addStage = () => {
+        setTempStages([...tempStages, { id: `stage-${Date.now()}`, en: 'New Stage', es: 'Nueva Etapa' }]);
+      };
+      
+      const updateStage = (index, field, value) => {
+        const updated = [...tempStages];
+        updated[index] = { ...updated[index], [field]: value };
+        setTempStages(updated);
+      };
+
+      const removeStage = (index) => {
+        if (tempStages.length <= 1) {
+          addToast("Cannot delete the last stage.", "Error", "alert");
+          return;
+        }
+        if (requestConfirm) {
+            requestConfirm(t('confirmDeleteStage', lang), () => {
+              const updated = [...tempStages];
+              updated.splice(index, 1);
+              setTempStages(updated);
+            });
+        } else {
+             const updated = [...tempStages];
+             updated.splice(index, 1);
+             setTempStages(updated);
+        }
+      };
+
+      const moveStage = (index, direction) => {
+        if (index + direction < 0 || index + direction >= tempStages.length) return;
+        const updated = [...tempStages];
+        const temp = updated[index];
+        updated[index] = updated[index + direction];
+        updated[index + direction] = temp;
+        setTempStages(updated);
+      };
+
+      if (!isOpen) return null;
+
+      return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-card rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-card z-10 flex-shrink-0">
+              <h2 className="text-xl font-bold text-title">{t('sysSettings', lang)}</h2>
+              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><IcoX className="w-5 h-5 text-gray-500" /></button>
+            </div>
+            
+            <div className="flex border-b border-gray-100 overflow-x-auto flex-shrink-0 bg-slate-50">
+              <button onClick={() => setActiveTab('workflow')} className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'workflow' ? 'border-primary text-primary bg-white' : 'border-transparent text-text hover:text-title'}`}>{t('workflowSettings', lang)}</button>
+              <button onClick={() => setActiveTab('digests')} className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'digests' ? 'border-primary text-primary bg-white' : 'border-transparent text-text hover:text-title'}`}>{t('emailDigests', lang)}</button>
+              <button onClick={() => setActiveTab('api')} className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'api' ? 'border-primary text-primary bg-white' : 'border-transparent text-text hover:text-title'}`}>{t('api', lang)}</button>
+              <button onClick={() => setActiveTab('help')} className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'help' ? 'border-primary text-primary bg-white' : 'border-transparent text-text hover:text-title'}`}>{t('help', lang)}</button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1">
+              
+              {activeTab === 'workflow' && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-title mb-1 flex items-center gap-2"><IcoList className="w-5 h-5" /> {t('workflowSettings', lang)}</h3>
+                    <p className="text-sm text-text">Customize the names and order of your project columns across both languages.</p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex gap-4 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <div className="w-8"></div>
+                      <div className="flex-1">{t('stageEn', lang)}</div>
+                      <div className="flex-1">{t('stageEs', lang)}</div>
+                      <div className="w-10"></div>
+                    </div>
+                    
+                    {tempStages.map((stage, idx) => (
+                      <div key={stage.id} className="flex gap-4 items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
+                        <div className="flex flex-col gap-1 w-8 items-center justify-center text-gray-400">
+                          <button onClick={() => moveStage(idx, -1)} disabled={idx === 0} className="hover:text-primary disabled:opacity-30"><IcoArrowUp className="w-4 h-4" /></button>
+                          <button onClick={() => moveStage(idx, 1)} disabled={idx === tempStages.length - 1} className="hover:text-primary disabled:opacity-30"><IcoArrowDown className="w-4 h-4" /></button>
+                        </div>
+                        <input type="text" value={stage.en} onChange={e => updateStage(idx, 'en', e.target.value)} className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                        <input type="text" value={stage.es} onChange={e => updateStage(idx, 'es', e.target.value)} className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                        <button onClick={() => removeStage(idx)} className="w-10 h-10 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Remove Stage">
+                          <IcoTrash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button onClick={addStage} className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-medium hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2">
+                    <IcoPlus className="w-5 h-5" />
+                    {t('addStage', lang)}
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'digests' && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-title mb-1 flex items-center gap-2"><IcoMail className="w-5 h-5" /> Automations & Digests</h3>
+                    <p className="text-sm text-text">Configure automatic email summaries to keep your team in the loop.</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Recipient Email</label>
+                      <input type="email" value={digestSettings.email} onChange={e => setDigestSettings({...digestSettings, email: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="team@company.com" />
+                    </div>
+                    
+                    <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                      <input type="checkbox" checked={digestSettings.daily} onChange={e => setDigestSettings({...digestSettings, daily: e.target.checked})} className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary" />
+                      <div>
+                        <p className="font-semibold text-title">Daily Summary</p>
+                        <p className="text-xs text-text">Sends a brief summary of approaching deadlines and untouched tasks every morning at 8:00 AM.</p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                      <input type="checkbox" checked={digestSettings.weekly} onChange={e => setDigestSettings({...digestSettings, weekly: e.target.checked})} className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary" />
+                      <div>
+                        <p className="font-semibold text-title">Weekly Digest</p>
+                        <p className="text-xs text-text">Sends a comprehensive report of all completed projects and bottlenecks every Friday at 5:00 PM.</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'api' && (
+                <div className="space-y-6">
+                  <div className="bg-bg p-4 rounded-xl border border-primary/20">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Web App Script URL</label>
+                    <input type="url" value={scriptUrl} onChange={(e) => setScriptUrl(e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="https://script.google.com/macros/s/AKfyc.../exec" />
+                    <p className="text-xs text-text mt-2">Advanced users: Paste your deployment URL here. Need help? Watch the video or follow the steps below.</p>
+                  </div>
+
+                  <div className="aspect-video w-full rounded-xl overflow-hidden bg-gray-100 shadow-inner">
+                    <iframe width="100%" height="100%" src="https://www.youtube.com/embed/ndzNOk3Gg8o" title="Tutorial" frameBorder="0" allowFullScreen></iframe>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-title mb-3">Step-by-step Instructions</h3>
+                    <ol className="list-decimal list-inside space-y-4 text-sm text-text">
+                      <li>Go to <a href="https://script.google.com" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">script.google.com</a> and create a New Project.</li>
+                      <li>
+                        <span className="inline-block mb-2">Copy the boilerplate code below and paste it into the editor, completely replacing the default code.</span>
+                        <div className="bg-bg border border-slate-200 rounded-lg overflow-hidden ml-4 mt-1 mb-2">
+                          <div className="flex justify-between items-center px-4 py-2 bg-slate-100 border-b border-slate-200">
+                            <span className="text-xs font-mono text-slate-500">Code.gs</span>
+                            <button onClick={handleCopy} className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                              {copied ? <IcoCheck className="w-4 h-4" /> : <IcoCopy className="w-4 h-4" />}
+                              {copied ? 'Copied!' : 'Copy Code'}
+                            </button>
+                          </div>
+                          <pre className="p-4 text-xs font-mono text-text overflow-x-auto whitespace-pre-wrap">
+                            <code>{gasCode}</code>
+                          </pre>
+                        </div>
+                      </li>
+                      <li>Click <strong>Deploy &gt; New deployment</strong> in the top right.</li>
+                      <li>Select type <strong>Web app</strong>.</li>
+                      <li>Set "Execute as" to <strong>Me</strong> and "Who has access" to <strong>Anyone</strong>.</li>
+                      <li>Click <strong>Deploy</strong>, authorize permissions, and copy the provided <strong>Web app URL</strong>.</li>
+                      <li>Paste the Web app URL in the field at the top of this window and hit Save.</li>
+                    </ol>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'help' && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-title mb-1 flex items-center gap-2"><IcoZap className="w-5 h-5 text-amber-500" /> Keyboard Shortcuts</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-medium text-gray-700">Global Search</span>
+                        <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono text-gray-500 shadow-sm">Cmd/Ctrl + K</kbd>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-medium text-gray-700">Undo Action</span>
+                        <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono text-gray-500 shadow-sm">Cmd/Ctrl + Z</kbd>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-medium text-gray-700">Redo Action</span>
+                        <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono text-gray-500 shadow-sm">Cmd/Ctrl + Y</kbd>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-medium text-gray-700">{t('newProject', lang)}</span>
+                        <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono text-gray-500 shadow-sm">N</kbd>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-medium text-gray-700">{t('editSelection', lang)}</span>
+                        <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono text-gray-500 shadow-sm">E</kbd>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-medium text-gray-700">{t('deleteSelection', lang)}</span>
+                        <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono text-gray-500 shadow-sm">Delete</kbd>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-title mb-3 flex items-center gap-2"><IcoFileText className="w-5 h-5 text-primary" /> Multi-Select & Gestures</h3>
+                    <ul className="space-y-3 text-sm text-text list-disc pl-5 marker:text-primary">
+                      <li><strong className="text-gray-800">Shift+Click / Cmd+Click:</strong> Select multiple cards to perform bulk actions (Status updates, Deletion) or drag them all at once.</li>
+                      <li><strong className="text-gray-800">Mobile Swiping:</strong> On touch devices, simply swipe left or right to seamlessly snap between the workflow columns.</li>
+                      <li><strong className="text-gray-800">Drag & Drop:</strong> You can drag projects between columns, and also drag tags inside the project editor to reorder them.</li>
+                      <li><strong className="text-gray-800">Card Aging:</strong> Cards untouched for 4 days turn yellow. After 7 days, red.</li>
+                      <li><strong className="text-gray-800">Deadline Colors:</strong> Date pills automatically colorize to Green (Future), Yellow (Within 3 days), or Red (Overdue).</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+              <button type="button" onClick={onClose} className="px-5 py-2 text-text bg-white border border-gray-200 hover:bg-gray-50 rounded-lg font-medium transition-colors">{t('close', lang)}</button>
+              {(activeTab === 'digests' || activeTab === 'api' || activeTab === 'workflow') && (
+                <button type="button" onClick={handleSaveAll} className="px-5 py-2 text-white bg-primary hover:bg-primary/90 rounded-lg font-medium shadow-sm transition-all active:scale-95">{t('saveSettings', lang)}</button>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const ProjectModal = ({ isOpen, onClose, onSave, initialData, contacts, organizations, quotes, invoices, receipts, addToast, lang, stages }) => {
+      const defaultStageId = stages.length > 0 ? stages[0].id : '';
+
+      const [formData, setFormData] = useState({
+        name: '', bannerUrl: '', color: '#1e293b', description: '', deadline: '',
+        status: defaultStageId, contactId: '', organizationId: '', quoteId: '', invoiceId: '', receiptId: '', subtasks: [], comments: [],
+        customFields: { priority: 'Medium', estimatedHours: '', clientBudget: '', riskLevel: '1' }
+      });
+      const [newSubtask, setNewSubtask] = useState('');
+      const [newComment, setNewComment] = useState('');
+
+      const [tagsArray, setTagsArray] = useState([]);
+      const [newTag, setNewTag] = useState('');
+      const [showGallery, setShowGallery] = useState(false);
+
+      useEffect(() => {
+        if (!initialData && formData.name && isOpen) {
+          localStorage.setItem('projectDraft', JSON.stringify({ ...formData, tagsArray }));
+        }
+      }, [formData, tagsArray, initialData, isOpen]);
+
+      useEffect(() => {
+        if (initialData) {
+          setFormData({
+            ...initialData,
+            quoteId: initialData.quoteId || '',
+            invoiceId: initialData.invoiceId || '',
+            receiptId: initialData.receiptId || '',
+            subtasks: initialData.subtasks || [],
+            comments: initialData.comments || [],
+            customFields: initialData.customFields || { priority: 'Medium', estimatedHours: '', clientBudget: '', riskLevel: '1' }
+          });
+          setTagsArray(initialData.tags || []);
+        } else {
+          const draftStr = localStorage.getItem('projectDraft');
+          if (draftStr) {
+            try {
+               const draft = JSON.parse(draftStr);
+               setFormData(draft);
+               setTagsArray(draft.tagsArray || []);
+               addToast(lang === 'en' ? 'Recovered unsaved draft.' : 'Borrador no guardado recuperado.', 'Draft Loaded', 'info');
+               return;
+            } catch(e) {}
+          }
+          setFormData({
+            name: '', bannerUrl: '', color: '#1e293b', description: '', deadline: '',
+            status: defaultStageId, contactId: '', organizationId: '', quoteId: '', invoiceId: '', receiptId: '', subtasks: [], comments: [],
+            customFields: { priority: 'Medium', estimatedHours: '', clientBudget: '', riskLevel: '1' }
+          });
+          setTagsArray([]);
+        }
+      }, [initialData, isOpen, lang, defaultStageId]);
+
+      const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+      const handleCustomFieldChange = (e) => setFormData(prev => ({ ...prev, customFields: { ...prev.customFields, [e.target.name]: e.target.value } }));
+
+      const handleAddTag = () => {
+        if (!newTag.trim() || tagsArray.includes(newTag.trim())) return;
+        setTagsArray(prev => [...prev, newTag.trim()]);
+        setNewTag('');
+      };
+      const removeTag = (index) => setTagsArray(prev => prev.filter((_, i) => i !== index));
+
+      const handleTemplateApply = (e) => {
+        const tId = e.target.value;
+        if (!tId) return;
+        const tpl = PROJECT_TEMPLATES.find(t => t.id === tId);
+        if (tpl) {
+          setFormData(prev => ({
+            ...prev,
+            name: tpl.name, description: tpl.description,
+            customFields: { ...tpl.customFields },
+            subtasks: tpl.subtasks.map(st => ({ id: `st-${Date.now()}-${Math.random()}`, title: st.title, completed: false }))
+          }));
+          setTagsArray(tpl.tags.split(',').map(t => t.trim()));
+          addToast(lang === 'en' ? `Applied template: ${tpl.name}` : `Plantilla aplicada: ${tpl.name}`, 'Template Loaded', 'success');
+        }
+      };
+
+      const handleAddSubtask = () => {
+        if (!newSubtask.trim()) return;
+        setFormData(prev => ({
+          ...prev, 
+          subtasks: [...prev.subtasks, { id: `st-${Date.now()}`, title: newSubtask, completed: false }]
+        }));
+        setNewSubtask('');
+      };
+      const toggleSubtask = (id) => {
+        setFormData(prev => ({
+          ...prev,
+          subtasks: prev.subtasks.map(st => st.id === id ? { ...st, completed: !st.completed } : st)
+        }));
+      };
+      const removeSubtask = (id) => {
+        setFormData(prev => ({ ...prev, subtasks: prev.subtasks.filter(st => st.id !== id) }));
+      };
+
+      const handleAddComment = () => {
+        if (!newComment.trim()) return;
+        if (newComment.includes('@')) {
+           const mentionMatch = newComment.match(/@(\w+)/);
+           const name = mentionMatch ? mentionMatch[1] : 'someone';
+           addToast(lang === 'en' ? `Mention sent to ${name}` : `Mención enviada a ${name}`, 'Notification', 'mention');
+        }
+        setFormData(prev => ({
+          ...prev, 
+          comments: [...prev.comments, { id: `cm-${Date.now()}`, text: newComment, date: new Date().toLocaleString() }]
+        }));
+        setNewComment('');
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const processedData = {
+          ...formData,
+          tags: tagsArray,
+          updatedAt: new Date().toISOString()
+        };
+        if (!initialData) localStorage.removeItem('projectDraft');
+        onSave(processedData);
+        onClose();
+      };
+
+      if (!isOpen) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-card rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col relative">
+            
+            {showGallery && (
+               <div className="absolute inset-0 z-50 bg-card flex flex-col">
+                 <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-card shadow-sm">
+                   <h3 className="text-xl font-bold text-title flex items-center gap-2"><IcoImage className="w-5 h-5 text-primary"/> {t('selectImage', lang)}</h3>
+                   <button type="button" onClick={() => setShowGallery(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><IcoX className="w-5 h-5 text-gray-500" /></button>
+                 </div>
+                 <div className="p-6 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-6 bg-gray-50 flex-1">
+                   {DEFAULT_BANNERS.map((url, i) => (
+                      <div key={i} onClick={() => { setFormData(prev => ({...prev, bannerUrl: url})); setShowGallery(false); }} className="cursor-pointer group relative h-40 rounded-xl overflow-hidden border-2 border-transparent hover:border-primary shadow-sm hover:shadow-md transition-all">
+                        <img src={url} alt={`Banner ${i}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                   ))}
+                 </div>
+               </div>
+            )}
+
+            <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-card z-10 flex-shrink-0">
+              <h2 className="text-xl font-bold text-title">{initialData ? t('editProject', lang) : t('newProject', lang)}</h2>
+              <button type="button" onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><IcoX className="w-5 h-5 text-gray-500" /></button>
+            </div>
+            
+            <div className="overflow-y-auto p-6 flex-1">
+              {!initialData && (
+                <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                   <label className="block text-sm font-semibold text-title mb-2">{t('applyTemplate', lang)}</label>
+                   <select onChange={handleTemplateApply} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                      <option value="">{t('startScratch', lang)}</option>
+                      {PROJECT_TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                   </select>
+                </div>
+              )}
+
+              <form id="project-form" onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-5 flex flex-col">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('projectName', lang)}</label>
+                      <input required name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('status', lang)}</label>
+                        <select name="status" value={formData.status} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                          {stages.map(stage => <option key={stage.id} value={stage.id}>{stage[lang]}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('deadline', lang)}</label>
+                        <input type="date" name="deadline" value={formData.deadline} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('labelColor', lang)}</label>
+                      <div className="flex items-center gap-3">
+                        <input type="color" name="color" value={formData.color} onChange={handleChange} className="h-10 w-14 rounded cursor-pointer border-0 p-0" />
+                        <span className="text-sm text-gray-500">{formData.color}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Quote</label>
+                        <select name="quoteId" value={formData.quoteId} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                          <option value="">-- Select --</option>
+                          {quotes.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Invoice</label>
+                        <select name="invoiceId" value={formData.invoiceId} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                          <option value="">-- Select --</option>
+                          {invoices.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-5 h-full">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('org', lang)}</label>
+                        <select name="organizationId" value={formData.organizationId} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                          <option value="">-- Select --</option>
+                          {organizations.map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('contact', lang)}</label>
+                        <select name="contactId" value={formData.contactId} onChange={handleChange} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                          <option value="">-- Select --</option>
+                          {contacts.map(contact => <option key={contact.id} value={contact.id}>{contact.name}</option>)}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('bannerUrl', lang)}</label>
+                      <div className="flex gap-2 items-start">
+                        <input type="url" name="bannerUrl" value={formData.bannerUrl} onChange={handleChange} className="flex-1 w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                        <button type="button" onClick={() => setShowGallery(true)} className="flex items-center justify-center p-2.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                          <IcoImage className="w-5 h-5 text-gray-500" />
+                        </button>
+                      </div>
+                      {formData.bannerUrl && (
+                        <div className="mt-2 h-20 w-full rounded-md overflow-hidden bg-gray-100">
+                           <img src={formData.bannerUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-bg p-4 rounded-xl border border-primary/10 flex-1 flex flex-col shadow-sm">
+                      <label className="block text-sm font-bold text-title mb-2 flex items-center gap-2"><IcoTag className="w-4 h-4 text-primary" /> Tags</label>
+                      <div className="flex gap-2 mb-3">
+                        <input type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)} onKeyDown={(e) => { if(e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }} className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white shadow-sm" placeholder={t('addTag', lang)} />
+                        <button type="button" onClick={handleAddTag} className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors shadow-sm">{t('addBtn', lang)}</button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 flex-1 content-start">
+                        {tagsArray.map((tag, idx) => (
+                           <div key={tag} className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-white text-primary border border-primary/20 rounded shadow-sm">
+                             {tag}
+                             <button type="button" onClick={() => removeTag(idx)} className="hover:text-rose-500 p-0.5 rounded-full ml-1"><IcoX className="w-3 h-3" /></button>
+                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('desc', lang)}</label>
+                  <textarea name="description" value={formData.description} onChange={handleChange} rows="3" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none"></textarea>
+                </div>
+
+                <div className="p-5 bg-gray-50 border border-gray-100 rounded-xl">
+                  <h3 className="text-sm font-bold text-title mb-4 flex items-center gap-1.5"><IcoZap className="w-4 h-4 text-amber-500" /> {t('customFields', lang)}</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">{t('priority', lang)} *</label>
+                      <select required name="priority" value={formData.customFields.priority} onChange={handleCustomFieldChange} className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">{t('estHours', lang)}</label>
+                      <input required type="number" min="0" name="estimatedHours" value={formData.customFields.estimatedHours} onChange={handleCustomFieldChange} className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">{t('budget', lang)}</label>
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-1.5 text-gray-400 text-sm">$</span>
+                        <input type="number" min="0" name="clientBudget" value={formData.customFields.clientBudget} onChange={handleCustomFieldChange} className="w-full pl-6 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">{t('risk', lang)}</label>
+                      <select name="riskLevel" value={formData.customFields.riskLevel} onChange={handleCustomFieldChange} className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                        <option value="1">1 - Minimal</option>
+                        <option value="2">2 - Low</option>
+                        <option value="3">3 - Moderate</option>
+                        <option value="4">4 - High</option>
+                        <option value="5">5 - Critical</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-gray-100">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5"><IcoCheckSquare className="w-4 h-4" /> {t('subtasks', lang)}</label>
+                    <div className="flex gap-2 mb-3">
+                      <input type="text" value={newSubtask} onChange={e => setNewSubtask(e.target.value)} onKeyDown={(e) => { if(e.key === 'Enter') { e.preventDefault(); handleAddSubtask(); } }} className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
+                      <button type="button" onClick={handleAddSubtask} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">{t('addBtn', lang)}</button>
+                    </div>
+                    <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
+                      {formData.subtasks.map(st => (
+                        <div key={st.id} className="flex items-center gap-3 p-2 border border-gray-100 rounded-lg bg-gray-50 group hover:border-gray-200">
+                          <input type="checkbox" checked={st.completed} onChange={() => toggleSubtask(st.id)} className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer" />
+                          <span className={`flex-1 text-sm ${st.completed ? 'text-gray-400 line-through' : 'text-gray-700'}`}>{st.title}</span>
+                          <button type="button" onClick={() => removeSubtask(st.id)} className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 rounded"><IcoTrash2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5"><IcoMessageSquare className="w-4 h-4" /> {t('comments', lang)}</label>
+                    <div className="space-y-3 mb-3 max-h-32 overflow-y-auto pr-2">
+                      {formData.comments.map(c => (
+                        <div key={c.id} className="bg-primary/5 rounded-lg p-3 text-sm border border-primary/10">
+                          <p className="text-text mb-1">{c.text}</p>
+                          <span className="text-[10px] text-gray-400">{c.date}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <textarea value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddComment(); } }} className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none min-h-[100px]" placeholder={t('writeComment', lang)} />
+                      <button type="button" onClick={handleAddComment} className="px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary text-sm font-medium rounded-lg transition-colors flex-shrink-0 self-end">{t('post', lang)}</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+              <button type="button" onClick={onClose} className="px-5 py-2 text-text bg-white border border-gray-200 hover:bg-gray-50 rounded-lg font-medium transition-colors">{t('cancel', lang)}</button>
+              <button type="submit" form="project-form" className="px-5 py-2 text-white bg-primary hover:bg-primary/90 rounded-lg font-medium shadow-sm transition-all active:scale-95">
+                {initialData ? t('saveBtn', lang) : t('createBtn', lang)}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    function MetricCard({ title, value, color, icon: IconComponent, iconColor }) {
+      return (
+        <div className={`p-4 rounded-xl border ${color} flex items-center gap-4`}>
+          {IconComponent && (
+            <div className="w-[50px] h-[50px] flex-shrink-0 rounded-[10px] overflow-hidden bg-metric-bg border border-metric-border shadow-sm flex items-center justify-center">
+              <IconComponent className={`w-6 h-6 ${iconColor}`} />
+            </div>
+          )}
+          <div>
+            <h3 className="text-sm font-medium opacity-80 mb-0.5 leading-tight">{title}</h3>
+            <div className="text-3xl font-bold leading-none mt-1">
+              <AnimatedCounter value={value} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [lang, setLang] = useState(() => localStorage.getItem('appLang') || 'en');
+
+      const [stages, setStages] = useState(() => {
+        const saved = localStorage.getItem('appStages');
+        return saved ? JSON.parse(saved) : defaultStages;
+      });
+
+      const getStageName = (stageId) => {
+        const stage = stages.find(s => s.id === stageId);
+        return stage ? stage[lang] : stageId;
+      };
+
+      const toggleLanguage = () => {
+        const newLang = lang === 'en' ? 'es' : 'en';
+        setLang(newLang);
+        localStorage.setItem('appLang', newLang);
+      };
+
+      const [past, setPast] = useState([]);
+      const [future, setFuture] = useState([]);
+      const [projects, setProjects] = useState(initialProjects);
+      const [viewMode, setViewMode] = useState('kanban'); 
+      
+      const updateProjects = useCallback((newProjectsOrUpdater) => {
+         setProjects(current => {
+            const nextProjects = typeof newProjectsOrUpdater === 'function' ? newProjectsOrUpdater(current) : newProjectsOrUpdater;
+            setPast(p => [...p, current].slice(-50));
+            setFuture([]);
+            return nextProjects;
+         });
+      }, []);
+
+      const handleUndo = useCallback(() => {
+         if (past.length === 0) return;
+         const previous = past[past.length - 1];
+         setPast(past.slice(0, past.length - 1));
+         setFuture([projects, ...future]);
+         setProjects(previous);
+      }, [past, future, projects]);
+
+      const handleRedo = useCallback(() => {
+         if (future.length === 0) return;
+         const next = future[0];
+         setFuture(future.slice(1));
+         setPast([...past, projects]);
+         setProjects(next);
+      }, [past, future, projects]);
+
+      const [searchQuery, setSearchQuery] = useState('');
+      const searchInputRef = useRef(null);
+      const [selectedIds, setSelectedIds] = useState(new Set());
+      const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
+
+      const requestConfirm = useCallback((message, onConfirm) => {
+          setConfirmDialog({ isOpen: true, message, onConfirm });
+      }, []);
+
+      const handleBulkDelete = useCallback(() => {
+         requestConfirm(lang === 'en' ? `Are you sure you want to delete ${selectedIds.size} selected project(s)?` : `¿Eliminar ${selectedIds.size} proyectos seleccionados?`, () => {
+            updateProjects(prev => prev.filter(p => !selectedIds.has(p.id)));
+            setSelectedIds(new Set());
+         });
+      }, [lang, selectedIds.size, updateProjects, requestConfirm]);
+
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+      const [editingProject, setEditingProject] = useState(null);
+
+      const openNewProject = useCallback(() => { setEditingProject(null); setIsModalOpen(true); }, []);
+      const openEditProject = useCallback((project) => { setEditingProject(project); setIsModalOpen(true); }, []);
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+          if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); searchInputRef.current?.focus(); }
+          if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); handleUndo(); }
+          if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); handleRedo(); }
+          if (e.key.toLowerCase() === 'n') { e.preventDefault(); openNewProject(); }
+          if (e.key.toLowerCase() === 'e' && selectedIds.size === 1) {
+             e.preventDefault();
+             const p = projects.find(x => x.id === Array.from(selectedIds)[0]);
+             if (p) openEditProject(p);
+          }
+          if (e.key === 'Delete' || e.key === 'Backspace') {
+             if (selectedIds.size > 0) { e.preventDefault(); handleBulkDelete(); }
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [handleUndo, handleRedo, selectedIds, projects, handleBulkDelete, openNewProject, openEditProject]);
+
+      const [contacts] = useState(initialContacts);
+      const [organizations] = useState(initialOrganizations);
+      const [quotes] = useState(initialQuotes);
+      const [invoices] = useState(initialInvoices);
+      const [receipts] = useState(initialReceipts);
+      
+      const [showConfetti, setShowConfetti] = useState(false);
+      const [toasts, setToasts] = useState([]);
+
+      const addToast = useCallback((message, title = 'Notification', type = 'info') => {
+        const id = Date.now().toString() + Math.random().toString();
+        setToasts(prev => [...prev, { id, title, message, type }]);
+        setTimeout(() => removeToast(id), 5000);
+      }, []);
+      
+      const removeToast = useCallback((id) => setToasts(prev => prev.filter(t => t.id !== id)), []);
+
+      useEffect(() => {
+        const now = new Date();
+        let delay = 1000; 
+        
+        projects.forEach(p => {
+          const stageDetails = stages.find(s => s.id === p.status) || {};
+          const isFinished = stageDetails.isDone || stageDetails.en === 'Completed' || stageDetails.en === 'Cancelled';
+          if (isFinished) return;
+
+          if (p.updatedAt) {
+            const daysUntouched = (now - new Date(p.updatedAt)) / (1000 * 60 * 60 * 24);
+            if (daysUntouched >= 7) {
+              setTimeout(() => addToast(`${p.name} hasn't been updated in 7 days.`, 'Needs Attention', 'warning'), delay);
+              delay += 800;
+            }
+          }
+
+          if (p.deadline) {
+            const daysLeft = (new Date(p.deadline) - now) / (1000 * 60 * 60 * 24);
+            if (daysLeft > 0 && daysLeft <= 1) {
+               setTimeout(() => addToast(`${p.name} is due within 24 hours!`, 'Urgent Deadline', 'alert'), delay);
+               delay += 800;
+            } else if (daysLeft > 1 && daysLeft <= 2) {
+               setTimeout(() => addToast(`${p.name} is due within 48 hours.`, 'Approaching Deadline', 'warning'), delay);
+               delay += 800;
+            }
+          }
+        });
+      }, []);
+
+      const [dragOverStage, setDragOverStage] = useState(null);
+      const scrollContainerRef = useRef(null);
+      const [isPanning, setIsPanning] = useState(false);
+      const [startX, setStartX] = useState(0);
+      const [scrollLeft, setScrollLeft] = useState(0);
+
+      const [visibleLimits, setVisibleLimits] = useState(() => {
+        const limits = {};
+        stages.forEach(s => limits[s.id] = 10);
+        return limits;
+      });
+      const handleExpand = (stageId) => setVisibleLimits(prev => ({ ...prev, [stageId]: (prev[stageId] || 10) + 10 }));
+
+      const onPanStart = (e) => {
+        if (e.target.closest('[draggable]') || e.target.closest('button')) return;
+        setIsPanning(true);
+        setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+        setScrollLeft(scrollContainerRef.current.scrollLeft);
+      };
+      const onPanLeaveOrUp = () => setIsPanning(false);
+      const onPanMove = (e) => {
+        if (!isPanning) return;
+        e.preventDefault();
+        const walk = (e.pageX - scrollContainerRef.current.offsetLeft - startX) * 1.5;
+        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+      };
+
+      const metrics = useMemo(() => {
+        const total = projects.length;
+        const s0 = projects.filter(p => p.status === stages[0]?.id).length;
+        const s1 = projects.filter(p => p.status === stages[1]?.id).length;
+        const s2 = projects.filter(p => p.status === stages[2]?.id).length;
+        return { total, s0, s1, s2 };
+      }, [projects, stages]);
+
+      const triggerConfetti = () => {
+        setShowConfetti(false);
+        setTimeout(() => setShowConfetti(true), 10);
+        setTimeout(() => setShowConfetti(false), 3500);
+      };
+
+      const handleSaveProject = (projectData) => {
+        let finalData = { ...projectData };
+        const hasSubtasks = finalData.subtasks && finalData.subtasks.length > 0;
+        const allDone = hasSubtasks && finalData.subtasks.every(st => st.completed);
+        
+        const doneStage = stages.find(s => s.isDone || s.en === 'Completed') || stages[stages.length - 1];
+
+        if (allDone && finalData.status !== doneStage.id) {
+           finalData.status = doneStage.id;
+           addToast(lang === 'en' ? `Moved to ${doneStage.en}!` : `Movido a ${doneStage.es}!`, 'Auto-Completed', 'success');
+        }
+
+        if (finalData.id) {
+          const oldProject = projects.find(p => p.id === finalData.id);
+          if (oldProject && oldProject.status !== doneStage.id && finalData.status === doneStage.id) triggerConfetti();
+          updateProjects(prev => prev.map(p => p.id === finalData.id ? finalData : p));
+        } else {
+          if (finalData.status === doneStage.id) triggerConfetti();
+          const newProject = { ...finalData, id: `proj-${Date.now()}` };
+          updateProjects(prev => [...prev, newProject]);
+          addToast(lang === 'en' ? `Project created successfully.` : `Proyecto creado con éxito.`, t('newProject', lang), 'success');
+        }
+      };
+
+      const handleDeleteProject = (id) => {
+        requestConfirm(lang === 'en' ? 'Are you sure you want to delete this project?' : '¿Seguro que deseas eliminar este proyecto?', () => {
+           updateProjects(prev => prev.filter(p => p.id !== id));
+        });
+      };
+
+      const handleCloneProject = (project) => {
+         const newProject = {
+            ...project,
+            id: `proj-${Date.now()}`,
+            name: `${project.name} (Copy)`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+         };
+         updateProjects(prev => [...prev, newProject]);
+         addToast(lang === 'en' ? `Project cloned successfully.` : `Proyecto clonado con éxito.`, 'Cloned', 'success');
+      };
+
+      const handleCardClick = (e, id) => {
+        if (e.target.closest('button')) return; 
+        if (e.shiftKey || e.metaKey || e.ctrlKey) {
+          const newSet = new Set(selectedIds);
+          if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
+          setSelectedIds(newSet);
+        } else {
+          if (selectedIds.has(id) && selectedIds.size === 1) setSelectedIds(new Set());
+          else setSelectedIds(new Set([id]));
+        }
+      };
+
+      const handleBulkStatus = (newStatusId) => {
+         if (!newStatusId) return;
+         const doneStage = stages.find(s => s.isDone || s.en === 'Completed') || stages[stages.length - 1];
+         if (newStatusId === doneStage?.id) triggerConfetti();
+         updateProjects(prev => prev.map(p => selectedIds.has(p.id) ? { ...p, status: newStatusId, updatedAt: new Date().toISOString() } : p));
+         setSelectedIds(new Set());
+      };
+
+      const handleExportCSV = () => {
+         const filtered = projects.filter(p => (p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.tags?.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))));
+         const headers = ['ID', 'Name', 'Status', 'Deadline', 'Organization', 'Contact', 'Priority', 'Est. Hours'];
+         const rows = filtered.map(p => [
+           p.id, `"${p.name}"`, getStageName(p.status), p.deadline || '', 
+           organizations.find(o=>o.id===p.organizationId)?.name || '',
+           contacts.find(c=>c.id===p.contactId)?.name || '',
+           p.customFields?.priority || '', p.customFields?.estimatedHours || ''
+         ]);
+         const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join("\n");
+         const encodedUri = encodeURI(csvContent);
+         const link = document.createElement("a");
+         link.setAttribute("href", encodedUri);
+         link.setAttribute("download", "projects_export.csv");
+         document.body.appendChild(link);
+         link.click();
+         document.body.removeChild(link);
+      };
+
+      const handleDragStart = (e, projectId) => {
+        let idsToDrag = [projectId];
+        if (selectedIds.has(projectId)) idsToDrag = Array.from(selectedIds);
+        e.dataTransfer.setData('projectIds', JSON.stringify(idsToDrag));
+        e.target.style.opacity = '0.5';
+      };
+      const handleDragEnd = (e) => { e.target.style.opacity = '1'; };
+
+      const handleDrop = (e, newStatusId) => {
+        e.preventDefault();
+        setDragOverStage(null); 
+        const draggedIds = JSON.parse(e.dataTransfer.getData('projectIds') || '[]');
+        
+        const doneStage = stages.find(s => s.isDone || s.en === 'Completed') || stages[stages.length - 1];
+
+        if (draggedIds.length > 0) {
+          if (newStatusId === doneStage?.id) triggerConfetti();
+          updateProjects(prev => prev.map(p => draggedIds.includes(p.id) ? { ...p, status: newStatusId, updatedAt: new Date().toISOString() } : p));
+          setSelectedIds(new Set()); 
+        }
+      };
+
+      const handleSaveSettings = (newStages) => {
+         setStages(newStages);
+         localStorage.setItem('appStages', JSON.stringify(newStages));
+      };
+
+      const getContactName = (id) => contacts.find(c => c.id === id)?.name || 'No Contact';
+      const getOrg = (id) => organizations.find(o => o.id === id);
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          {showConfetti && <Confetti />}
+          <ToastContainer toasts={toasts} removeToast={removeToast} />
+
+          {confirmDialog.isOpen && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+              <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full relative animate-[slideInRight_0.2s_ease-out]">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-rose-100 text-rose-600 rounded-full">
+                    <IcoAlertTriangle className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800">Confirm Action</h3>
+                </div>
+                <p className="text-sm text-slate-600 mb-6 pl-1">{confirmDialog.message}</p>
+                <div className="flex justify-end gap-3">
+                  <button onClick={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })} className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+                  <button onClick={() => { confirmDialog.onConfirm(); setConfirmDialog({ isOpen: false, message: '', onConfirm: null }); }} className="px-4 py-2 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition-colors shadow-sm active:scale-95">Confirm</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedIds.size > 0 && (
+             <div className="bulk-bar-enter fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-white px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-4 border border-white/10">
+                <span className="font-semibold whitespace-nowrap text-sm">{selectedIds.size} {t('selected', lang)}</span>
+                <div className="w-px h-5 bg-white/20"></div>
+                <select onChange={(e) => handleBulkStatus(e.target.value)} value="" className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-sm outline-none cursor-pointer focus:ring-2 focus:ring-white/40 appearance-none">
+                   <option value="" disabled className="text-gray-800">{t('changeStatus', lang)}</option>
+                   {stages.map(s => <option key={s.id} value={s.id} className="text-gray-800">{s[lang]}</option>)}
+                </select>
+                <div className="w-px h-5 bg-white/20"></div>
+                <button onClick={handleBulkDelete} className="hover:text-rose-300 transition-colors p-1" title="Delete Selected (Del)"><IcoTrash2 className="w-4 h-4" /></button>
+                <button onClick={() => setSelectedIds(new Set())} className="hover:text-gray-300 transition-colors p-1" title="Clear Selection"><IcoX className="w-4 h-4" /></button>
+             </div>
+          )}
+          
+          <header className="bg-primary border-b border-primary/80 sticky top-0 z-30 shadow-md">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex justify-center items-center gap-3 w-full md:w-auto">
+                  <img src="https://bucket.mlcdn.com/a/3336/3336910/images/b36992e2d416de4cf5df1be4ec85e5184f8481dc.png" alt="Logo" className="h-10 w-auto object-contain" />
+                </div>
+                
+                <div className="flex justify-center items-center gap-2 w-full md:w-auto flex-wrap">
+                  <div className="relative group mr-1 md:mr-2 w-full sm:w-auto mb-2 sm:mb-0">
+                    <IcoSearch className="w-4 h-4 text-white/60 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                    <input 
+                      ref={searchInputRef} type="text" placeholder={t('searchPlaceholder', lang)} 
+                      value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                      className="bg-white/10 border border-white/20 text-white placeholder-white/50 pl-9 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 w-full sm:w-48 sm:focus:w-64 transition-all"
+                    />
+                  </div>
+
+                  <div className="flex items-center bg-white/10 border border-white/20 rounded-lg p-0.5 mr-1 md:mr-2">
+                    <button onClick={handleExportCSV} className="p-2.5 rounded-md transition-colors text-white hover:bg-white/20" title={t('exportCSV', lang)}><IcoDownload className="w-4 h-4" /></button>
+                    <button onClick={handleUndo} disabled={past.length === 0} className={`p-2.5 rounded-md transition-colors ${past.length > 0 ? 'text-white hover:bg-white/20' : 'text-white/30 cursor-not-allowed'}`} title="Undo (Cmd+Z)"><IcoUndo className="w-4 h-4" /></button>
+                    <button onClick={handleRedo} disabled={future.length === 0} className={`p-2.5 rounded-md transition-colors ${future.length > 0 ? 'text-white hover:bg-white/20' : 'text-white/30 cursor-not-allowed'}`} title="Redo (Cmd+Y)"><IcoRedo className="w-4 h-4" /></button>
+                  </div>
+
+                  <div className="flex items-center bg-white/10 border border-white/20 rounded-lg p-0.5 mr-1 md:mr-2">
+                    <button onClick={() => setViewMode('kanban')} className={`p-2.5 rounded-md transition-colors ${viewMode === 'kanban' ? 'bg-white/20 text-white shadow-sm' : 'text-white/60 hover:text-white'}`} title={t('kanbanView', lang)}><IcoLayoutDashboard className="w-4 h-4" /></button>
+                    <button onClick={() => setViewMode('list')} className={`p-2.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white/20 text-white shadow-sm' : 'text-white/60 hover:text-white'}`} title={t('listView', lang)}><IcoList className="w-4 h-4" /></button>
+                    <button onClick={() => setViewMode('gallery')} className={`p-2.5 rounded-md transition-colors ${viewMode === 'gallery' ? 'bg-white/20 text-white shadow-sm' : 'text-white/60 hover:text-white'}`} title={t('galleryView', lang)}><IcoGrid className="w-4 h-4" /></button>
+                  </div>
+
+                  <button onClick={toggleLanguage} className="flex items-center justify-center p-2.5 text-white bg-white/10 border border-white/20 hover:bg-white/20 rounded-lg shadow-sm transition-colors" title={lang === 'en' ? 'Switch to Spanish' : 'Cambiar a Inglés'}>
+                    <IcoGlobe className="w-5 h-5" />
+                    <span className="ml-1 text-xs font-bold w-4 text-center">{lang.toUpperCase()}</span>
+                  </button>
+
+                  <button onClick={() => setIsSettingsOpen(true)} className="flex items-center justify-center p-2.5 text-white bg-white/10 border border-white/20 hover:bg-white/20 rounded-lg shadow-sm transition-colors" title={t('settings', lang)}>
+                    <IcoSettings className="w-5 h-5" />
+                  </button>
+                  <button onClick={openNewProject} className="hidden lg:flex items-center gap-2 bg-white hover:bg-gray-50 text-primary px-4 sm:px-5 py-2.5 rounded-lg font-medium shadow-sm transition-all active:scale-95">
+                    <IcoPlus className="w-5 h-5" />
+                    <span className="hidden sm:inline">{t('newProject', lang)}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-8 text-center md:text-left">
+                <p className="text-white/80 mb-4 text-sm font-medium">{t('manageDesc', lang)}</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+                  <MetricCard title={t('totalProjects', lang)} value={metrics.total} color="bg-white text-primary border-slate-300 shadow-sm" icon={IcoFolders} iconColor="text-metric-icon" />
+                  {stages[0] && <MetricCard title={stages[0][lang]} value={metrics.s0} color="bg-white text-primary border-slate-300 shadow-sm" icon={IcoZap} iconColor="text-metric-icon" />}
+                  {stages[1] && <MetricCard title={stages[1][lang]} value={metrics.s1} color="bg-white text-primary border-slate-300 shadow-sm" icon={IcoClock} iconColor="text-metric-icon" />}
+                  {stages[2] && <MetricCard title={stages[2][lang]} value={metrics.s2} color="bg-white text-primary border-slate-300 shadow-sm" icon={IcoCheckSquare} iconColor="text-metric-icon" />}
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full flex flex-col">
+            
+            {/* Kanban View */}
+            {viewMode === 'kanban' && (
+              <div 
+                ref={scrollContainerRef} onMouseDown={onPanStart} onMouseLeave={onPanLeaveOrUp} onMouseUp={onPanLeaveOrUp} onMouseMove={onPanMove}
+                className={`flex-1 flex items-stretch gap-6 overflow-x-auto pb-8 min-h-[calc(100vh-300px)] snap-x snap-mandatory scroll-smooth ${isPanning ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
+              >
+                {stages.map(stage => {
+                  const stageProjects = projects.filter(p => p.status === stage.id && (p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.tags?.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))));
+                  const visibleProjects = stageProjects.slice(0, visibleLimits[stage.id] || 10);
+                  const hasMore = stageProjects.length > (visibleLimits[stage.id] || 10);
+                  const isDragOver = dragOverStage === stage.id;
+
+                  return (
+                  <div 
+                    key={stage.id}
+                    className={`flex-shrink-0 w-80 rounded-xl border border-slate-200 flex flex-col transition-colors duration-200 snap-center ${isDragOver ? 'bg-gray-200' : 'bg-slate-100/80'}`}
+                    onDragOver={(e) => { e.preventDefault(); setDragOverStage(stage.id); }}
+                    onDragLeave={() => setDragOverStage(null)}
+                    onDrop={(e) => handleDrop(e, stage.id)}
+                  >
+                    <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-100/50 rounded-t-xl shrink-0 pointer-events-none sticky top-0 z-10 backdrop-blur-sm">
+                      <h3 className="font-semibold text-title flex items-center gap-2">
+                        {stage[lang]}
+                        <span className="bg-card border border-slate-200 text-xs py-0.5 px-2 rounded-full text-text font-medium shadow-sm">
+                          {stageProjects.length}
+                        </span>
+                      </h3>
+                    </div>
+                    
+                    <div className="p-3 flex-1 space-y-3">
+                      {visibleProjects.map(project => {
+                        const org = getOrg(project.organizationId);
+                        const subtaskTotal = project.subtasks?.length || 0;
+                        const subtasksDone = project.subtasks?.filter(st => st.completed).length || 0;
+                        
+                        const daysUntouched = project.updatedAt ? Math.floor((new Date() - new Date(project.updatedAt)) / (1000 * 60 * 60 * 24)) : 0;
+                        const isFinished = stage.isDone || stage.en === 'Completed' || stage.en === 'Cancelled';
+                        const isAgingWarning = !isFinished && daysUntouched >= 4 && daysUntouched < 7;
+                        const isAgingCritical = !isFinished && daysUntouched >= 7;
+                        
+                        const isSelected = selectedIds.has(project.id);
+                        const borderClass = isSelected 
+                          ? 'border-primary ring-2 ring-primary ring-offset-2' 
+                          : isAgingCritical 
+                          ? 'border-rose-400 ring-2 ring-rose-400/50 shadow-rose-100' 
+                          : isAgingWarning 
+                          ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-amber-100' 
+                          : 'border-slate-200';
+
+                        let deadlineColorClass = 'text-gray-600 bg-gray-50 border-gray-100';
+                        if (project.deadline && !isFinished) {
+                          const daysLeft = (new Date(project.deadline) - new Date()) / (1000 * 60 * 60 * 24);
+                          if (daysLeft < 0) deadlineColorClass = 'text-rose-700 bg-rose-50 border-rose-200';
+                          else if (daysLeft <= 3) deadlineColorClass = 'text-amber-700 bg-amber-50 border-amber-200';
+                          else deadlineColorClass = 'text-emerald-700 bg-emerald-50 border-emerald-200';
+                        }
+
+                        return (
+                          <div
+                            key={project.id} draggable
+                            onDragStart={(e) => handleDragStart(e, project.id)}
+                            onDragEnd={handleDragEnd}
+                            onClick={(e) => handleCardClick(e, project.id)}
+                            className={`bg-card rounded-lg shadow-sm hover:shadow-md border ${borderClass} overflow-hidden cursor-pointer transition-all group relative shrink-0`}
+                          >
+                            {(isAgingWarning || isAgingCritical) && (
+                              <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm flex items-center gap-1 z-30 ${isAgingCritical ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-amber-100 text-amber-700 border-amber-200'} border`}>
+                                <IcoAlertTriangle className="w-3 h-3" />
+                                {daysUntouched}d in stage
+                              </div>
+                            )}
+
+                            <div className="absolute left-0 top-0 bottom-0 w-1.5 z-20" style={{ backgroundColor: project.color }}></div>
+                            
+                            <div className="h-24 w-full bg-gray-100 overflow-hidden relative">
+                              <img 
+                                src={project.bannerUrl || getDefaultBanner(project.id)} 
+                                alt="Project Banner" className="w-full h-full object-cover object-center pointer-events-none"
+                                onError={(e) => e.target.style.display = 'none'}
+                              />
+                            </div>
+                            
+                            <div className="p-4 pl-5 relative">
+                              {org?.logo && (
+                                <div className="absolute -top-7 left-5 w-12 h-12 rounded-full border-[3px] border-card shadow-sm overflow-hidden bg-card z-10 flex items-center justify-center">
+                                   <img src={org.logo} alt={org.name} className="w-full h-full object-cover" />
+                                </div>
+                              )}
+
+                              <div className="flex justify-between items-start gap-2">
+                                <h4 className={`font-semibold text-title leading-tight mb-2 group-hover:text-primary transition-colors ${org?.logo ? 'pt-5' : ''}`}>
+                                  {project.name}
+                                </h4>
+                                <div className={`flex opacity-0 group-hover:opacity-100 transition-opacity ${org?.logo ? 'pt-5' : ''}`}>
+                                  <button onClick={(e) => { e.stopPropagation(); handleCloneProject(project); }} className="p-1 text-gray-400 hover:text-primary rounded" title="Clone Project"><IcoCopy className="w-4 h-4" /></button>
+                                  <button onClick={(e) => { e.stopPropagation(); openEditProject(project); }} className="p-1 text-gray-400 hover:text-primary rounded" title="Edit"><IcoEdit3 className="w-4 h-4" /></button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }} className="p-1 text-gray-400 hover:text-red-600 rounded" title="Delete"><IcoTrash2 className="w-4 h-4" /></button>
+                                </div>
+                              </div>
+
+                              {org && (
+                                <div className="flex items-center gap-1.5 text-xs text-text mb-1 truncate">
+                                  <IcoBuilding2 className="w-3.5 h-3.5 flex-shrink-0" />
+                                  <span className="truncate">{org.name}</span>
+                                </div>
+                              )}
+                              
+                              {project.contactId && (
+                                <div className="flex items-center gap-1.5 text-xs text-text mb-3 truncate">
+                                  <IcoUserCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                  <span className="truncate">{getContactName(project.contactId)}</span>
+                                </div>
+                              )}
+
+                              {project.customFields && (
+                                <div className="grid grid-cols-2 gap-2 mb-3 pt-2 border-t border-gray-100">
+                                  <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                                    <IcoZap className={`w-3 h-3 flex-shrink-0 ${project.customFields.priority === 'High' ? 'text-rose-500' : project.customFields.priority === 'Medium' ? 'text-amber-500' : 'text-emerald-500'}`} />
+                                    <span className="truncate font-medium text-gray-700">{project.customFields.priority} Priority</span>
+                                  </div>
+                                  {project.customFields.estimatedHours && (
+                                    <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                                      <IcoClock className="w-3 h-3 flex-shrink-0 text-primary" />
+                                      <span className="truncate font-medium text-gray-700">{project.customFields.estimatedHours}h Est.</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {subtaskTotal > 0 && (
+                                <div className="mb-3">
+                                  <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1 font-medium">
+                                    <span>{t('subtasks', lang)}</span>
+                                    <span>{subtasksDone}/{subtaskTotal}</span>
+                                  </div>
+                                  <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                    <div className="bg-primary h-1.5 rounded-full transition-all" style={{ width: `${(subtasksDone/subtaskTotal)*100}%` }}></div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {(project.quoteId || project.invoiceId || project.receiptId || project.comments?.length > 0) && (
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                  {project.quoteId && <span title="Quote Attached" className="flex items-center gap-1 text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 font-medium shadow-sm"><IcoFileText className="w-3 h-3" /> Quote</span>}
+                                  {project.invoiceId && <span title="Invoice Attached" className="flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 font-medium shadow-sm"><IcoReceipt className="w-3 h-3" /> Invoice</span>}
+                                  {project.receiptId && <span title="Receipt Attached" className="flex items-center gap-1 text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded border border-purple-200 font-medium shadow-sm"><IcoFileArchive className="w-3 h-3" /> Receipt</span>}
+                                  {project.comments?.length > 0 && <span title="Comments" className="flex items-center gap-1 text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded border border-secondary/20 font-medium shadow-sm"><IcoMessageSquare className="w-3 h-3" /> {project.comments.length}</span>}
+                                </div>
+                              )}
+
+                              {project.deadline && (
+                                <div className={`flex items-center gap-1.5 text-xs font-medium inline-flex px-2 py-1 rounded-md mb-3 border ${deadlineColorClass}`}>
+                                  <IcoCalendar className="w-3.5 h-3.5" />
+                                  {new Date(project.deadline).toLocaleDateString()}
+                                </div>
+                              )}
+
+                              {project.tags && project.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {project.tags.map((tag, i) => (
+                                    <span key={i} className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded border" style={{ backgroundColor: `${project.color}20`, color: project.color, borderColor: `${project.color}40` }}>
+                                      <IcoTag className="w-2.5 h-2.5" />
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      
+                      {stageProjects.length === 0 && (
+                        <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg p-6 pointer-events-none">
+                          <p className="text-sm text-gray-400 font-medium text-center">{t('dragHere', lang)}</p>
+                        </div>
+                      )}
+
+                      {hasMore && (
+                        <button onClick={() => handleExpand(stage.id)} className="w-full py-2 mt-2 text-sm font-medium text-primary hover:text-primary/80 hover:bg-primary/10 rounded-lg transition-colors border border-transparent hover:border-primary/20">
+                          {t('expand', lang)} ({stageProjects.length - (visibleLimits[stage.id] || 10)} {t('more', lang)})
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* List View */}
+            {viewMode === 'list' && (() => {
+               const filteredProjects = projects.filter(p => (p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.tags?.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))));
+               
+               return (
+                 <div className="bg-card rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
+                    <div className="overflow-x-auto">
+                       <table className="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
+                         <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                               <th className="p-4 w-12 text-center">
+                                  <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" onChange={(e) => {
+                                     if (e.target.checked) setSelectedIds(new Set(filteredProjects.map(p => p.id)));
+                                     else setSelectedIds(new Set());
+                                  }} checked={filteredProjects.length > 0 && selectedIds.size === filteredProjects.length} />
+                               </th>
+                               <th className="p-4">{t('thName', lang)}</th>
+                               <th className="p-4">{t('thStatus', lang)}</th>
+                               <th className="p-4">{t('thDeadline', lang)}</th>
+                               <th className="p-4">{t('thPriority', lang)}</th>
+                               <th className="p-4">{t('thClient', lang)}</th>
+                            </tr>
+                         </thead>
+                         <tbody className="divide-y divide-slate-100">
+                            {filteredProjects.map(project => (
+                               <tr key={project.id} onClick={(e) => handleCardClick(e, project.id)} className={`hover:bg-slate-50 cursor-pointer transition-colors group ${selectedIds.has(project.id) ? 'bg-primary/5' : ''}`}>
+                                  <td className="p-4 text-center">
+                                     <input type="checkbox" checked={selectedIds.has(project.id)} readOnly className="rounded border-gray-300 text-primary focus:ring-primary cursor-pointer pointer-events-none" />
+                                  </td>
+                                  <td className="p-4">
+                                     <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded bg-gray-100 overflow-hidden flex-shrink-0">
+                                           <img src={project.bannerUrl || getDefaultBanner(project.id)} className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
+                                        </div>
+                                        <span className="font-medium text-title">{project.name}</span>
+                                     </div>
+                                  </td>
+                                  <td className="p-4">
+                                     <span className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-600 font-medium">{getStageName(project.status)}</span>
+                                  </td>
+                                  <td className="p-4 text-sm text-gray-500">
+                                     {project.deadline ? new Date(project.deadline).toLocaleDateString() : '-'}
+                                  </td>
+                                  <td className="p-4">
+                                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${project.customFields?.priority === 'High' ? 'bg-rose-100 text-rose-700' : project.customFields?.priority === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                        {project.customFields?.priority || 'Normal'}
+                                     </span>
+                                  </td>
+                                  <td className="p-4 text-sm text-gray-500">
+                                     {getOrg(project.organizationId)?.name || '-'}
+                                  </td>
+                               </tr>
+                            ))}
+                            {filteredProjects.length === 0 && (
+                               <tr>
+                                  <td colSpan="6" className="p-8 text-center text-gray-500">{t('noProjects', lang)}</td>
+                               </tr>
+                            )}
+                         </tbody>
+                       </table>
+                    </div>
+                 </div>
+               );
+            })()}
+
+            {/* Gallery View */}
+            {viewMode === 'gallery' && (() => {
+               const filteredProjects = projects.filter(p => (p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.tags?.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))));
+               
+               return (
+                 <div className="flex flex-col gap-8 w-full">
+                   {stages.map(stage => {
+                      const stageProjects = filteredProjects.filter(p => p.status === stage.id);
+                      if (stageProjects.length === 0) return null;
+                      
+                      return (
+                        <div key={stage.id}>
+                           <h3 className="text-lg font-bold text-title mb-4 border-b border-gray-200 pb-2">{stage[lang]} <span className="text-sm font-normal text-text ml-2">({stageProjects.length})</span></h3>
+                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                              {stageProjects.map(project => (
+                                 <div 
+                                    key={project.id} 
+                                    onClick={(e) => handleCardClick(e, project.id)} 
+                                    className={`relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group transition-all bg-gray-100 ${selectedIds.has(project.id) ? 'ring-4 ring-primary ring-offset-2' : 'hover:shadow-lg'}`}
+                                 >
+                                    <img src={project.bannerUrl || getDefaultBanner(project.id)} alt={project.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onError={(e) => e.target.style.display='none'} />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                                    
+                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                       <button onClick={(e) => { e.stopPropagation(); openEditProject(project); }} className="p-1.5 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded text-white" title="Edit"><IcoEdit3 className="w-3.5 h-3.5" /></button>
+                                    </div>
+
+                                    <div className="absolute bottom-3 left-3 right-3 z-10 flex flex-col">
+                                       <span className="text-white font-semibold text-sm truncate drop-shadow-md">{project.name}</span>
+                                    </div>
+
+                                    {selectedIds.has(project.id) && (
+                                       <div className="absolute top-2 left-2 bg-primary text-white rounded-full p-0.5 shadow-md z-10">
+                                          <IcoCheck className="w-3.5 h-3.5" />
+                                       </div>
+                                    )}
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                      )
+                   })}
+                   {filteredProjects.length === 0 && (
+                      <div className="text-center text-gray-500 py-12">{t('noProjects', lang)}</div>
+                   )}
+                 </div>
+               );
+            })()}
+
+          </main>
+
+          {}
+          <footer className="w-full py-6 text-center text-sm text-white/80 border-t border-primary/90 bg-primary">
+            Desarrollado con 💖 por <a href="https://bebelldigitalsolutions.com" target="_blank" rel="noopener noreferrer" className="text-white font-semibold hover:text-white/80 hover:underline transition-colors">Bebell</a> Digital Solutions
+          </footer>
+
+          <button onClick={openNewProject} className="fixed bottom-6 right-6 z-[90] flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-primary/40 hover:scale-105 active:scale-95 transition-all">
+            <IcoPlus className="w-6 h-6" />
+          </button>
+
+          <ProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSaveProject} initialData={editingProject} contacts={contacts} organizations={organizations} quotes={quotes} invoices={invoices} receipts={receipts} addToast={addToast} lang={lang} stages={stages} />
+          <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} addToast={addToast} lang={lang} initialStages={stages} onSaveSettings={handleSaveSettings} requestConfirm={requestConfirm} />
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>
