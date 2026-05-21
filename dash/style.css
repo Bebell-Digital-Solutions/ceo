@@ -1,0 +1,396 @@
+/* ==================== GLOBAL STYLES & VARIABLES ==================== */
+:root {
+    --color-sidebar: #000000;
+    --color-highlight: #f15b11; 
+    --color-highlight-hover: #111111;
+    --color-highlight-light: #f15b11;
+    --color-mainbg: #f1f5f9;
+    
+    /* Dark Theme Variables for Auth */
+    --primary-color: #f15b11;
+    --bg-primary: #151515;
+    --bg-secondary: #222224;
+    --bg-tertiary: #222224;
+    --bg-button: #f15b11;
+    --bg-button-hover: #1a1a1a;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --border-color: #424242;
+}
+
+/* ==================== SCROLLBAR STYLES ==================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ==================== PULSE LOADER ANIMATION ==================== */
+.pulse {
+    width: 56px;
+    height: 56px;
+    color: var(--color-highlight);
+    background: radial-gradient(circle at 60% 65%, currentColor 62%, #0000 65%) top left,
+                radial-gradient(circle at 40% 65%, currentColor 62%, #0000 65%) top right,
+                linear-gradient(to bottom left, currentColor 42%, #0000 43%) bottom left,
+                linear-gradient(to bottom right, currentColor 42%, #0000 43%) bottom right;
+    background-size: 50% 50%;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.pulse:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    opacity: 0.4;
+    animation: pl3 1.4s infinite;
+}
+
+@keyframes pl3 {
+    to {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* ==================== MODAL ANIMATIONS ==================== */
+.modal-enter {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.modal-leave {
+    animation: fadeOut 0.2s ease-in forwards;
+    pointer-events: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+    to {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+}
+
+/* ==================== TOAST NOTIFICATIONS ==================== */
+.toast-enter {
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+.toast-leave {
+    animation: slideDown 0.3s ease-in forwards;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+/* ==================== SIDEBAR NAVIGATION HOVER EFFECTS ==================== */
+.nav-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(241, 91, 17, 0.1), transparent);
+    transition: width 0.3s ease;
+    z-index: 0;
+}
+
+.nav-item:hover::before {
+    width: 100%;
+}
+
+.nav-item > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ==================== ACTIVE NAVIGATION ITEM STYLES ==================== */
+.nav-item.active {
+    border-left-color: var(--color-highlight);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.nav-item.active .nav-icon {
+    color: var(--color-highlight-light);
+}
+
+/* ==================== LOGIN FORM STYLES ==================== */
+#login-container input:focus {
+    box-shadow: 0 0 0 3px rgba(241, 91, 17, 0.1);
+}
+
+/* ==================== IFRAME LOADING STATE ==================== */
+#loader:not(.hidden) + iframe {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ==================== RESPONSIVE ADJUSTMENTS ==================== */
+@media (max-width: 768px) {
+    #sidebar {
+        width: 280px;
+    }
+    
+    .nav-item {
+        padding: 0.75rem 1.5rem;
+    }
+}
+
+/* ==================== SETTINGS MODAL SCROLL ==================== */
+#settings-modal .overflow-y-auto {
+    scrollbar-width: thin;
+}
+
+/* ==================== CUSTOM BUTTON HOVER EFFECTS ==================== */
+button:active {
+    transform: scale(0.98);
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, .nav-item, [onclick] {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Custom focus ring for accessibility */
+*:focus-visible {
+    outline: 2px solid var(--color-highlight);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ==================== LOADER OVERLAY ==================== */
+#loader {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ==================== TOAST VARIATIONS ==================== */
+.toast-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.toast-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.toast-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+/* ==================== SIDEBAR ICON ANIMATIONS ==================== */
+.nav-icon {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-item:hover .nav-icon {
+    transform: translateX(3px);
+}
+
+/* ==================== MODAL BACKDROP BLUR ==================== */
+#settings-modal:not(.hidden) {
+    backdrop-filter: blur(4px);
+}
+
+/* ==================== CARD HOVER EFFECTS ==================== */
+.bg-bgSecondary {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bg-bgSecondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ==================== WELCOME OVERLAY TEXT GLOW ==================== */
+#welcome-username {
+    text-shadow: 0 0 20px rgba(241, 91, 17, 0.5);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        text-shadow: 0 0 20px rgba(241, 91, 17, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 40px rgba(241, 91, 17, 0.8);
+    }
+}
+
+/* ==================== COLOR PICKER CUSTOM STYLES ==================== */
+input[type="color"] {
+    cursor: pointer;
+    background: white;
+    border-radius: 8px;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
+}
+
+/* ==================== DISABLED INPUTS ==================== */
+input:disabled, textarea:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ==================== SIDEBAR USER AVATAR ==================== */
+#sidebar-avatar-container {
+    transition: all 0.2s ease;
+}
+
+.group:hover #sidebar-avatar-container {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px var(--color-highlight);
+}
+
+/* ==================== IFRAME CONTAINER ==================== */
+#main-frame {
+    transition: opacity 0.3s ease;
+}
+
+/* ==================== CUSTOM SCROLLBAR FOR DARK THEME ELEMENTS ==================== */
+.bg-sidebar::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+
+.bg-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* ==================== MOBILE MENU OPTIMIZATIONS ==================== */
+@media (max-width: 768px) {
+    #mobile-overlay:not(.hidden) {
+        backdrop-filter: blur(4px);
+    }
+    
+    .toast-enter, .toast-leave {
+        animation-duration: 0.2s;
+    }
+}
+
+/* ==================== LOADING SPINNER ALTERNATIVE ==================== */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(241, 91, 17, 0.2);
+    border-top-color: var(--color-highlight);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ==================== SMOOTH PAGE TRANSITIONS ==================== */
+#app-container, #login-container {
+    transition: opacity 0.3s ease;
+}
+
+/* ==================== TOOLTIP STYLES ==================== */
+[title] {
+    position: relative;
+}
+
+/* ==================== CALENDAR OVERRIDES (Cal.com) ==================== */
+.cal-embed-wrapper {
+    z-index: 20;
+}
+
+/* ==================== HIGH CONTRAST MODE SUPPORT ==================== */
+@media (prefers-contrast: high) {
+    .nav-item {
+        border-width: 2px;
+    }
+    
+    button:focus-visible {
+        outline-width: 3px;
+    }
+}
+
+/* ==================== REDUCED MOTION PREFERENCE ==================== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .pulse:after {
+        animation: none;
+    }
+}
