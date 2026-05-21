@@ -102,13 +102,54 @@
     </script>
 
 
-<script>
-  window.chatpilotIframeConfig = {
-    chatbotId: "b876518dadf641c386b778fd5a6cb927",
-    domain: "https://asistente.chatterbot.support"
-  }
-</script>
-<script src="https://asistente.chatterbot.support/embed.iframe.js" charset="utf-8"></script>
+
+    
+
+   <!-- ChatPilot Assistant (original embed) - we will also wrap it to avoid conflicts -->
+    <script>
+        // Store config and ensure proper initialization after login, but also allow global availability
+        window.chatpilotIframeConfig = {
+            chatbotId: "b876518dadf641c386b778fd5a6cb927",
+            domain: "https://asistente.chatterbot.support"
+        };
+    </script>
+    <script src="https://asistente.chatterbot.support/embed.iframe.js" charset="utf-8"></script>
+    <!-- Additional fix script to re-run assistant render if needed (for dynamic DOM) -->
+    <script>
+        // Ensure that after login the chat widget doesn't get hidden behind iframe layers
+        // This function attempts to fix rendering if needed
+        function fixChatWidgetRendering() {
+            setTimeout(() => {
+                // Look for any iframe coming from chatterbot domain and ensure visibility
+                const chatIframes = document.querySelectorAll('iframe[src*="asistente.chatterbot"]');
+                chatIframes.forEach(iframe => {
+                    iframe.style.zIndex = '10000';
+                    iframe.style.position = 'fixed';
+                    iframe.style.bottom = '20px';
+                    iframe.style.right = '20px';
+                    iframe.style.maxWidth = '100%';
+                    if (iframe.parentElement) {
+                        iframe.parentElement.style.zIndex = '10000';
+                    }
+                });
+                // Re-trigger lucide icons inside dynamic content if needed
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, 500);
+        }
+        
+        // Watch for DOM changes to re-apply fixes (chat widget may load dynamically)
+        const observer = new MutationObserver(() => {
+            fixChatWidgetRendering();
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Call initially once page loads
+        window.addEventListener('load', () => {
+            fixChatWidgetRendering();
+        });
+    </script>
 
 
 
