@@ -403,8 +403,8 @@
 
     <script>
         // ==================== CONFIGURATION ====================
-        const VAULT_URL = 'https://admin-headquarters.onrender.com/api/proxy';
-        const SERVICE_NAME = 'admin-headquarters-portal';
+        const VAULT_URL = 'https://username.onrender.com/api/proxy';
+        const SERVICE_NAME = 'PASTE_SERVICE_NAME_HERE';
         const SESSION_KEY = 'ahq_session_token';
         const USER_KEY = 'ahq_user_data';
         
