@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://bucket.mlcdn.com/a/3336/3336910/images/ba48dc6c14746407eea5796b6d07e1b22022eaf4.png">
+    <link rel="icon" type="image/png" href="https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png">
 
     <style>
         :root {
@@ -21,7 +21,7 @@
             --color-mainbg: #f1f5f9;
             
             /* Dark Theme Variables for Auth */
-            --primary-color: #967e2d;
+            --primary-color: #ff3900;
             --bg-primary: #151515;
             --bg-secondary: #222224;
             --bg-tertiary: #222224;
@@ -107,7 +107,7 @@
     <div id="login-container" class="min-h-screen bg-bgPrimary flex items-center justify-center p-4 transition-colors">
         <div class="bg-bgSecondary rounded-2xl shadow-2xl p-8 max-w-md w-full border border-borderColor">
             <div class="text-center mb-8">
-                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/16426e00ba2da3528d8a8f5b55dc4badfd303577.png" 
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png" 
                      alt="Logo" class="w-20 h-20 mx-auto mb-4">
                 <h1 class="text-2xl font-bold text-textPrimary">Admin Headquarters</h1>
                 <p class="text-textSecondary mt-2">Portal de Administración</p>
@@ -332,13 +332,13 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                                 <div class="sm:col-span-2">
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">URL del Logo (Barra lateral)</label>
-                                    <input type="url" id="setting-logo" value="https://bucket.mlcdn.com/a/3336/3336910/images/16426e00ba2da3528d8a8f5b55dc4badfd303577.png" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
+                                    <input type="url" id="setting-logo" value="https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Color Principal (Marca)</label>
                                     <div class="flex items-center gap-3">
                                         <input type="color" id="setting-color" value="#6366f1" class="h-10 w-14 p-1 rounded-lg border border-gray-300 cursor-pointer">
-                                        <span class="text-sm font-mono text-gray-500" id="color-hex-display">#6366f1</span>
+                                        <span class="text-sm font-mono text-gray-500" id="color-hex-display">#ff3900</span>
                                     </div>
                                 </div>
                             </div>
@@ -523,8 +523,8 @@
                 currentUser = {
                     email: email,
                     username: "Usuario Demo",
-                    primaryColor: "#6366f1",
-                    logoUrl: "https://bucket.mlcdn.com/a/3336/3336910/images/16426e00ba2da3528d8a8f5b55dc4badfd303577.png"
+                    primaryColor: "#ff3900",
+                    logoUrl: "https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png"
                 };
                 sessionStorage.setItem(SESSION_KEY, sessionToken);
                 sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
@@ -681,7 +681,7 @@
                         mainFrame.srcdoc = `
                         <html style="background-color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; height: 100%;">
                             <body style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; margin: 0; color: #475569; text-align: center; padding: 20px; background-color: #f1f5f9;">
-                                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/16426e00ba2da3528d8a8f5b55dc4badfd303577.png" alt="Contenido No Disponible" style="width: 150px; height: auto; margin-bottom: 24px; opacity: 0.9;">
+                                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png" alt="Contenido No Disponible" style="width: 150px; height: auto; margin-bottom: 24px; opacity: 0.9;">
                                 <h2 style="font-size: 1.75rem; font-weight: 700; margin: 0 0 12px 0; color: #1e293b;">Módulo No Disponible</h2>
                                 <p style="font-size: 1.1rem; max-width: 450px; line-height: 1.6; margin: 0;">Este contenido aún no ha sido configurado. Por favor, actualiza la plantilla o contacta con soporte.</p>
                             </body>
