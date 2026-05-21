@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Cliente | Admin Headquarters</title>
+    
+    <!-- TailwindCSS & External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Cal.com Embed (Element-Click) -->
+    <script type="text/javascript">
+      (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+      Cal("init", "consulta-gratuita", {origin:"https://app.cal.com"});
+      Cal.ns["consulta-gratuita"]("ui", {"theme":"light","cssVarsPerTheme":{"light":{"cal-brand":"#f15b11"},"dark":{"cal-brand":"#f15b11"}},"hideEventTypeDetails":false,"layout":"month_view"});
+    </script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png">
+</head>
+<body class="bg-mainBg font-sans text-gray-800 antialiased overflow-hidden">
+
+    <!-- WELCOME OVERLAY (Confetti celebration) -->
+    <div id="welcome-overlay" class="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-1000 opacity-0">
+        <div id="welcome-text" class="text-center transform scale-50 opacity-0 transition-all duration-1000 ease-out flex flex-col items-center justify-center p-8">
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-md">Bienvenido a tu Panel de Control</h2>
+            <h1 id="welcome-username" class="block text-5xl md:text-8xl font-extrabold drop-shadow-2xl" style="color: var(--color-highlight);">Username</h1>
+        </div>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-container" class="min-h-screen bg-bgPrimary flex items-center justify-center p-4 transition-colors">
+        <div class="bg-bgSecondary rounded-2xl shadow-2xl p-8 max-w-md w-full border border-borderColor">
+            <div class="text-center mb-8">
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png" 
+                     alt="Logo" class="w-40 h-40 mx-auto mb-4">
+                <h1 class="text-2xl font-bold text-textPrimary">Admin Headquarters</h1>
+                <p class="text-textSecondary mt-2">Portal de Administración</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-textSecondary mb-2">Email</label>
+                    <input type="email" id="login-email" 
+                           class="w-full px-4 py-3 bg-bgTertiary border border-borderColor rounded-lg focus:ring-2 focus:ring-authPrimary focus:border-authPrimary outline-none transition text-textPrimary placeholder-gray-500"
+                           placeholder="tu@email.com" required>
+                </div>
+                <button type="submit" id="login-submit-btn"
+                        class="w-full bg-authPrimary text-white py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg shadow-authPrimary/20">
+                    Enviar Código de Acceso
+                </button>
+            </form>
+            
+            <!-- OTP Section -->
+            <div id="otp-section" class="hidden mt-6 pt-6 border-t border-borderColor">
+                <p class="text-sm text-textSecondary mb-4 text-center">
+                    Código enviado a: <strong id="otp-email-display" class="text-textPrimary"></strong>
+                </p>
+                <form id="otp-verify-form">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-textSecondary mb-2">Código de 6 dígitos</label>
+                        <input type="text" id="login-otp" maxlength="6" inputmode="numeric" pattern="\d{6}"
+                               class="w-full px-4 py-3 bg-bgTertiary border border-borderColor rounded-lg focus:ring-2 focus:ring-authPrimary focus:border-authPrimary outline-none transition text-center text-2xl tracking-widest text-textPrimary placeholder-gray-500"
+                               placeholder="000000" required>
+                    </div>
+                    <button type="submit" id="otp-submit-btn"
+                            class="w-full bg-authPrimary text-white py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg shadow-authPrimary/20">
+                        Verificar Código
+                    </button>
+                </form>
+            </div>
+            <div id="login-status" class="hidden"></div>
+        </div>
+    </div>
+    
+    <!-- LOADING SCREEN -->
+    <div id="app-loader" class="min-h-screen bg-bgPrimary flex items-center justify-center hidden">
+        <div class="text-center flex flex-col items-center">
+            <div class="pulse mb-6" style="color: var(--primary-color)"></div>
+            <p class="text-textSecondary font-medium animate-pulse">Cargando...</p>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER (protected) -->
+    <div id="app-container" class="hidden h-screen w-full flex bg-mainBg overflow-hidden font-sans text-gray-800">
+        <!-- Mobile overlay -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden transition-opacity"></div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-sidebar text-gray-300 flex flex-col z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl">
+            <div class="py-6 md:py-8 flex items-center justify-center border-b border-white/10">
+                <img id="main-sidebar-logo" src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png" 
+                     data-original-src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png"
+                     data-hover-src=""
+                     alt="Logo de la Marca" 
+                     class="w-[175px] h-[175px] object-contain transition-transform duration-300 hover:scale-110 cursor-pointer drop-shadow-lg">
+            </div>
+
+            <nav class="flex-1 py-6 overflow-y-auto" id="nav-container">
+                <div class="px-6 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Menú Principal</div>
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" data-url="">
+                    <i data-lucide="layout-grid" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Resumen</span>
+                </button>
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" data-url="https://propuesta.elnegocio.digital/brand-auditor/">
+                    <i data-lucide="clipboard-check" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Auditar tu Marca</span>
+                </button>
+
+                <div class="px-6 mt-8 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Soporte & Contacto</div>
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" data-url="https://api.helpdesk.icu/embed/ec476ec3-569d-3340-92ae-0ec1ba0aa489">
+                    <i data-lucide="headset" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Soporte Online</span>
+                </button>
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" data-url="https://asistente.chatterbot.support/chatbot-iframe/b876518dadf641c386b778fd5a6cb927">
+                    <i data-lucide="message-square" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Asistente de Chat</span>
+                </button>          
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" data-cal-link="bebell-digital-solutions/consulta-gratuita" data-cal-namespace="consulta-gratuita" data-cal-config='{"layout":"month_view"}'>
+                    <i data-lucide="calendar" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Agendar Consulta</span>
+                </button>
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" data-url="https://centro-ayuda.bebelldigitalsolutions.com">
+                    <i data-lucide="badge-info" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Centro de Ayuda</span>
+                </button>
+            </nav>
+            
+            <div class="relative p-4 border-t border-white/10 flex flex-col gap-2">
+                <button id="sidebar-settings-btn" class="w-full flex items-center px-4 py-3 bg-black/20 hover:bg-black/40 rounded-xl transition-all cursor-pointer group">
+                    <div id="sidebar-avatar-container" class="h-9 w-9 rounded-full bg-highlight flex items-center justify-center text-white font-bold text-sm shrink-0 overflow-hidden">
+                        <span id="sidebar-avatar-text">CL</span>
+                        <img id="sidebar-avatar-img" src="" class="hidden w-full h-full object-cover" alt="Perfil">
+                    </div>
+                    <div class="ml-3 overflow-hidden text-left flex-1">
+                        <p id="sidebar-username" class="text-sm font-medium text-white truncate group-hover:text-highlightLight transition-colors">Cliente Invitado</p>
+                        <p class="text-xs text-gray-400 truncate flex items-center gap-1"><i data-lucide="settings" class="w-3 h-3"></i> Ajustes</p>
+                    </div>
+                </button>
+                <button id="logout-btn" class="flex items-center justify-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-xl transition-all w-full text-sm font-medium">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full min-w-0 relative">
+            <header class="h-16 md:h-20 bg-mainBg/80 backdrop-blur-sm flex items-center justify-between px-4 md:px-8 z-10 shrink-0 relative">
+                <div class="flex items-center min-w-0">
+                    <button id="mobile-menu-trigger" class="md:hidden mr-3 p-2 md:p-2.5 bg-white rounded-xl shadow-sm border border-gray-200 text-gray-700 hover:text-highlight hover:border-highlight/30 transition-all">
+                        <i data-lucide="menu" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+                    <h1 id="page-title" class="text-xl md:text-2xl font-bold text-gray-800 tracking-tight truncate">Resumen</h1>
+                </div>
+                <div class="flex items-center space-x-2 md:space-x-4 shrink-0">
+                    <a href="https://elnegocio.digital" target="_blank" title="Ir a la web" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-highlight transition-colors"><i data-lucide="home" class="w-4 h-4 md:w-5 md:h-5"></i></a>
+                    <a href="https://tienda.bebelldigitalsolutions.com" target="_blank" title="Tienda" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-highlight transition-colors"><i data-lucide="shopping-bag" class="w-4 h-4 md:w-5 md:h-5"></i></a>
+                </div>
+            </header>
+
+            <div class="flex-1 p-3 pt-0 sm:p-4 sm:pt-0 md:p-8 md:pt-0 overflow-hidden flex flex-col items-center">
+                <div class="bg-mainBg w-full h-full max-w-[1400px] relative overflow-hidden flex flex-col rounded-2xl">
+                    <div id="loader" class="absolute inset-0 bg-mainBg/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center transition-opacity duration-300 hidden">
+                        <div class="pulse mb-6"></div>
+                        <span class="text-gray-500 font-medium animate-pulse">Cargando Módulo...</span>
+                    </div>
+                    <iframe id="main-frame" class="w-full h-full border-0 flex-1 bg-transparent rounded-2xl shadow-sm" title="Área de Contenido Principal"></iframe>
+                </div>
+            </div>
+        </main>
+
+        <!-- SETTINGS MODAL -->
+        <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 z-[100] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col relative max-h-[90vh]">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-5 h-5 text-highlight"></i> Configuración de Cuenta
+                    </h2>
+                    <button id="close-settings-modal" type="button" class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-1">
+                    <form id="settings-form" class="space-y-6">
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Información de Sistema</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">ID de Licencia</label>
+                                    <div class="relative">
+                                        <i data-lucide="key" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" id="setting-id" value="Cargando..." disabled class="w-full pl-9 pr-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg border border-gray-200 cursor-not-allowed text-sm font-mono">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Correo Electrónico</label>
+                                    <div class="relative">
+                                        <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" id="setting-email" value="Cargando..." disabled class="w-full pl-9 pr-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg border border-gray-200 cursor-not-allowed text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Datos de Perfil</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre de Usuario</label>
+                                    <input type="text" id="setting-username" value="Cliente Invitado" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL de Foto de Perfil (Opcional)</label>
+                                    <input type="url" id="setting-avatar" placeholder="https://ejemplo.com/mifoto.jpg" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
+                                    <p class="text-[11px] text-gray-400 mt-1">Déjalo en blanco para usar tus iniciales.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Personalización de Interfaz</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL del Logo (Barra lateral) <span class="text-[10px] text-gray-400 font-normal">(Solo lectura)</span></label>
+                                    <input type="url" id="setting-logo" disabled value="https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png" class="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed outline-none transition-all text-sm">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL del Logo (Al pasar el ratón / Hover)</label>
+                                    <input type="url" id="setting-hover-logo" placeholder="https://ejemplo.com/logo-hover.gif" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Color Principal (Marca)</label>
+                                    <div class="flex items-center gap-3">
+                                        <input type="color" id="setting-color" value="#6366f1" class="h-10 w-14 p-1 rounded-lg border border-gray-300 cursor-pointer">
+                                        <span class="text-sm font-mono text-gray-500" id="color-hex-display">#ff3900</span>
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-2 mt-2">
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Script Personalizado (Footer)</label>
+                                    <textarea id="setting-script" rows="3" placeholder="<script> console.log('Script ejecutado'); </script>" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm font-mono"></textarea>
+                                    <p class="text-[11px] text-gray-400 mt-1">Este código se inyectará dinámicamente en el footer de la página principal. Soporta etiquetas HTML y scripts.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-4 flex justify-end gap-3 border-t mt-6">
+                            <button type="button" id="cancel-settings-btn" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium text-sm transition-colors">Cancelar</button>
+                            <button type="submit" class="px-6 py-2.5 rounded-lg bg-highlight hover:bg-highlightHover text-white font-medium text-sm transition-colors shadow-lg shadow-highlight/30 flex items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast-container" class="fixed bottom-6 right-6 z-[200] hidden transition-all duration-300 rounded-xl shadow-2xl border border-gray-700 bg-gray-900">
+            <div class="text-white px-5 py-3.5 flex items-center gap-3">
+                <div id="toast-icon-container" class="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
+                    <i data-lucide="check" class="w-5 h-5"></i>
+                </div>
+                <div><p id="toast-message" class="font-semibold text-sm">Notificación</p></div>
+            </div>
+        </div>
+    </div>
+    <div id="custom-script-container"></div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
