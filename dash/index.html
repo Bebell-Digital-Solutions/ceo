@@ -213,11 +213,31 @@
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre de Usuario</label>
                                     <input type="text" id="setting-username" value="Cliente Invitado" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL de Foto de Perfil (Opcional)</label>
-                                    <input type="url" id="setting-avatar" placeholder="https://ejemplo.com/mifoto.jpg" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
-                                    <p class="text-[11px] text-gray-400 mt-1">Déjalo en blanco para usar tus iniciales.</p>
-                                </div>
+                     
+
+<!-- Reemplaza la sección de avatar existente con esto -->
+<div>
+    <label class="block text-xs font-semibold text-gray-600 mb-1">Foto de Perfil</label>
+    <div class="flex gap-3 items-start">
+        <div class="flex-1">
+            <input type="url" id="setting-avatar" placeholder="https://ejemplo.com/mifoto.jpg" 
+                   class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
+            <p class="text-[11px] text-gray-400 mt-1">URL externa o Sube tu imagen</p>
+        </div>
+        <div>
+            <button type="button" id="upload-avatar-btn" 
+                    class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium transition-colors">
+                <i data-lucide="upload" class="w-4 h-4 inline mr-1"></i> Subir
+            </button>
+            <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/jpg,image/gif" class="hidden">
+        </div>
+    </div>
+</div>
+
+
+
+
+                                
                             </div>
                         </div>
                         <div>
