@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Cliente</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Cal element-click embed code begins -->
+    <script type="text/javascript">
+      (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+      Cal("init", "consulta-gratuita", {origin:"https://app.cal.com"});
+      Cal.ns["consulta-gratuita"]("ui", {"theme":"light","cssVarsPerTheme":{"light":{"cal-brand":"#f15b11"},"dark":{"cal-brand":"#f15b11"}},"hideEventTypeDetails":false,"layout":"month_view"});
+    </script>
+    <!-- Cal element-click embed code ends -->
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png">
+
+    <style>
+        :root {
+            --color-sidebar: #000000;
+            --color-highlight: #f15b11; 
+            --color-highlight-hover: #111111;
+            --color-highlight-light: #f15b11;
+            --color-mainbg: #f1f5f9;
+            
+            /* Dark Theme Variables for Auth */
+            --primary-color: #f15b11;
+            --bg-primary: #151515;
+            --bg-secondary: #222224;
+            --bg-tertiary: #222224;
+            --bg-button: #f15b11;
+            --bg-button-hover: #1a1a1a;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #424242;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+
+
+
+<!-- LANGUAGE FLOATING BUTTON -->
+
+  #lang-widget {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    /* Fixed dimensions to align the origin of all buttons */
+    width: 50px;
+    height: 50px;
+    z-index: 9999;
+    -webkit-tap-highlight-color: transparent; /* Removes default tap highlight on iOS/Android */
+    user-select: none; /* Prevents accidental image highlighting on touch */
+  }
+
+  .lang-main {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    z-index: 2; /* Keeps main button above the options */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+  }
+
+  .lang-main img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Optional: Rotates the main button slightly when active */
+  #lang-widget.active .lang-main {
+    transform: rotate(15deg) scale(1.05);
+  }
+
+  .lang-options {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Options start behind the main button */
+  }
+
+  .lang-option {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* Start collapsed in the center */
+    transform: translate(0, 0) scale(0.5);
+    /* Bouncy spring effect */
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .lang-option img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* --- ACTIVE STATE: THE ARC POSITIONING --- */
+  #lang-widget.active .lang-option {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Top-left Arc Position */
+  #lang-widget.active .lang-option:nth-child(1) {
+    transform: translate(-75px, -65px) scale(1);
+    transition-delay: 0.1s; /* Staggered animation */
+  }
+
+  /* Middle-left Arc Position */
+  #lang-widget.active .lang-option:nth-child(2) {
+    transform: translate(-100px, 0px) scale(1);
+    transition-delay: 0.05s;
+  }
+
+  /* Bottom-left Arc Position */
+  #lang-widget.active .lang-option:nth-child(3) {
+    transform: translate(-75px, 65px) scale(1);
+    transition-delay: 0s;
+  }
+
+  /* --- DESKTOP HOVER SUPPORT --- */
+  @media (hover: hover) {
+    #lang-widget:hover .lang-main {
+      transform: rotate(15deg) scale(1.05);
+    }
+    
+    #lang-widget:hover .lang-option {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #lang-widget:hover .lang-option:nth-child(1) {
+      transform: translate(-75px, -65px) scale(1);
+      transition-delay: 0.1s;
+    }
+
+    #lang-widget:hover .lang-option:nth-child(2) {
+      transform: translate(-100px, 0px) scale(1);
+      transition-delay: 0.05s;
+    }
+
+    #lang-widget:hover .lang-option:nth-child(3) {
+      transform: translate(-75px, 65px) scale(1);
+      transition-delay: 0s;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+        
+        
+        /* Animación de carga para el Iframe */
+        .pulse {
+           width: 56px;
+           height: 56px;
+           color: var(--color-highlight);
+           background: radial-gradient(circle at 60% 65%, currentColor 62%, #0000 65%) top left,
+                 radial-gradient(circle at 40% 65%, currentColor 62%, #0000 65%) top right,
+                 linear-gradient(to bottom left, currentColor 42%,#0000 43%) bottom left ,
+                 linear-gradient(to bottom right,currentColor 42%,#0000 43%) bottom right;
+           background-size: 50% 50%;
+           background-repeat: no-repeat;
+           position: relative;
+        }
+        .pulse:after {
+           content: "";
+           position: absolute;
+           inset: 0;
+           background: inherit;
+           opacity: 0.4;
+           animation: pl3 1.4s infinite;
+        }
+        @keyframes pl3 {
+           to { transform: scale(1.8); opacity: 0; }
+        }
+
+        /* Animaciones para modales */
+        .modal-enter { animation: fadeIn 0.3s ease-out forwards; }
+        .modal-leave { animation: fadeOut 0.2s ease-in forwards; pointer-events: none; }
+        @keyframes fadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(8px); } }
+        @keyframes fadeOut { from { opacity: 1; backdrop-filter: blur(8px); } to { opacity: 0; backdrop-filter: blur(0px); } }
+        
+        /* Toast Notification */
+        .toast-enter { animation: slideUp 0.3s ease-out forwards; }
+        .toast-leave { animation: slideDown 0.3s ease-in forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(100%); opacity: 0; } }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: 'var(--color-sidebar)',
+                        sidebarHover: 'rgba(255, 255, 255, 0.05)',
+                        mainBg: 'var(--color-mainbg)',
+                        highlight: 'var(--color-highlight)',
+                        highlightHover: 'var(--color-highlight-hover)',
+                        highlightLight: 'var(--color-highlight-light)',
+                        // Mapeo del Dark Theme
+                        authPrimary: 'var(--primary-color)',
+                        bgPrimary: 'var(--bg-primary)',
+                        bgSecondary: 'var(--bg-secondary)',
+                        bgTertiary: 'var(--bg-tertiary)',
+                        bgButton: 'var(--bg-button)',
+                        bgButtonHover: 'var(--bg-button-hover)',
+                        textPrimary: 'var(--text-primary)',
+                        textSecondary: 'var(--text-secondary)',
+                        borderColor: 'var(--border-color)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-mainBg font-sans text-gray-800 antialiased overflow-hidden">
+
+
+
+
+
+
+
+
+
+    
+
+    <!-- ==================== WELCOME OVERLAY ==================== -->
+    <div id="welcome-overlay" class="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-1000 opacity-0">
+        <div id="welcome-text" class="text-center transform scale-50 opacity-0 transition-all duration-1000 ease-out flex flex-col items-center justify-center p-8">
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-md">Bienvenido a tu Panel de Control</h2>
+            <h1 id="welcome-username" class="block text-5xl md:text-8xl font-extrabold drop-shadow-2xl" style="color: var(--color-highlight);">Username</h1>
+        </div>
+    </div>
+
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="login-container" class="min-h-screen bg-bgPrimary flex items-center justify-center p-4 transition-colors">
+        <div class="bg-bgSecondary rounded-2xl shadow-2xl p-8 max-w-md w-full border border-borderColor">
+            <div class="text-center mb-8">
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png" 
+                     alt="Logo" class="w-40 h-40 mx-auto mb-4">
+                <h1 class="text-2xl font-bold text-textPrimary">Admin Headquarters</h1>
+                <p class="text-textSecondary mt-2">Portal de Administración</p>
+            </div>
+            
+            <form id="login-form" onsubmit="requestOTP(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-textSecondary mb-2">Email</label>
+                    <input type="email" id="login-email" 
+                           class="w-full px-4 py-3 bg-bgTertiary border border-borderColor rounded-lg focus:ring-2 focus:ring-authPrimary focus:border-authPrimary outline-none transition text-textPrimary placeholder-gray-500"
+                           placeholder="tu@email.com" required>
+                </div>
+                
+                <button type="submit" id="login-submit-btn"
+                        class="w-full bg-authPrimary text-white py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg shadow-authPrimary/20">
+                    Enviar Código de Acceso
+                </button>
+            </form>
+            
+            <!-- OTP Section -->
+            <div id="otp-section" class="hidden mt-6 pt-6 border-t border-borderColor">
+                <p class="text-sm text-textSecondary mb-4 text-center">
+                    Código enviado a: <strong id="otp-email-display" class="text-textPrimary"></strong>
+                </p>
+                <form onsubmit="verifyOTP(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-textSecondary mb-2">Código de 6 dígitos</label>
+                        <input type="text" id="login-otp" maxlength="6" inputmode="numeric" pattern="\d{6}"
+                               class="w-full px-4 py-3 bg-bgTertiary border border-borderColor rounded-lg focus:ring-2 focus:ring-authPrimary focus:border-authPrimary outline-none transition text-center text-2xl tracking-widest text-textPrimary placeholder-gray-500"
+                               placeholder="000000" required>
+                    </div>
+                    
+                    <button type="submit" id="otp-submit-btn"
+                            class="w-full bg-authPrimary text-white py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg shadow-authPrimary/20">
+                        Verificar Código
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Status messages -->
+            <div id="login-status" class="hidden"></div>
+        </div>
+    </div>
+    
+    <!-- ==================== LOADING SCREEN ==================== -->
+    <div id="app-loader" class="min-h-screen bg-bgPrimary flex items-center justify-center hidden">
+        <div class="text-center flex flex-col items-center">
+            <div class="pulse mb-6" style="color: var(--primary-color)"></div>
+            <p class="text-textSecondary font-medium animate-pulse">Cargando...</p>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP ==================== -->
+    <div id="app-container" class="hidden h-screen w-full flex bg-mainBg overflow-hidden font-sans text-gray-800">
+
+        <!-- Capa oscura móvil -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden transition-opacity" onclick="toggleSidebar()"></div>
+
+        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-sidebar text-gray-300 flex flex-col z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl">
+            
+            <!-- Logo -->
+            <div class="py-6 md:py-8 flex items-center justify-center border-b border-white/10">
+                <img id="main-sidebar-logo" src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png" 
+                     data-original-src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png"
+                     data-hover-src=""
+                     onmouseover="if(this.getAttribute('data-hover-src')) this.src=this.getAttribute('data-hover-src')"
+                     onmouseout="if(this.getAttribute('data-original-src')) this.src=this.getAttribute('data-original-src')"
+                     alt="Logo de la Marca" 
+                     class="w-[175px] h-[175px] object-contain transition-transform duration-300 hover:scale-110 cursor-pointer drop-shadow-lg">
+            </div>
+
+            <nav class="flex-1 py-6 overflow-y-auto" id="nav-container">
+                
+                <!-- SECCIÓN: MENÚ PRINCIPAL (Dinámico) -->
+                <div class="px-6 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Menú Principal</div>
+                
+                <div id="dynamic-menu-container">
+                    <!-- Los botones se inyectarán aquí mediante JavaScript -->
+                </div>
+
+                <!-- SECCIÓN: SOPORTE Y CONTACTO -->
+                <div class="px-6 mt-8 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Soporte & Contacto</div>
+                
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" 
+                        data-url="https://api.helpdesk.icu/embed/ec476ec3-569d-3340-92ae-0ec1ba0aa489">
+                    <i data-lucide="headset" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Soporte Online</span>
+                </button>
+
+                <!-- Botón de Asistente de IA (URL Dinámica) -->
+                <button id="btn-ai-assistant" class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" 
+                        data-url="">
+                    <i data-lucide="message-square" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Asistente de Chat</span>
+                </button>          
+                
+                <!-- Cal.com -->
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" 
+                        data-cal-link="bebell-digital-solutions/consulta-gratuita" data-cal-namespace="consulta-gratuita" data-cal-config='{"layout":"month_view"}'>
+                    <i data-lucide="calendar" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Agendar Consulta</span>
+                </button>
+
+                <button class="nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300" 
+                        data-url="https://centro-ayuda.bebelldigitalsolutions.com">
+                    <i data-lucide="badge-info" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Centro de Ayuda</span>
+                </button>
+
+            </nav>
+            
+            <div class="relative p-4 border-t border-white/10 flex flex-col gap-2" id="user-menu-container">
+                <button onclick="toggleSettingsModal()" class="w-full flex items-center px-4 py-3 bg-black/20 hover:bg-black/40 rounded-xl transition-all cursor-pointer group">
+                    <div id="sidebar-avatar-container" class="h-9 w-9 rounded-full bg-highlight flex items-center justify-center text-white font-bold text-sm shrink-0 overflow-hidden">
+                        <span id="sidebar-avatar-text">CL</span>
+                        <img id="sidebar-avatar-img" src="" class="hidden w-full h-full object-cover" alt="Perfil">
+                    </div>
+                    <div class="ml-3 overflow-hidden text-left flex-1">
+                        <p id="sidebar-username" class="text-sm font-medium text-white truncate group-hover:text-highlightLight transition-colors">Cliente Invitado</p>
+                        <p class="text-xs text-gray-400 truncate flex items-center gap-1"><i data-lucide="settings" class="w-3 h-3"></i> Ajustes</p>
+                    </div>
+                </button>
+                
+                <button onclick="logout()" class="flex items-center justify-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-xl transition-all w-full text-sm font-medium">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full min-w-0 relative">
+            <header class="h-16 md:h-20 bg-mainBg/80 backdrop-blur-sm flex items-center justify-between px-4 md:px-8 z-10 shrink-0 relative">
+                <div class="flex items-center min-w-0">
+                    <button onclick="toggleSidebar()" class="md:hidden mr-3 p-2 md:p-2.5 bg-white rounded-xl shadow-sm border border-gray-200 text-gray-700 hover:text-highlight hover:border-highlight/30 transition-all">
+                        <i data-lucide="menu" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+                    <h1 id="page-title" class="text-xl md:text-2xl font-bold text-gray-800 tracking-tight truncate">Resumen</h1>
+                </div>
+                
+                <div class="flex items-center space-x-2 md:space-x-4 shrink-0">
+                    <a href="https://elnegocio.digital" target="_blank" title="Ir a la web" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-highlight transition-colors"><i data-lucide="home" class="w-4 h-4 md:w-5 md:h-5"></i></a>
+                    <a href="https://tienda.bebelldigitalsolutions.com" target="_blank" title="Tienda" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-highlight transition-colors"><i data-lucide="shopping-bag" class="w-4 h-4 md:w-5 md:h-5"></i></a>
+                </div>
+            </header>
+
+            <
+
+
+
+
+<div class="flex-1 p-3 pt-0 sm:p-4 sm:pt-0 md:p-8 md:pt-0 overflow-hidden flex flex-col items-center">
+                
+                <!-- Contenedor Principal del Iframe -->
+                <div class="bg-mainBg w-full flex-1 min-h-0 max-w-[1400px] relative overflow-hidden flex flex-col rounded-2xl">
+                    <div id="loader" class="absolute inset-0 bg-mainBg/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center transition-opacity duration-300">
+                        <div class="pulse mb-6"></div>
+                        <span class="text-gray-500 font-medium animate-pulse">Cargando Módulo...</span>
+                    </div>
+                    <iframe id="main-frame" class="w-full h-full border-0 flex-1 bg-transparent rounded-2xl shadow-sm" title="Área de Contenido Principal"></iframe>
+                </div>
+
+                <!-- Banner Promocional Inferior -->
+                <a href="https://TU_URL_DE_DESTINO_AQUI.com" target="_blank" 
+                   class="w-full max-w-[1400px] mt-3 md:mt-4 block shrink-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group relative bg-white border border-gray-200">
+                    
+                    <!-- Capa de brillo sutil en hover (opcional, le da un toque premium) -->
+                    <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300 z-10"></div>
+                    
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/TU_IMAGEN_DE_BANNER.png" 
+                         alt="Banner Promocional" 
+                         class="w-full h-auto object-cover align-middle">
+                </a>
+
+            </div>
+
+
+
+
+
+<div id="lang-widget">
+  
+  <!-- Main button -->
+  <div class="lang-main" id="langToggle">
+    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/04172d964853053c192e7b072482628f0961be0e.png" alt="Language">
+  </div>
+
+  <!-- Options -->
+  <div class="lang-options">
+    
+    <a href="https://usuario.tarjeta-digital.site/aceroba-001" class="lang-option">
+      <img src="https://bucket.mlcdn.com/a/3336/3336910/images/2a2015de3de6179da8f920cd265146636a76b469.png" alt="Español">
+    </a>
+
+    <a href="https://usuario.tarjeta-digital.site/aceroba-en-001" class="lang-option">
+      <img src="https://bucket.mlcdn.com/a/3336/3336910/images/050703a1a818733ee85b103a6a8c4ea5180ade19.png" alt="English">
+    </a>
+
+    <a href="https://usuario.tarjeta-digital.site/aceroba-tr-001" class="lang-option">
+      <img src="https://bucket.mlcdn.com/a/3336/3336910/images/ed5b81f3a0ab0272a670c583b223c98eab0b12a6.png" alt="Türkçe">
+    </a>
+
+  </div>
+</div>
+
+
+
+
+
+
+      
+        </main>
+
+        <!-- MODAL DE CONFIGURACIÓN -->
+        <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 z-[100] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col relative max-h-[90vh]">
+                
+                <!-- Cabecera del Modal -->
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-5 h-5 text-highlight"></i> Configuración de Cuenta
+                    </h2>
+                    <button type="button" onclick="toggleSettingsModal()" class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Cuerpo del Modal -->
+                <div class="p-6 overflow-y-auto flex-1">
+                    <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-6">
+                        
+                        <!-- Sección: Datos de Licencia -->
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Información de Sistema</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">ID de Licencia</label>
+                                    <div class="relative">
+                                        <i data-lucide="key" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" id="setting-id" value="Cargando..." disabled class="w-full pl-9 pr-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg border border-gray-200 cursor-not-allowed text-sm font-mono">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Correo Electrónico</label>
+                                    <div class="relative">
+                                        <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" id="setting-email" value="Cargando..." disabled class="w-full pl-9 pr-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg border border-gray-200 cursor-not-allowed text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Perfil -->
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Datos de Perfil</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre de Usuario</label>
+                                    <input type="text" id="setting-username" value="Cliente Invitado" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL de Foto de Perfil (Opcional)</label>
+                                    <input type="url" id="setting-avatar" placeholder="https://ejemplo.com/mifoto.jpg" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm">
+                                    <p class="text-[11px] text-gray-400 mt-1">Déjalo en blanco para usar tus iniciales.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Personalización de Marca -->
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b pb-2">Personalización de Interfaz</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL del Logo (Barra lateral) <span class="text-[10px] text-gray-400 font-normal">(Solo lectura)</span></label>
+                                    <input type="url" id="setting-logo" disabled value="https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png" class="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed outline-none transition-all text-sm">
+                                </div>
+
+
+<div class="sm:col-span-2">
+    <label class="block text-xs font-semibold text-gray-600 mb-1">URL del Logo (Al pasar el ratón / Hover) <span class="text-[10px] text-gray-400 font-normal">(Solo lectura)</span></label>
+    <input type="url" id="setting-hover-logo" disabled placeholder="No configurado" class="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed outline-none transition-all text-sm">
+</div>
+
+
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Color Principal (Marca)</label>
+                                    <div class="flex items-center gap-3">
+                                        <input type="color" id="setting-color" value="#6366f1" class="h-10 w-14 p-1 rounded-lg border border-gray-300 cursor-pointer">
+                                        <span class="text-sm font-mono text-gray-500" id="color-hex-display">#ff3900</span>
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-2 mt-2">
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Script Personalizado (Footer)</label>
+                                    <textarea id="setting-script" rows="3" placeholder="<script> console.log('Script ejecutado'); </script>" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-highlight focus:border-highlight outline-none transition-all text-sm font-mono"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="pt-4 flex justify-end gap-3 border-t mt-6">
+                            <button type="button" onclick="toggleSettingsModal()" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium text-sm transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 rounded-lg bg-highlight hover:bg-highlightHover text-white font-medium text-sm transition-colors shadow-lg shadow-highlight/30 flex items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor del Toast -->
+        <div id="toast-container" class="fixed bottom-6 right-6 z-[200] hidden transition-all duration-300 rounded-xl shadow-2xl border border-gray-700 bg-gray-900">
+            <div class="text-white px-5 py-3.5 flex items-center gap-3">
+                <div id="toast-icon-container" class="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
+                    <i data-lucide="check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <p id="toast-message" class="font-semibold text-sm">Notificación</p>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+
+
+
+
+
+    
+
+    <!-- Contenedor para inyección segura de scripts -->
+    <div id="custom-script-container"></div>
+
+
+    
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const VAULT_URL = 'https://admin-headquarters.onrender.com/api/proxy';
+        const SERVICE_NAME = 'admin-headquarters-portal';
+        const SESSION_KEY = 'ahq_session_token';
+        const USER_KEY = 'ahq_user_data';
+        
+        lucide.createIcons();
+
+        let currentUser = null;
+        let sessionToken = null;
+
+        // ==================== UTILS ====================
+        function generateLicenseId() {
+            return 'AHQ-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString(36).substring(3, 8).toUpperCase();
+        }
+
+        async function backgroundSaveUser(user) {
+            if (!sessionToken) return;
+            try {
+                await fetch(VAULT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        service: SERVICE_NAME,
+                        action: 'save_settings',
+                        email: user.email,
+                        sessionToken: sessionToken,
+                        username: user.username,
+                        logoUrl: user.logoUrl,
+                        primaryColor: user.primaryColor,
+                        avatarUrl: user.avatarUrl,
+                        licenseId: user.licenseId,
+                        hoverLogoUrl: user.hoverLogoUrl,
+                        customScript: user.customScript
+                    })
+                });
+            } catch (e) {
+                console.warn("Background save failed.");
+            }
+        }
+        
+        function initAuth() {
+            sessionToken = sessionStorage.getItem(SESSION_KEY);
+            const storedUser = sessionStorage.getItem(USER_KEY);
+            
+            if (sessionToken && storedUser) {
+                currentUser = JSON.parse(storedUser);
+                applyUserSettings(currentUser);
+                showApp();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('login-container').classList.remove('hidden');
+            document.getElementById('app-loader').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('app-loader').classList.add('hidden');
+            
+            // Render Dynamic Menus before clicking
+            if (currentUser) {
+                renderDynamicNav(currentUser);
+                triggerWelcomeConfetti(currentUser);
+            }
+
+            // Click the first available nav item to load content
+            setTimeout(() => {
+                const navItems = document.querySelectorAll('.nav-item');
+                if(navItems.length > 0) {
+                    navItems[0].click();
+                }
+            }, 100);
+        }
+
+        // ==================== RENDER DYNAMIC BUTTONS ====================
+        function renderDynamicNav(user) {
+            const menuContainer = document.getElementById('dynamic-menu-container');
+            menuContainer.innerHTML = ''; // Limpiar el contenedor actual
+
+            let buttonsCreated = 0;
+
+            // Iterar hasta 10 botones posibles (button1Name, button1Url... button10Name)
+            for (let i = 1; i <= 10; i++) {
+                const btnName = user[`button${i}Name`];
+                const btnUrl = user[`button${i}Url`] || '';
+
+                if (btnName && btnName.trim() !== '') {
+                    buttonsCreated++;
+                    const btnEl = document.createElement('button');
+                    btnEl.className = "nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300";
+                    btnEl.setAttribute('data-url', btnUrl);
+                    
+                    // Asignar un icono básico dependiendo si es el primer botón (Resumen) u otros
+                    const iconName = i === 1 ? 'layout-grid' : 'layout-template';
+
+                    btnEl.innerHTML = `
+                        <i data-lucide="${iconName}" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                        <span class="font-medium text-sm">${btnName}</span>
+                    `;
+                    menuContainer.appendChild(btnEl);
+                }
+            }
+
+            // Fallback: Si no se configuran botones en Google Sheets, mostrar Resumen por defecto
+            if (buttonsCreated === 0) {
+                const btnEl = document.createElement('button');
+                btnEl.className = "nav-item w-full flex items-center px-6 py-3.5 text-left transition-all duration-200 border-l-4 border-transparent hover:bg-sidebarHover hover:text-white group text-gray-300";
+                btnEl.setAttribute('data-url', '');
+                btnEl.innerHTML = `
+                    <i data-lucide="layout-grid" class="nav-icon w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-medium text-sm">Resumen</span>
+                `;
+                menuContainer.appendChild(btnEl);
+            }
+
+            // Aplicar la URL dinámica al Asistente de IA
+            const aiAssistantBtn = document.getElementById('btn-ai-assistant');
+            if (aiAssistantBtn && user.assistantUrl) {
+                aiAssistantBtn.setAttribute('data-url', user.assistantUrl);
+            }
+
+            // Re-renderizar iconos y enlazar eventos
+            lucide.createIcons();
+            bindNavEvents();
+        }
+
+        function bindNavEvents() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const mainFrame = document.getElementById('main-frame');
+            const pageTitle = document.getElementById('page-title');
+            const loader = document.getElementById('loader');
+
+            // Eliminar listeners antiguos clonando y reemplazando para evitar doble click
+            navItems.forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', function() {
+                    // IF CAL.COM LINK
+                    const isCal = this.hasAttribute('data-cal-link');
+                    if (isCal) {
+                        if (window.innerWidth < 768) toggleSidebar();
+                        return;
+                    }
+
+                    // Reset aesthetics
+                    document.querySelectorAll('.nav-item').forEach(b => {
+                        b.classList.remove('border-highlight', 'bg-sidebarHover', 'text-white');
+                        b.classList.add('border-transparent', 'text-gray-300');
+                        const icon = b.querySelector('.nav-icon');
+                        if(icon) {
+                            icon.classList.remove('text-highlightLight');
+                            icon.classList.add('text-gray-400');
+                        }
+                    });
+                    
+                    // Apply active styles
+                    this.classList.remove('border-transparent', 'text-gray-300');
+                    this.classList.add('border-highlight', 'bg-sidebarHover', 'text-white');
+                    const thisIcon = this.querySelector('.nav-icon');
+                    if(thisIcon) { 
+                        thisIcon.classList.remove('text-gray-400'); 
+                        thisIcon.classList.add('text-highlightLight');
+                    }
+
+                    // Update Title & Show loader
+                    const titleText = this.querySelector('span').textContent;
+                    if(pageTitle) pageTitle.textContent = titleText;
+                    if(loader) loader.classList.remove('hidden');
+
+                    // Load URL
+                    const url = this.getAttribute('data-url');
+                    
+                    if (url && url.trim() !== "") {
+                        mainFrame.removeAttribute('srcdoc'); 
+                        mainFrame.src = url; 
+                    } else {
+                        // Error Fallback
+                        mainFrame.removeAttribute('src');
+                        mainFrame.srcdoc = `
+                        <html style="background-color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; height: 100%;">
+                            <body style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; margin: 0; color: #475569; text-align: center; padding: 20px; background-color: #f1f5f9;">
+                                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png" alt="Contenido No Disponible" style="width: 150px; height: auto; margin-bottom: 24px; opacity: 0.9;">
+                                <h2 style="font-size: 1.75rem; font-weight: 700; margin: 0 0 12px 0; color: #1e293b;">Módulo No Disponible</h2>
+                                <p style="font-size: 1.1rem; max-width: 450px; line-height: 1.6; margin: 0;">Este contenido aún no ha sido configurado. Por favor, actualiza la plantilla o contacta con soporte.</p>
+                            </body>
+                        </html>`;
+                        setTimeout(() => { if (loader) loader.classList.add('hidden'); }, 300);
+                    }
+
+                    if (window.innerWidth < 768) toggleSidebar();
+                });
+            });
+        }
+
+        // ==================== AUTH & OTP VIA PROXY ====================
+        async function requestOTP(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const submitBtn = document.getElementById('login-submit-btn');
+            
+            if (!email) return;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            showLoginStatus('Enviando petición de acceso a servidores de Bebell Digital Solutions...', 'info');
+            
+            try {
+                // Aquí el frontend solo se comunica con tu servidor Render (VAULT_URL)
+                // Es responsabilidad de Render contactar el Google Apps Script internamente.
+                const response = await fetch(VAULT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        service: SERVICE_NAME,
+                        action: 'request_otp',
+                        email: email
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showLoginStatus('✅ Código enviado a tu email. Revisa tu bandeja.', 'success');
+                    document.getElementById('otp-section').classList.remove('hidden');
+                    document.getElementById('otp-email-display').textContent = email;
+                } else {
+                    showLoginStatus('❌ ' + (data.message || 'Email no autorizado.'), 'error');
+                }
+            } catch (error) {
+                console.warn("Vault fetch failed, usando fallback para demo.");
+                showLoginStatus('✅ (Demo) Se simuló el envío al correo.', 'success');
+                document.getElementById('otp-section').classList.remove('hidden');
+                document.getElementById('otp-email-display').textContent = email;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Código';
+            }
+        }
+
+        async function verifyOTP(e) {
+            e.preventDefault();
+            const email = document.getElementById('otp-email-display').textContent;
+            const otp = document.getElementById('login-otp').value.trim();
+            const verifyBtn = document.getElementById('otp-submit-btn');
+            
+            if (!otp || otp.length !== 6) return;
+            
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verificando...';
+            showLoginStatus('Verificando código...', 'info');
+            
+            try {
+                const response = await fetch(VAULT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        service: SERVICE_NAME,
+                        action: 'verify_otp',
+                        email: email,
+                        otp: otp
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    sessionToken = data.sessionToken;
+                    currentUser = data.user;
+
+                    if (!currentUser.licenseId) {
+                        currentUser.licenseId = generateLicenseId();
+                        backgroundSaveUser(currentUser);
+                    }
+                    
+                    sessionStorage.setItem(SESSION_KEY, sessionToken);
+                    sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+                    
+                    applyUserSettings(currentUser);
+                    showApp();
+                } else {
+                    showLoginStatus('❌ ' + (data.message || 'Código inválido.'), 'error');
+                }
+            } catch (error) {
+                console.warn("Usando Mock de usuario para la demo.");
+                sessionToken = "mock_token_12345";
+                
+                // MOCK DE USUARIO: Aquí se ven las columnas que vienen de tu Base de Datos (Google Sheets)
+                currentUser = {
+                    email: email,
+                    username: "Usuario Demo",
+                    primaryColor: "#ff3900",
+                    logoUrl: "https://bucket.mlcdn.com/a/3336/3336910/images/2b061cc623eb4b1a91c9f71657cf37ec8663ee74.png",
+                    licenseId: generateLicenseId(),
+                    avatarUrl: "",
+                    // Variables dinámicas que tu backend inyectará a partir de las columnas de GSheets:
+                    button1Name: "Mi Resumen",
+                    button1Url: "", // vacío abrirá el fallback
+                    button2Name: "Auditar mi Marca",
+                    button2Url: "https://propuesta.elnegocio.digital/brand-auditor/",
+                    assistantUrl: "https://asistente.chatterbot.support/chatbot-iframe/b876518dadf641c386b778fd5a6cb927"
+                };
+
+                sessionStorage.setItem(SESSION_KEY, sessionToken);
+                sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+                applyUserSettings(currentUser);
+                showApp();
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Verificar';
+            }
+        }
+
+        // ==================== SETTINGS & UI ====================
+        function applyUserSettings(user) {
+            if (!user) return;
+
+            const idInput = document.getElementById('setting-id');
+            const emailInput = document.getElementById('setting-email');
+            if(idInput) idInput.value = user.licenseId || 'ID-No-Disponible';
+            if(emailInput) emailInput.value = user.email || 'correo@no-disponible.com';
+            
+            if (user.primaryColor) {
+                document.documentElement.style.setProperty('--color-highlight', user.primaryColor);
+                document.getElementById('setting-color').value = user.primaryColor;
+                document.getElementById('color-hex-display').textContent = user.primaryColor;
+            }
+            
+            if (user.logoUrl) {
+                const sidebarLogo = document.getElementById('main-sidebar-logo');
+                sidebarLogo.src = user.logoUrl;
+                sidebarLogo.setAttribute('data-original-src', user.logoUrl);
+                document.getElementById('setting-logo').value = user.logoUrl;
+            }
+
+            if (user.hoverLogoUrl) {
+                const sidebarLogo = document.getElementById('main-sidebar-logo');
+                sidebarLogo.setAttribute('data-hover-src', user.hoverLogoUrl);
+                document.getElementById('setting-hover-logo').value = user.hoverLogoUrl;
+            }
+            
+            if (user.customScript !== undefined) {
+                document.getElementById('setting-script').value = user.customScript || '';
+                const scriptContainer = document.getElementById('custom-script-container');
+                if (scriptContainer && user.customScript) {
+                    scriptContainer.innerHTML = '';
+                    const range = document.createRange();
+                    range.selectNode(document.body);
+                    try {
+                        scriptContainer.appendChild(range.createContextualFragment(user.customScript));
+                    } catch (e) {}
+                }
+            }
+            
+            if (user.username) {
+                document.getElementById('sidebar-username').textContent = user.username;
+                document.getElementById('setting-username').value = user.username;
+            }
+            
+            // Lógica para la Foto de Perfil (Avatar)
+            const avatarText = document.getElementById('sidebar-avatar-text');
+            const avatarImg = document.getElementById('sidebar-avatar-img');
+            
+            if (user.avatarUrl && user.avatarUrl.trim() !== '') {
+                avatarImg.src = user.avatarUrl;
+                avatarImg.classList.remove('hidden');
+                avatarText.classList.add('hidden');
+                document.getElementById('setting-avatar').value = user.avatarUrl;
+            } else if (user.username) {
+                const initials = user.username.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                avatarText.textContent = initials || 'US';
+                avatarImg.classList.add('hidden');
+                avatarText.classList.remove('hidden');
+                document.getElementById('setting-avatar').value = '';
+            }
+        }
+
+        async function saveSettings(e) {
+            e.preventDefault();
+
+            const newColor = document.getElementById('setting-color').value;
+            const newHoverLogoUrl = document.getElementById('setting-hover-logo').value;
+            const newUsername = document.getElementById('setting-username').value;
+            const newAvatarUrl = document.getElementById('setting-avatar').value;
+            const newCustomScript = document.getElementById('setting-script').value;
+
+            // Updates optimistas
+            document.documentElement.style.setProperty('--color-highlight', newColor);
+            document.getElementById('sidebar-username').textContent = newUsername;
+            
+            const avatarText = document.getElementById('sidebar-avatar-text');
+            const avatarImg = document.getElementById('sidebar-avatar-img');
+            if (newAvatarUrl && newAvatarUrl.trim() !== '') {
+                avatarImg.src = newAvatarUrl;
+                avatarImg.classList.remove('hidden');
+                avatarText.classList.add('hidden');
+            } else {
+                const initials = newUsername.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                avatarText.textContent = initials || 'US';
+                avatarImg.classList.add('hidden');
+                avatarText.classList.remove('hidden');
+            }
+
+            toggleSettingsModal();
+
+            try {
+                const response = await fetch(VAULT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        service: SERVICE_NAME,
+                        action: 'save_settings',
+                        email: currentUser.email,
+                        sessionToken: sessionToken,
+                        username: newUsername,
+                        primaryColor: newColor,
+                        avatarUrl: newAvatarUrl,
+                        hoverLogoUrl: newHoverLogoUrl,
+                        customScript: newCustomScript
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    Object.assign(currentUser, { username: newUsername, primaryColor: newColor, avatarUrl: newAvatarUrl, hoverLogoUrl: newHoverLogoUrl, customScript: newCustomScript });
+                    sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+                    showToast('✅ Configuración guardada correctamente.');
+                }
+            } catch (error) {
+                Object.assign(currentUser, { username: newUsername, primaryColor: newColor, avatarUrl: newAvatarUrl, hoverLogoUrl: newHoverLogoUrl, customScript: newCustomScript });
+                sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+                showToast('✅ (Demo) Configuración actualizada de forma local.');
+            }
+        }
+
+        // ==================== EVENT LISTENERS & HELPERS ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainFrame = document.getElementById('main-frame');
+            const loader = document.getElementById('loader');
+
+            const colorInput = document.getElementById('setting-color');
+            if (colorInput) {
+                colorInput.addEventListener('input', (e) => document.getElementById('color-hex-display').textContent = e.target.value);
+            }
+
+            if (mainFrame) {
+                mainFrame.addEventListener('load', () => { if (loader) loader.classList.add('hidden'); });
+            }
+
+            initAuth();
+        });
+
+        function logout() {
+            sessionStorage.clear();
+            sessionToken = null;
+            currentUser = null;
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-otp').value = '';
+            document.getElementById('login-status').classList.add('hidden');
+            document.getElementById('otp-section').classList.add('hidden');
+            showLogin();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('mobile-overlay').classList.toggle('hidden');
+        }
+
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex', 'modal-enter');
+                modal.classList.remove('modal-leave');
+            } else {
+                modal.classList.add('modal-leave');
+                modal.classList.remove('modal-enter');
+                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
+            }
+        }
+
+        function showLoginStatus(message, type) {
+            const statusEl = document.getElementById('login-status');
+            statusEl.textContent = message;
+            statusEl.className = 'text-sm mt-4 p-3 rounded-lg border backdrop-blur-sm ';
+            if(type === 'success') statusEl.className += 'bg-green-900/30 text-green-400 border-green-800/50';
+            else if(type === 'error') statusEl.className += 'bg-red-900/30 text-red-400 border-red-800/50';
+            else statusEl.className += 'bg-blue-900/30 text-blue-400 border-blue-800/50';
+            statusEl.classList.remove('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast-container');
+            const toastMsg = document.getElementById('toast-message');
+            const iconContainer = document.getElementById('toast-icon-container');
+            
+            toastMsg.textContent = message;
+            
+            if (type === 'error') {
+                toast.classList.add('bg-red-600', 'border-red-500');
+                toast.classList.remove('bg-gray-900', 'border-gray-700');
+                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-5 h-5"></i>';
+            } else {
+                toast.classList.remove('bg-red-600', 'border-red-500');
+                toast.classList.add('bg-gray-900', 'border-gray-700');
+                iconContainer.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i>';
+            }
+            lucide.createIcons();
+            
+            toast.classList.remove('hidden', 'toast-leave');
+            toast.classList.add('toast-enter');
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3500);
+        }
+
+        function triggerWelcomeConfetti(user) {
+            const storageKey = 'ahq_first_login_' + user.email;
+            if (!localStorage.getItem(storageKey)) {
+                localStorage.setItem(storageKey, 'true');
+                const overlay = document.getElementById('welcome-overlay');
+                const usernameEl = document.getElementById('welcome-username');
+                usernameEl.textContent = user.username || 'Cliente';
+                
+                overlay.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    overlay.classList.add('flex', 'opacity-100');
+                    overlay.classList.remove('opacity-0');
+                    setTimeout(() => {
+                        const textContainer = document.getElementById('welcome-text');
+                        textContainer.classList.remove('scale-50', 'opacity-0');
+                        textContainer.classList.add('scale-100', 'opacity-100');
+                    }, 100);
+                });
+
+                const colorHighlight = getComputedStyle(document.documentElement).getPropertyValue('--color-highlight').trim() || '#f15b11';
+                const duration = 5000;
+                const animationEnd = Date.now() + duration;
+
+                (function frame() {
+                    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: [colorHighlight, '#ffffff', '#ffcc00'] });
+                    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: [colorHighlight, '#ffffff', '#ffcc00'] });
+                    if (Date.now() < animationEnd) {
+                        requestAnimationFrame(frame);
+                    } else {
+                        overlay.classList.remove('opacity-100');
+                        overlay.classList.add('opacity-0');
+                        setTimeout(() => {
+                            overlay.classList.add('hidden');
+                            overlay.classList.remove('flex', 'opacity-0');
+                            const textContainer = document.getElementById('welcome-text');
+                            textContainer.classList.remove('scale-100', 'opacity-100');
+                            textContainer.classList.add('scale-50', 'opacity-0');
+                        }, 1000);
+                    }
+                }());
+            }
+        }
+    </script>
+
+
+<script>
+  var widget = document.getElementById("lang-widget");
+  var toggleBtn = document.getElementById("langToggle");
+
+  toggleBtn.addEventListener("click", function (e) {
+    e.preventDefault(); // Prevents jump if clicked rapidly
+    e.stopPropagation(); // Prevents the document listener from instantly closing it
+    widget.classList.toggle("active");
+  });
+  
+  // Close widget if user taps/clicks outside of it
+  document.addEventListener("click", function(e) {
+    if (!widget.contains(e.target) && widget.classList.contains("active")) {
+      widget.classList.remove("active");
+    }
+  });
+
+  // Mobile enhancement: auto-close widget when the user scrolls the page
+  window.addEventListener("scroll", function() {
+    if (widget.classList.contains("active")) {
+      widget.classList.remove("active");
+    }
+  }, { passive: true });
+</script>
+
+
+    
+    
+</body>
+</html>
