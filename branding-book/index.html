@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crea tu Branding Book</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Librerías de Exportación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Iconos Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fuente Base (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/4aaeac9c1efc99109149caec0ad9a42e29f886a4.png">
+
+    <style>
+        /* Bloqueo de scroll global para manejo de dashboard */
+        html, body { 
+            height: 100%; 
+            overflow: hidden; 
+            margin: 0; 
+            background-color: #f2f1fb; 
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Contenedores con scroll independiente y fluido */
+        .scroll-container {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        /* Ocultar scrollbar visualmente */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Efectos interactivos */
+        .preview-section { transition: all 0.2s; border: 2px dashed transparent; border-radius: 1rem; }
+        .preview-section:hover { border-color: #8b84f5; cursor: pointer; background-color: rgba(139, 132, 245, 0.02); }
+        
+        /* Inputs de color estéticos */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 0.5rem; }
+
+        /* Sombra suave para el sidebar móvil */
+        @media (max-width: 1023px) {
+            #sidebar {
+                box-shadow: 20px 0 50px -10px rgba(0,0,0,0.1);
+            }
+        }
+
+        /* Ajuste para contenedor de visualización en pantallas pequeñas */
+        @media (max-width: 850px) {
+            #preview-wrapper {
+                overflow-x: hidden;
+            }
+            #preview-pages-container {
+                transform-origin: top center;
+            }
+        }
+
+        /* Clase temporal que fuerza el formato A4 exacto durante la exportación a PDF/PNG */
+        .exporting-mode {
+            width: 800px !important;
+            max-width: 800px !important;
+            height: 1131px !important;
+            min-height: 1131px !important;
+            border-radius: 0px !important; 
+            transform: none !important;
+            overflow: hidden !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen relative">
+
+    <!-- Floating Mobile Burger Menu -->
+    <button id="btn-toggle-sidebar" class="lg:hidden fixed top-6 left-6 z-40 bg-white text-[#4b4998] p-3 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition-colors">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Floating Settings Button -->
+    <button id="btn-open-settings" class="fixed top-6 right-6 z-40 bg-white text-gray-500 hover:text-[#4b4998] p-3 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition-colors" title="Configurar guardado en la nube">
+        <i data-lucide="settings" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <!-- Overlay para móvil -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity duration-300"></div>
+
+        <!-- LEFT: Sidebar (Formulario) -->
+        <aside id="sidebar" class="absolute inset-y-0 left-0 transform -translate-x-full lg:relative lg:translate-x-0 w-80 sm:w-96 lg:w-[350px] bg-[#f2f1fb] border-r border-gray-200 z-50 transition-transform duration-300 ease-in-out flex flex-col h-full">
+            
+            <div class="p-6 flex justify-between items-center lg:hidden bg-white/50 backdrop-blur shrink-0 border-b">
+                <h2 class="font-bold text-[#4b4998] uppercase text-xs tracking-widest">Configuración</h2>
+                <button id="btn-close-sidebar" class="text-gray-400 hover:text-gray-800 p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Formulario con scroll independiente -->
+            <div class="flex-1 scroll-container hide-scroll p-6 space-y-8">
+                
+                <!-- 0. Header -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/fbaa1c8809a87496d4ca7ffafb07ca3aa5fa0714.png" alt="Logo" class="h-16 w-auto object-contain mb-4">
+                    <h1 class="text-xl font-bold text-[#4b4998] mb-2">Crea tu Guía de Marca</h1>
+                    <p class="text-[#707070] text-xs mb-6">Completa tu información y genera tu guía automáticamente</p>
+                    
+                    <div class="w-full flex flex-col items-center gap-2">
+                        <div class="flex justify-between w-full px-1">
+                            <span class="text-xs font-medium text-gray-500">Progreso</span>
+                            <span class="text-xs font-bold text-[#4b4998]"><span id="progress-text">0</span>%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-[#10b981] transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. Identidad -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-semibold text-[#4b4998] mb-4 flex items-center gap-2">
+                        <i data-lucide="type" class="w-5 h-5 text-[#8b84f5]"></i> Identidad
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Nombre de Marca</label>
+                            <input type="text" id="input-name" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#8b84f5] outline-none transition-all" placeholder="Ej. Acme Corp">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Descripción</label>
+                            <textarea id="input-desc" rows="3" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#8b84f5] outline-none transition-all text-sm" placeholder="Define tu marca..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Estilo Visual</label>
+                            <select id="input-style" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#8b84f5] outline-none transition-all cursor-pointer">
+                                <option value="Minimalista">Minimalista</option>
+                                <option value="Moderno">Moderno</option>
+                                <option value="Elegante">Elegante</option>
+                                <option value="Divertido">Divertido</option>
+                                <option value="Corporativo">Corporativo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Logos -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-semibold text-[#4b4998] mb-4 flex items-center gap-2">
+                        <i data-lucide="image" class="w-5 h-5 text-[#e07dd1]"></i> Logotipos
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Logo Principal</label>
+                            <input type="file" id="upload-logo-primary" class="text-xs w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#8b84f5]/10 file:text-[#8b84f5] hover:file:bg-[#8b84f5]/20 transition-all cursor-pointer" accept="image/*">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Logo Secundario</label>
+                            <input type="file" id="upload-logo-secondary" class="text-xs w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#e07dd1]/10 file:text-[#e07dd1] hover:file:bg-[#e07dd1]/20 transition-all cursor-pointer" accept="image/*">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Logo 3 (Opcional)</label>
+                            <input type="file" id="upload-logo-tertiary" class="text-xs w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gray-500/10 file:text-gray-600 hover:file:bg-gray-500/20 transition-all cursor-pointer" accept="image/*">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Logo 4 (Opcional)</label>
+                            <input type="file" id="upload-logo-quaternary" class="text-xs w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gray-500/10 file:text-gray-600 hover:file:bg-gray-500/20 transition-all cursor-pointer" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Colores -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-semibold text-[#4b4998] mb-4 flex items-center gap-2">
+                        <i data-lucide="palette" class="w-5 h-5 text-[#8b84f5]"></i> Paleta de Colores
+                    </h2>
+                    <div class="space-y-3" id="color-inputs-container"></div>
+                </div>
+
+                <!-- 4. Tipografía -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-semibold text-[#4b4998] mb-4 flex items-center gap-2">
+                        <i data-lucide="type" class="w-5 h-5 text-[#e07dd1]"></i> Tipografías
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[10px] font-bold uppercase text-gray-400">Principal</label>
+                                <button onclick="document.getElementById('upload-font-primary').click()" class="text-[10px] text-[#8b84f5] flex items-center gap-1 hover:underline">
+                                    <i data-lucide="upload" class="w-3 h-3"></i> Subir personalizada
+                                </button>
+                                <input type="file" id="upload-font-primary" class="hidden" accept=".ttf,.otf,.woff,.woff2">
+                            </div>
+                            <select id="select-font-primary" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white outline-none cursor-pointer"></select>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[10px] font-bold uppercase text-gray-400">Secundaria</label>
+                                <button onclick="document.getElementById('upload-font-secondary').click()" class="text-[10px] text-[#e07dd1] flex items-center gap-1 hover:underline">
+                                    <i data-lucide="upload" class="w-3 h-3"></i> Subir personalizada
+                                </button>
+                                <input type="file" id="upload-font-secondary" class="hidden" accept=".ttf,.otf,.woff,.woff2">
+                            </div>
+                            <select id="select-font-secondary" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white outline-none cursor-pointer"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Moodboard -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
+                    <h2 class="text-lg font-semibold text-[#4b4998] mb-4 flex items-center gap-2">
+                        <i data-lucide="layout-grid" class="w-5 h-5 text-[#10b981]"></i> Moodboard Visual
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3" id="moodboard-inputs-container"></div>
+                </div>
+            </div>
+
+            <!-- FOOTER INFO -->
+            <div class="p-6 text-center shrink-0 border-t border-gray-200 bg-white/60 backdrop-blur-sm">
+                <p class="text-[10px] text-gray-500 font-medium leading-relaxed">
+                    Powered with 💖 by <span class="text-[#4b4998] font-bold">Bebell Digital Solutions</span><br>
+                    Copyright © 2025 • Todos los derechos reservados
+                </p>
+            </div>
+        </aside>
+
+        <!-- RIGHT: Preview Area -->
+        <main class="flex-1 bg-gray-100 scroll-container p-4 md:p-8 flex flex-col relative items-center">
+            
+            <!-- Floating Export & Save Controls -->
+            <div class="fixed bottom-6 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-8 md:bottom-auto md:top-8 md:absolute flex flex-row gap-2 sm:gap-3 z-30 bg-white/90 md:bg-transparent backdrop-blur-md md:backdrop-blur-none p-2 sm:p-3 md:p-0 rounded-2xl shadow-2xl md:shadow-none border border-gray-100 md:border-none w-[90%] max-w-[340px] sm:max-w-md md:w-auto justify-center">
+                <button id="btn-save" class="flex-1 md:flex-none bg-[#4b4998] hover:bg-opacity-90 text-white p-3 sm:px-4 sm:py-2 rounded-xl shadow-md md:shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 font-medium text-xs sm:text-sm">
+                    <i data-lucide="save" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    <span id="btn-save-text">Guardar</span>
+                </button>
+                <button id="btn-export-pdf" class="flex-1 md:flex-none bg-white text-[#4b4998] p-3 sm:px-4 sm:py-2 rounded-xl shadow-md md:shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 border border-gray-100 font-medium text-xs sm:text-sm">
+                    <i data-lucide="file-down" class="w-4 h-4 sm:w-5 sm:h-5"></i> <span class="hidden sm:inline">PDF</span>
+                </button>
+                <button id="btn-export-png" class="flex-1 md:flex-none bg-gradient-to-br from-[#8b84f5] to-[#e07dd1] text-white p-3 sm:px-4 sm:py-2 rounded-xl shadow-md md:shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 font-medium text-xs sm:text-sm">
+                    <i data-lucide="image" class="w-4 h-4 sm:w-5 sm:h-5"></i> <span class="hidden sm:inline">PNG</span>
+                </button>
+            </div>
+
+            <!-- Canvas Wrapper -->
+            <div id="preview-wrapper" class="w-full flex justify-center pt-16 md:pt-0 pb-32 md:pb-10 transition-all duration-300">
+                
+                <div id="preview-pages-container" class="flex flex-col gap-6 md:gap-10 items-center w-full max-w-[800px] transition-transform duration-300">
+                    
+                    <!-- PAGE 1 -->
+                    <div id="page-1" class="brand-page bg-white w-full md:w-[800px] h-auto md:min-h-[1131px] shadow-2xl pb-[110px] md:pb-[130px] flex flex-col gap-4 md:gap-6 relative rounded-[10px] overflow-hidden">
+                        
+                        <!-- Board Header - No padding to allow full cover -->
+                        <div class="text-center pb-4 md:pb-5 border-b border-gray-100 preview-section shrink-0 overflow-hidden h-[120px] md:h-[180px] mt-[70px] ml-[30px] mr-[30px]">
+                            <div class="w-full h-full cursor-pointer flex items-center justify-center" onclick="document.getElementById('upload-logo-primary').click()">
+                                <div id="preview-header-logo-container" class="w-full h-full flex items-center justify-center">
+                                    <!-- Logotipo por defecto -->
+                                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/3aa3622c40fb313f4bd1690158d5fe2cf9d9934b.png" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="px-6 md:px-12 text-center -mt-2">
+                             <h1 id="preview-name" class="text-3xl md:text-4xl font-bold text-gray-800 mb-1 font-primary break-words">Nombre de Marca</h1>
+                             <p class="text-gray-400 font-secondary text-xs uppercase tracking-widest">Brand Board &bull; Estilo <span id="preview-style-label" class="text-[#8b84f5]">Moderno</span></p>
+                        </div>
+
+                        <!-- Logo Grid - No paddings on items -->
+                        <div class="grid grid-cols-2 gap-4 md:gap-8 px-2 md:px-8 shrink-0 export-grid-2">
+                            <div class="preview-section flex flex-col items-center justify-center bg-gray-50 h-[120px] md:h-[160px] overflow-hidden" onclick="document.getElementById('upload-logo-primary').click()">
+                                <div id="preview-logo-primary-container" class="w-full h-full flex items-center justify-center">
+                                    <i data-lucide="image-plus" class="w-8 h-8 md:w-10 md:h-10 text-gray-200"></i>
+                                </div>
+                            </div>
+                            <div class="preview-section flex flex-col items-center justify-center bg-gray-50 h-[120px] md:h-[160px] overflow-hidden" onclick="document.getElementById('upload-logo-secondary').click()">
+                                <div id="preview-logo-secondary-container" class="w-full h-full flex items-center justify-center">
+                                    <i data-lucide="image-plus" class="w-8 h-8 md:w-10 md:h-10 text-gray-200"></i>
+                                </div>
+                            </div>
+                            <div class="preview-section flex flex-col items-center justify-center bg-gray-50 h-[120px] md:h-[160px] overflow-hidden" onclick="document.getElementById('upload-logo-tertiary').click()">
+                                <div id="preview-logo-tertiary-container" class="w-full h-full flex items-center justify-center">
+                                    <i data-lucide="image-plus" class="w-8 h-8 md:w-10 md:h-10 text-gray-200"></i>
+                                </div>
+                            </div>
+                            <div class="preview-section flex flex-col items-center justify-center bg-gray-50 h-[120px] md:h-[160px] overflow-hidden" onclick="document.getElementById('upload-logo-quaternary').click()">
+                                <div id="preview-logo-quaternary-container" class="w-full h-full flex items-center justify-center">
+                                    <i data-lucide="image-plus" class="w-8 h-8 md:w-10 md:h-10 text-gray-200"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Colors -->
+                        <div class="preview-section px-4 md:px-12 shrink-0">
+                            <h3 class="text-[8px] md:text-[9px] uppercase tracking-widest text-gray-400 mb-4 font-bold text-center">Paleta Cromática</h3>
+                            <div class="flex gap-2 sm:gap-4 md:gap-6 h-16 md:h-24 px-2 md:px-10" id="preview-colors-container"></div>
+                        </div>
+
+                        <!-- Typography -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 shrink-0 export-grid-2 px-6 md:px-12">
+                            <div class="preview-section p-4 sm:p-5 md:p-6 flex flex-col justify-center min-h-[140px] md:min-h-[160px] h-full w-full">
+                                <h3 class="text-[8px] sm:text-[9px] uppercase tracking-widest text-gray-400 mb-3 font-bold">Tipografía Principal</h3>
+                                <div class="flex gap-3 sm:gap-4 md:gap-5 items-center w-full">
+                                    <div class="text-5xl sm:text-6xl md:text-[64px] text-gray-800 font-primary leading-none shrink-0">Aa</div>
+                                    <div class="flex-1 min-w-0 w-full">
+                                        <div class="text-lg sm:text-xl font-bold font-primary mb-1 md:mb-2 truncate" id="preview-font-primary-name">Poppins</div>
+                                        <div class="text-[9px] sm:text-[10px] text-gray-400 font-primary leading-relaxed break-words whitespace-normal break-all sm:break-normal w-full">
+                                            A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z<br>
+                                            <span class="mt-1 inline-block">0 1 2 3 4 5 6 7 8 9</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="preview-section p-4 sm:p-5 md:p-6 flex flex-col justify-center min-h-[140px] md:min-h-[160px] h-full w-full">
+                                <h3 class="text-[8px] sm:text-[9px] uppercase tracking-widest text-gray-400 mb-3 font-bold">Tipografía Secundaria</h3>
+                                <div class="flex gap-3 sm:gap-4 md:gap-5 items-center w-full">
+                                    <div class="text-4xl sm:text-5xl md:text-[56px] text-gray-600 font-secondary leading-none shrink-0">Aa</div>
+                                    <div class="flex-1 min-w-0 w-full">
+                                        <div class="text-base sm:text-lg font-secondary mb-1 md:mb-2 truncate" id="preview-font-secondary-name">Inter</div>
+                                        <div class="text-[9px] sm:text-[10px] text-gray-400 font-secondary leading-relaxed break-words whitespace-normal w-full">
+                                            Tipografía enfocada en la legibilidad, ideal para el cuerpo de texto, párrafos largos y descripciones clave de la marca.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Page Indicator & Copyright -->
+                        <div class="absolute bottom-6 w-full text-center left-0 flex flex-col items-center gap-1.5 px-4">
+                            <span class="text-[9px] md:text-[10px] text-gray-300 font-medium tracking-widest">PÁGINA 1</span>
+                            <p class="text-[8px] text-gray-400 font-medium text-center">Powered with 💖 by <span class="text-[#4b4998]">Bebell Digital Solutions</span> • Copyright © 2025 • Todos los derechos reservados</p>
+                        </div>
+                    </div>
+
+                    <!-- PAGE 2 -->
+                    <div id="page-2" class="brand-page bg-white w-full md:w-[800px] h-auto md:min-h-[1131px] shadow-2xl pb-[110px] md:pb-[130px] flex flex-col gap-4 md:gap-6 relative rounded-[10px] overflow-hidden">
+                        <div class="preview-section p-6 md:p-10 shrink-0 text-center mt-6">
+                            <i data-lucide="quote" class="w-6 h-6 md:w-8 md:h-8 text-[#8b84f5] mx-auto mb-3 md:mb-4 opacity-50"></i>
+                            <h3 class="text-[8px] md:text-[9px] uppercase tracking-widest text-gray-400 mb-3 md:mb-4 font-bold">Voz de la Marca & Descripción</h3>
+                            <p class="text-gray-800 text-lg md:text-2xl italic font-secondary leading-relaxed max-w-2xl mx-auto break-words whitespace-normal w-full" id="preview-desc">
+                                "Innovación y diseño para el futuro digital."
+                            </p>
+                        </div>
+
+                        <div class="preview-section flex-1 flex flex-col w-full h-[500px] sm:h-[600px] md:h-auto min-h-[400px] sm:min-h-[500px] md:min-h-0 px-6 md:px-12 pt-[30px] pb-[30px]">
+                            <h3 class="text-[9px] md:text-[10px] uppercase tracking-widest text-gray-400 mb-4 md:mb-6 font-bold shrink-0 text-center">Dirección Visual / Moodboard</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 flex-1 h-full min-h-0 export-grid-2">
+                                <div class="flex flex-row md:flex-col gap-4 md:gap-6 h-full export-flex-col">
+                                    <div class="flex-[3] rounded-2xl md:rounded-3xl overflow-hidden bg-gray-100 cursor-pointer flex items-center justify-center relative group" onclick="document.getElementById('upload-mood-input-0').click()">
+                                        <div id="preview-mood-0-container" class="w-full h-full flex items-center justify-center"><i data-lucide="image-plus" class="w-8 h-8 md:w-12 md:h-12 text-gray-300"></i></div>
+                                    </div>
+                                    <div class="flex-[2] rounded-2xl md:rounded-3xl overflow-hidden bg-gray-100 cursor-pointer flex items-center justify-center relative group" onclick="document.getElementById('upload-mood-input-1').click()">
+                                        <div id="preview-mood-1-container" class="w-full h-full flex items-center justify-center"><i data-lucide="image-plus" class="w-6 h-6 md:w-10 md:h-10 text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row md:flex-col gap-4 md:gap-6 h-full export-flex-col">
+                                    <div class="flex-[2] rounded-2xl md:rounded-3xl overflow-hidden bg-gray-100 cursor-pointer flex items-center justify-center relative group" onclick="document.getElementById('upload-mood-input-2').click()">
+                                        <div id="preview-mood-2-container" class="w-full h-full flex items-center justify-center"><i data-lucide="image-plus" class="w-6 h-6 md:w-10 md:h-10 text-gray-300"></i></div>
+                                    </div>
+                                    <div class="flex-[3] rounded-2xl md:rounded-3xl overflow-hidden bg-gray-100 cursor-pointer flex items-center justify-center relative group" onclick="document.getElementById('upload-mood-input-3').click()">
+                                        <div id="preview-mood-3-container" class="w-full h-full flex items-center justify-center"><i data-lucide="image-plus" class="w-8 h-8 md:w-12 md:h-12 text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-6 w-full text-center left-0 flex flex-col items-center gap-1.5 px-4">
+                            <span class="text-[9px] md:text-[10px] text-gray-300 font-medium tracking-widest">PÁGINA 2</span>
+                            <p class="text-[8px] text-gray-400 font-medium text-center">Powered with 💖 by <span class="text-[#4b4998]">Bebell Digital Solutions</span> • Copyright © 2025 • Todos los derechos reservados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 relative" id="settings-modal-content">
+            <div class="sticky top-0 bg-white/90 backdrop-blur-md px-8 py-5 border-b border-gray-100 flex justify-between items-center z-10">
+                <h2 class="text-xl font-bold text-[#4b4998] flex items-center gap-2">
+                    <i data-lucide="cloud" class="w-6 h-6 text-[#8b84f5]"></i> Configuración de Guardado
+                </h2>
+                <button id="btn-close-settings" class="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-8 space-y-6 text-sm text-gray-600">
+                <div class="bg-blue-50 text-blue-800 p-4 rounded-xl border border-blue-100 flex gap-3">
+                    <i data-lucide="info" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                    <p>Conecta tu propio servidor gratuito usando <strong>Google Apps Script</strong> para guardar tu progreso.</p>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="font-bold text-gray-800 text-base">Instrucciones:</h3>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-full bg-[#4b4998] text-white flex items-center justify-center font-bold shrink-0">1</div>
+                        <div>Crea un nuevo proyecto en Apps Script.</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-full bg-[#4b4998] text-white flex items-center justify-center font-bold shrink-0">2</div>
+                        <div class="w-full">
+                            <p class="mb-2">Pega este código:</p>
+                            <div class="relative group">
+                                <button id="btn-copy-script" class="absolute top-2 right-2 bg-gray-700/80 hover:bg-gray-700 text-white p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-xs">
+                                    <i data-lucide="copy" class="w-3 h-3"></i> Copiar
+                                </button>
+                                <pre class="bg-gray-800 text-green-400 p-4 rounded-xl overflow-x-auto text-xs font-mono select-all"><code>function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    if (sheet.getLastRow() === 0) { sheet.appendRow(['Fecha', 'Usuario', 'Proyecto', 'Progreso', 'Datos del Brand (JSON)']); }
+    sheet.appendRow([new Date(), data.params.user_id || 'Anónimo', data.project || 'Branding', data.params.progress || '0%', data.params.brand_data_json || '{}']);
+    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({success: false})).setMimeType(ContentService.MimeType.JSON);
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-full bg-[#10b981] text-white flex items-center justify-center font-bold shrink-0">3</div>
+                        <div class="w-full">
+                            <p class="mb-2">Pega la URL aquí:</p>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input type="url" id="input-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all">
+                                <button id="btn-save-gas-url" class="bg-[#10b981] hover:bg-green-600 text-white px-6 py-3 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center gap-2">
+                                    <i data-lucide="check" class="w-5 h-5"></i> Guardar
+                                </button>
+                            </div>
+                            <p id="gas-save-msg" class="text-green-600 text-xs mt-2 hidden font-medium">¡URL guardada!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let VAULT_WEB_APP_URL = localStorage.getItem('gasVaultUrl') || ""; 
+        
+        const stylePresets = {
+            "Minimalista": { colors: ["#ffffff", "#f5f5f5", "#e0e0e0", "#9e9e9e", "#000000"], fonts: { primary: "Inter", secondary: "Roboto" } },
+            "Moderno": { colors: ["#8b84f5", "#e07dd1", "#4b4998", "#f2f1fb", "#2d3748"], fonts: { primary: "Poppins", secondary: "Inter" } },
+            "Elegante": { colors: ["#0f172a", "#1e293b", "#d4af37", "#f8f9fa", "#333333"], fonts: { primary: "Playfair Display", secondary: "Lora" } },
+            "Divertido": { colors: ["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"], fonts: { primary: "Fredoka", secondary: "Nunito" } },
+            "Corporativo": { colors: ["#0a2540", "#005a9c", "#63b3ed", "#f1f5f9", "#475569"], fonts: { primary: "Open Sans", secondary: "Lato" } }
+        };
+
+        const googleFontsList = ["Poppins", "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Oswald", "Raleway", "Playfair Display", "Merriweather", "Nunito", "Ubuntu", "Lora", "Fredoka", "Quicksand", "Karla", "Work Sans"];
+        const DEMO_LOGO = "https://bucket.mlcdn.com/a/3336/3336910/images/3aa3622c40fb313f4bd1690158d5fe2cf9d9934b.png";
+
+        let brandState = {
+            name: "Mi Marca Genial",
+            description: "Innovación y diseño para el futuro digital.",
+            style: "Moderno",
+            colors: [...stylePresets["Moderno"].colors],
+            fonts: { ...stylePresets["Moderno"].fonts },
+            logos: { primary: null, secondary: null, tertiary: null, quaternary: null },
+            moodboard: [null, null, null, null],
+            progress: 0
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initSidebar();
+            initSettingsModal();
+            initSelects();
+            renderColorInputs();
+            renderMoodboardInputs();
+            updateUI();
+            setupEventListeners();
+            initDynamicScale();
+        });
+
+        function initDynamicScale() {
+            const container = document.getElementById('preview-pages-container');
+            const wrapper = document.getElementById('preview-wrapper');
+            const updateScale = () => {
+                const width = window.innerWidth;
+                if (width < 768) {
+                    container.style.transform = 'none';
+                    wrapper.style.height = 'auto';
+                    return;
+                }
+                const sidebar = document.getElementById('sidebar');
+                const sidebarWidth = width >= 1024 ? sidebar.offsetWidth : 0;
+                const availableWidth = width - sidebarWidth;
+                if (availableWidth < 850) {
+                    const scale = (availableWidth - 48) / 800;
+                    container.style.transform = `scale(${scale})`;
+                    const originalHeight = container.offsetHeight;
+                    wrapper.style.height = `${(originalHeight * scale) + 120}px`;
+                } else {
+                    container.style.transform = 'none';
+                    wrapper.style.height = 'auto';
+                }
+            };
+            window.addEventListener('resize', updateScale);
+            setTimeout(updateScale, 100);
+        }
+
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const btnOpen = document.getElementById('btn-toggle-sidebar');
+            const btnClose = document.getElementById('btn-close-sidebar');
+            btnOpen.onclick = () => { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); setTimeout(() => overlay.classList.add('opacity-100'), 10); };
+            btnClose.onclick = () => { sidebar.classList.add('-translate-x-full'); overlay.classList.remove('opacity-100'); setTimeout(() => overlay.classList.add('hidden'), 300); };
+            overlay.onclick = btnClose;
+        }
+
+        function initSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            const modalContent = document.getElementById('settings-modal-content');
+            const btnOpen = document.getElementById('btn-open-settings');
+            const btnClose = document.getElementById('btn-close-settings');
+            const inputGasUrl = document.getElementById('input-gas-url');
+            const btnSaveGas = document.getElementById('btn-save-gas-url');
+            const gasSaveMsg = document.getElementById('gas-save-msg');
+            const btnCopy = document.getElementById('btn-copy-script');
+            if(VAULT_WEB_APP_URL) inputGasUrl.value = VAULT_WEB_APP_URL;
+            btnOpen.onclick = () => { modal.classList.remove('pointer-events-none', 'opacity-0'); modalContent.classList.remove('scale-95'); modalContent.classList.add('scale-100'); };
+            btnClose.onclick = () => { modal.classList.add('pointer-events-none', 'opacity-0'); modalContent.classList.remove('scale-100'); modalContent.classList.add('scale-95'); };
+            modal.addEventListener('click', (e) => { if (e.target === modal) btnClose(); });
+            btnSaveGas.onclick = () => {
+                const url = inputGasUrl.value.trim();
+                if(url && url.startsWith('https://script.google.com/')) {
+                    localStorage.setItem('gasVaultUrl', url); VAULT_WEB_APP_URL = url;
+                    gasSaveMsg.classList.remove('hidden'); setTimeout(btnClose, 1500);
+                }
+            };
+            btnCopy.onclick = () => {
+                const code = document.querySelector('pre code').innerText;
+                const ta = document.createElement("textarea"); ta.value = code; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+            };
+            window.openSettingsModal = btnOpen.onclick;
+        }
+
+        function initSelects() {
+            const pri = document.getElementById('select-font-primary');
+            const sec = document.getElementById('select-font-secondary');
+            const html = googleFontsList.map(f => `<option value="${f}">${f}</option>`).join('');
+            pri.innerHTML = html; sec.innerHTML = html;
+            pri.value = brandState.fonts.primary; sec.value = brandState.fonts.secondary;
+            document.getElementById('input-style').value = brandState.style;
+        }
+
+        function renderColorInputs() {
+            const container = document.getElementById('color-inputs-container');
+            container.innerHTML = brandState.colors.map((c, i) => `
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl overflow-hidden border border-gray-100 shrink-0">
+                        <input type="color" value="${c}" data-idx="${i}" class="c-pick">
+                    </div>
+                    <input type="text" value="${c}" data-idx="${i}" class="c-text w-full p-2 bg-gray-50 rounded-xl text-xs font-mono uppercase outline-none">
+                </div>
+            `).join('');
+            document.querySelectorAll('.c-pick, .c-text').forEach(el => {
+                el.oninput = (e) => { brandState.colors[e.target.dataset.idx] = e.target.value; renderColorInputs(); updateUI(); };
+            });
+        }
+
+        function renderMoodboardInputs() {
+            const container = document.getElementById('moodboard-inputs-container');
+            container.innerHTML = brandState.moodboard.map((img, i) => `
+                <div class="relative">
+                    <input type="file" id="upload-mood-input-${i}" class="hidden mood-in" accept="image/*" data-idx="${i}">
+                    <div onclick="document.getElementById('upload-mood-input-${i}').click()" class="w-full h-24 border-2 border-dashed border-gray-100 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white transition-all overflow-hidden bg-gray-50">
+                        ${img ? `<img src="${img}" class="w-full h-full object-cover">` : `<i data-lucide="image-plus" class="w-6 h-6 text-gray-300"></i>`}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+            document.querySelectorAll('.mood-in').forEach(el => {
+                el.onchange = (e) => {
+                    const f = e.target.files[0];
+                    if(f) { brandState.moodboard[e.target.dataset.idx] = URL.createObjectURL(f); renderMoodboardInputs(); updateUI(); }
+                };
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('input-name').value = brandState.name;
+            document.getElementById('input-desc').value = brandState.description;
+            document.getElementById('preview-name').innerText = brandState.name || 'Sin Nombre';
+            document.getElementById('preview-desc').innerText = `"${brandState.description || 'Sin descripción'}"`;
+            document.getElementById('preview-style-label').innerText = brandState.style;
+
+            ['primary', 'secondary'].forEach(t => {
+                const f = brandState.fonts[t];
+                if(!f.startsWith('CustomFont')) {
+                    const l = document.createElement('link');
+                    l.href = `https://fonts.googleapis.com/css2?family=${f.replace(/ /g, '+')}:wght@400;700&display=swap`;
+                    l.rel = 'stylesheet'; document.head.appendChild(l);
+                }
+                document.querySelectorAll(`.font-${t}`).forEach(el => el.style.fontFamily = `"${f}", sans-serif`);
+                document.getElementById(`preview-font-${t}-name`).innerText = f.startsWith('CustomFont') ? 'Fuente Especial' : f;
+            });
+
+            document.getElementById('preview-colors-container').innerHTML = brandState.colors.map(c => `
+                <div class="flex-1 flex flex-col gap-1 sm:gap-2 h-full">
+                    <div class="w-full flex-1 rounded-xl shadow-inner border border-black/5" style="background-color: ${c}"></div>
+                    <span class="text-center font-mono text-[8px] md:text-[9px] text-gray-400 uppercase shrink-0">${c}</span>
+                </div>
+            `).join('');
+
+            // Nueva función que recibe la clase exacta para diferenciar logos de moodboard
+            const updateImg = (id, src, imgClasses, iconSize) => {
+                const el = document.getElementById(id);
+                if(src) el.innerHTML = `<img src="${src}" class="${imgClasses}">`;
+                else el.innerHTML = `<i data-lucide="image-plus" class="${iconSize} text-gray-200"></i>`;
+            };
+
+            // Header Logo - object-contain para no cortarse
+            const headerLogoEl = document.getElementById('preview-header-logo-container');
+            const headerSrc = brandState.logos.primary || DEMO_LOGO;
+            headerLogoEl.innerHTML = `<img src="${headerSrc}" class="w-full h-full object-contain">`;
+
+            // Grid Logos - object-contain para no explotar de tamaño, respetando los 160px
+            updateImg('preview-logo-primary-container', brandState.logos.primary, 'w-full h-full object-contain max-h-[120px] md:max-h-[160px]', 'w-10 h-10');
+            updateImg('preview-logo-secondary-container', brandState.logos.secondary, 'w-full h-full object-contain max-h-[120px] md:max-h-[160px]', 'w-10 h-10');
+            updateImg('preview-logo-tertiary-container', brandState.logos.tertiary, 'w-full h-full object-contain max-h-[120px] md:max-h-[160px]', 'w-10 h-10');
+            updateImg('preview-logo-quaternary-container', brandState.logos.quaternary, 'w-full h-full object-contain max-h-[120px] md:max-h-[160px]', 'w-10 h-10');
+
+            // Moodboard - object-cover para que rellenen el cuadro estilo collage
+            brandState.moodboard.forEach((m, i) => updateImg(`preview-mood-${i}-container`, m, 'w-full h-full object-cover', 'w-10 h-10'));
+
+            let p = 0;
+            if(brandState.name) p+=10; if(brandState.description) p+=10;
+            if(brandState.logos.primary) p+=25; if(brandState.logos.secondary) p+=15;
+            if(brandState.colors.some(c => c !== "#ffffff")) p+=20;
+            if(brandState.fonts.primary) p+=20;
+            brandState.progress = Math.min(100, p);
+            document.getElementById('progress-text').innerText = brandState.progress;
+            document.getElementById('progress-bar').style.width = brandState.progress + '%';
+            lucide.createIcons();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('input-name').oninput = (e) => { brandState.name = e.target.value; updateUI(); };
+            document.getElementById('input-desc').oninput = (e) => { brandState.description = e.target.value; updateUI(); };
+            document.getElementById('input-style').onchange = (e) => {
+                const s = e.target.value;
+                brandState.style = s; brandState.colors = [...stylePresets[s].colors]; brandState.fonts = {...stylePresets[s].fonts};
+                renderColorInputs(); updateUI();
+            };
+
+            ['primary', 'secondary'].forEach(t => {
+                document.getElementById(`select-font-${t}`).onchange = (e) => { brandState.fonts[t] = e.target.value; updateUI(); };
+                document.getElementById(`upload-font-${t}`).onchange = (e) => {
+                    const f = e.target.files[0];
+                    if(f) {
+                        const url = URL.createObjectURL(f); const name = `CustomFont_${t}_${Date.now()}`;
+                        const style = document.createElement('style'); style.innerHTML = `@font-face { font-family: '${name}'; src: url('${url}'); }`;
+                        document.head.appendChild(style); brandState.fonts[t] = name; updateUI();
+                    }
+                };
+            });
+
+            ['primary', 'secondary', 'tertiary', 'quaternary'].forEach(t => {
+                document.getElementById(`upload-logo-${t}`).onchange = (e) => {
+                    const f = e.target.files[0]; if(f) { brandState.logos[t] = URL.createObjectURL(f); updateUI(); }
+                };
+            });
+
+            const prepareExport = () => {
+                document.getElementById('page-1').classList.add('exporting-mode');
+                document.getElementById('page-2').classList.add('exporting-mode');
+                document.querySelectorAll('.export-grid-2').forEach(el => { el.classList.remove('grid-cols-1'); el.classList.add('grid-cols-2'); });
+                document.querySelectorAll('.export-flex-col').forEach(el => { el.classList.remove('flex-row'); el.classList.add('flex-col'); });
+            };
+
+            const cleanupExport = () => {
+                document.getElementById('page-1').classList.remove('exporting-mode');
+                document.getElementById('page-2').classList.remove('exporting-mode');
+                document.querySelectorAll('.export-grid-2').forEach(el => { el.classList.add('grid-cols-1'); el.classList.remove('grid-cols-2'); });
+                document.querySelectorAll('.export-flex-col').forEach(el => { el.classList.add('flex-row'); el.classList.remove('flex-col'); });
+                window.dispatchEvent(new Event('resize'));
+            };
+
+            document.getElementById('btn-export-pdf').onclick = () => {
+                const container = document.getElementById('preview-pages-container');
+                container.style.transform = 'none'; prepareExport();
+                setTimeout(() => {
+                    const opt = { margin:0, filename: 'BrandingBook.pdf', image:{type:'jpeg',quality:1}, html2canvas:{scale:2, useCORS:true, windowWidth:1024}, jsPDF:{unit:'in', format:'a4', orientation:'portrait'}, pagebreak:{mode:['css', 'legacy']} };
+                    document.getElementById('page-1').style.pageBreakAfter = 'always';
+                    html2pdf().set(opt).from(container).save().then(() => { document.getElementById('page-1').style.pageBreakAfter = ''; cleanupExport(); });
+                }, 100);
+            };
+
+            document.getElementById('btn-export-png').onclick = () => {
+                const container = document.getElementById('preview-pages-container');
+                container.style.transform = 'none'; prepareExport();
+                setTimeout(() => {
+                    html2canvas(container, {scale:2, useCORS:true, backgroundColor:'#f2f1fb', windowWidth:1024}).then(c => {
+                        const a = document.createElement('a'); a.download = 'BrandBoard.png'; a.href = c.toDataURL('image/png'); a.click(); cleanupExport();
+                    });
+                }, 100);
+            };
+
+            document.getElementById('btn-save').onclick = async () => {
+                if (!VAULT_WEB_APP_URL) { window.openSettingsModal(); return; }
+                const btn = document.getElementById('btn-save-text');
+                const orig = btn.innerText; btn.innerText = "Guardando...";
+                try {
+                    const payload = { project:"tiendas-digitales", action:"saveBranding", params:{ user_id:localStorage.getItem('userId')||"USER_DEMO", progress:brandState.progress+"%", brand_data_json:JSON.stringify(brandState), last_update:new Date().toISOString() } };
+                    const res = await fetch(VAULT_WEB_APP_URL, { method:'POST', body:JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+                    const data = await res.json();
+                    if(data.success) { btn.innerText = "¡Listo!"; setTimeout(() => btn.innerText = orig, 2000); }
+                } catch(e) { alert("Error de conexión"); btn.innerText = orig; }
+            };
+        }
+    </script>
+</body>
+</html>
