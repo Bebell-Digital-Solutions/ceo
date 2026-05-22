@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Organizaciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            primary: 'var(--theme-primary)',
+                            'primary-hover': 'var(--theme-primary-hover)',
+                            bg: 'var(--theme-bg)',
+                            surface: 'var(--theme-surface)',
+                            'header-bg': 'var(--theme-header-bg)',
+                            'header-border': 'var(--theme-header-border)',
+                            'header-text': 'var(--theme-header-text)',
+                            'header-icon': 'var(--theme-header-icon)',
+                            'header-icon-hover': 'var(--theme-header-icon-hover)',
+                            'search-bg': 'var(--theme-search-bg)',
+                            'search-border': 'var(--theme-search-border)',
+                            'search-text': 'var(--theme-search-text)',
+                            'search-focus': 'var(--theme-search-focus)',
+                            'text-main': 'var(--theme-text-main)',
+                            'text-muted': 'var(--theme-text-muted)',
+                            'text-inverted': 'var(--theme-text-inverted)',
+                            border: 'var(--theme-border)',
+                            'border-hover': 'var(--theme-border-hover)',
+                            danger: 'var(--theme-danger)',
+                            'danger-hover': 'var(--theme-danger-hover)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* 1. CORE BRAND COLORS */
+            --theme-primary: #000000;       /* Primary actions (Save buttons, active tags) */
+            --theme-primary-hover: #262626; /* Hover state for primary actions */
+            --theme-bg: #f9fafb;            /* Main application page background */
+            --theme-surface: #ffffff;       /* Surface elements (Cards, modals, standard inputs) */
+
+            /* 2. HEADER / TOP NAVIGATION */
+            --theme-header-bg: #000000;     /* Top navigation bar background */
+            --theme-header-border: #262626; /* Border under the header & between header items */
+            --theme-header-text: #ffffff;   /* Text color inside the header */
+            --theme-header-icon: #9ca3af;   /* Icon color inside the header (inactive state) */
+            --theme-header-icon-hover: #ffffff; /* Icon color on hover inside the header */
+
+            /* 3. SEARCH BAR */
+            --theme-search-bg: #171717;     /* Search input background */
+            --theme-search-border: #404040; /* Search input border */
+            --theme-search-text: #ffffff;   /* Search input typing text */
+            --theme-search-focus: #000000;  /* Search input background on focus */
+
+            /* 4. TYPOGRAPHY */
+            --theme-text-main: #111827;     /* Main body text */
+            --theme-text-muted: #6b7280;    /* Secondary text */
+            --theme-text-inverted: #ffffff; /* Text used on dark backgrounds */
+
+            /* 5. BORDERS & UI ELEMENTS */
+            --theme-border: #e5e7eb;        /* Default borders */
+            --theme-border-hover: #000000;  /* Border color when hovering or focusing an input */
+
+            /* 6. STATUS & ACTIONS */
+            --theme-danger: #ef4444;        /* Destructive actions (Delete buttons) */
+            --theme-danger-hover: #dc2626;  /* Destructive actions on hover */
+
+            /* 7. TRANSLUCENT OVERLAYS */
+            --theme-overlay-modal: rgba(0, 0, 0, 0.6);  /* Modal backdrop overlay */
+            --theme-overlay-card: rgba(0, 0, 0, 0.95);  /* Hover reveal overlay on Grid cards */
+        }
+
+        /* Custom scrollbars */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--theme-border); border-radius: 4px; }
+        .dark-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); }
+        
+        .hover-reveal { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* General Utilities */
+        .btn-primary { background-color: var(--theme-primary); color: var(--theme-text-inverted); transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: var(--theme-primary-hover); }
+        .text-primary { color: var(--theme-primary); }
+        .modal-overlay { background-color: var(--theme-overlay-modal); backdrop-filter: blur(2px); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-theme-bg text-theme-text-main min-h-screen font-sans antialiased flex flex-col">
+
+    <header class="bg-theme-header-bg border-b border-theme-header-border sticky top-0 z-50 shadow-sm text-theme-header-text">
+        <div class="min-w-[800px] max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <!-- Logo & Nav -->
+            <div class="flex items-center h-full shrink-0">
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png" alt="Logo" class="h-full w-auto object-contain p-2">
+                
+                <!-- Tool Name -->
+                <div class="flex items-center ml-2 border-l border-theme-header-border pl-4 h-8">
+                    <h1 class="text-white text-lg font-bold flex items-center gap-2 tracking-wide">
+                        <span>Organizaciones</span>
+                    </h1>
+                </div>
+            </div>
+            
+            <!-- Search & Counter -->
+            <div class="flex-1 max-w-md px-2 flex items-center justify-end gap-3">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-theme-header-icon text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar..." class="w-full pl-9 pr-4 py-1.5 rounded-full bg-theme-search-bg border border-theme-search-border text-theme-search-text placeholder-theme-header-icon focus:outline-none focus:bg-theme-search-focus focus:border-theme-border-hover transition-colors text-sm">
+                </div>
+                <!-- Contador a la derecha del buscador -->
+                <div class="shrink-0 bg-theme-search-bg border border-theme-search-border rounded-full px-3 py-1.5 flex items-center justify-center min-w-[2.5rem] gap-1.5 shadow-inner" title="Total de organizaciones">
+                    <span class="text-theme-header-icon text-xs font-medium uppercase tracking-wider">Total:</span>
+                    <span id="dataCounter" class="text-white text-xs font-bold">0</span>
+                </div>
+            </div>
+
+            <!-- Actions (Views, Settings, New Button) -->
+            <div class="flex items-center gap-3 shrink-0">
+                
+                <!-- Notification Bell -->
+                <div class="relative">
+                    <button id="btnNotifications" class="text-theme-header-icon hover:text-white transition-colors relative px-1 text-lg flex items-center justify-center" title="Notificaciones">
+                        <i class="fa-solid fa-bell"></i>
+                        <!-- Punto rojo de alerta (oculto por defecto) -->
+                        <span id="notificationBadge" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-theme-header-bg"></span>
+                    </button>
+
+                    <!-- Dropdown de Notificaciones -->
+                    <div id="notificationsDropdown" class="hidden absolute right-0 top-full mt-4 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-[60] overflow-hidden text-left cursor-default">
+                        <div class="bg-gray-50 border-b border-gray-100 px-4 py-3 flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-gray-800">Notificaciones</h3>
+                            <span id="notificationCount" class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded-full font-bold">2</span>
+                        </div>
+                        <div class="max-h-80 overflow-y-auto custom-scrollbar">
+                            
+                            <!-- Alerta de Modo Local (Inyectada vía JS si es necesario) -->
+                            <div id="localNotification" class="hidden border-b border-gray-100 p-4 bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-0.5 bg-yellow-200 text-yellow-700 w-6 h-6 rounded-full flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-yellow-800 leading-tight mb-1">Modo Local Activo</p>
+                                        <p class="text-xs text-yellow-700 leading-relaxed">Los datos se guardan temporalmente en tu navegador. Configura la base de datos para no perderlos.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notificación Hardcodeada 1 -->
+                            <div class="border-b border-gray-100 p-4 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-0.5 bg-blue-100 text-blue-600 w-6 h-6 rounded-full flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-bullhorn text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 leading-tight mb-1">Bienvenido al panel</p>
+                                        <p class="text-xs text-gray-500 leading-relaxed">El sistema central está listo. Explora las configuraciones para empezar.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notificación Hardcodeada 2 -->
+                            <div class="p-4 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-0.5 bg-purple-100 text-purple-600 w-6 h-6 rounded-full flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-bolt text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 leading-tight mb-1">Próximas actualizaciones</p>
+                                        <p class="text-xs text-gray-500 leading-relaxed">Pronto podrás conectar este módulo con Facturas y MailerSend directamente.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Vistas (Siempre visibles) -->
+                <div class="bg-theme-search-bg rounded-full border border-theme-search-border p-1 flex items-center">
+                    <button id="btnGrid" class="px-3 py-1 rounded-full bg-white/20 text-white text-sm transition-colors" title="Vista Cuadrícula"><i class="fa-solid fa-border-all"></i></button>
+                    <button id="btnList" class="px-3 py-1 rounded-full text-theme-header-icon hover:text-white text-sm transition-colors" title="Vista Lista"><i class="fa-solid fa-list"></i></button>
+                </div>
+
+                <button onclick="openSettingsModal()" class="text-white hover:text-gray-300 transition-colors shrink-0 px-1 text-lg flex items-center justify-center" title="Configuración de Base de Datos">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+
+                <button onclick="openModal()" class="bg-theme-surface text-theme-text-main hover:bg-gray-200 px-4 py-1.5 rounded-full shadow-sm font-medium flex items-center gap-2 text-sm transition-colors">
+                    <i class="fa-solid fa-plus"></i> <span>Nueva</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Content Container -->
+    <div id="contentContainer" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <!-- Loader -->
+        <div id="loader" class="col-span-full text-center py-10">
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-theme-primary"></i>
+            <p class="mt-2 text-theme-text-muted">Cargando datos...</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Button (FAB) -->
+    <button onclick="openModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-theme-primary text-white rounded-full shadow-2xl hover:bg-theme-primary-hover hover:scale-105 transition-transform duration-200 z-40 flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-gray-300" title="Nueva Organización">
+        <i class="fa-solid fa-plus text-2xl"></i>
+    </button>
+
+    <!-- Modal Formulario -->
+    <div id="orgModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+                <h2 id="modalTitle" class="text-xl font-bold">Añadir Organización</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <form id="orgForm" class="p-6 space-y-4">
+                <input type="hidden" id="orgID">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Empresa *</label>
+                        <input type="text" id="orgNombre" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+                        <select id="orgTipo" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="Cliente">Cliente</option>
+                            <option value="Suplidor">Suplidor</option>
+                            <option value="Socio">Socio / Partner</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">RNC</label>
+                        <input type="text" id="orgRNC" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                        <input type="text" id="orgTelefono" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dirección Física</label>
+                        <input type="text" id="orgDireccion" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                        <input type="email" id="orgEmail" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sitio Web</label>
+                        <input type="url" id="orgWebsite" placeholder="https://www.ejemplo.com" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Logo / Imagen de la Empresa</label>
+                        <div class="flex items-center gap-4">
+                            <div class="h-16 w-16 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                                <img id="logoPreview" src="" class="h-full w-full object-cover hidden" alt="Logo Preview">
+                                <i id="logoIcon" class="fa-solid fa-image text-gray-300 text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <input type="hidden" id="orgLogo">
+                                <input type="file" id="orgLogoFile" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'orgLogo', 'logoPreview', 'logoIcon')">
+                                <button type="button" onclick="document.getElementById('orgLogoFile').click()" class="px-4 py-2 bg-gray-800 text-white hover:bg-gray-900 rounded-md shadow-sm text-sm font-medium flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-upload"></i> Subir Logo Local
+                                </button>
+                                <p class="text-xs text-gray-500 mt-1">Sube una imagen o deja vacío para usar automáticamente el ícono del Sitio Web.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Etiquetas (Separadas por coma)</label>
+                        <input type="text" id="orgTags" placeholder="Tecnología, VIP, Mayorista..." class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="btn-primary px-4 py-2 rounded-lg flex items-center gap-2">
+                        <i class="fa-solid fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Configuración -->
+    <div id="settingsModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b bg-gray-50">
+                <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-database text-blue-600"></i> Configuración de Base de Datos</h2>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Paso 1 -->
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-5">
+                    <h3 class="font-bold text-blue-800 mb-2 text-lg">Paso 1: Configura tu Google Sheets</h3>
+                    <p class="text-sm text-blue-700 mb-4">Abre un nuevo Google Sheets, ve a <strong>Extensiones > Apps Script</strong>. Borra el código que haya, y pega el Script Maestro. Luego dale a "Ejecutar" a la función <em>setupMasterSpreadsheet</em>, y finalmente publícalo como Aplicación Web.</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="copyMasterScript()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm text-sm font-medium flex items-center gap-2 transition-colors">
+                            <i class="fa-regular fa-copy"></i> Copiar Script Maestro
+                        </button>
+                        <a href="https://ejemplo-guia.com" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-book"></i> Guía Paso a Paso
+                        </a>
+                        <a href="https://ejemplo-demo.com" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-play"></i> Ver Demo
+                        </a>
+                        <span id="copyFeedback" class="text-green-600 text-sm font-medium hidden transition-opacity"><i class="fa-solid fa-check"></i> ¡Copiado!</span>
+                    </div>
+                </div>
+
+                <!-- Paso 2 -->
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-2 text-lg">Paso 2: Conecta la Aplicación Web</h3>
+                    <p class="text-sm text-gray-600 mb-3">Pega aquí la URL generada por Google Apps Script. Al guardarla, tus datos se sincronizarán directamente con tu cuenta.</p>
+                    <input type="url" id="backendUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border border-gray-300 rounded-md px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow text-sm">
+                </div>
+            </div>
+            <div class="p-4 border-t bg-gray-50 flex justify-end gap-3">
+                <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">Cerrar</button>
+                <button type="button" onclick="saveBackendUrl()" class="btn-primary px-5 py-2 rounded-lg flex items-center gap-2">
+                    <i class="fa-solid fa-save"></i> Guardar Conexión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURACIÓN DE APPS SCRIPT ===
+        let SCRIPT_URL = localStorage.getItem('backend_url') || ''; 
+        let IS_LOCAL = !SCRIPT_URL || SCRIPT_URL.includes('AKfycb...');
+
+        const MASTER_SCRIPT_CODE = `/**
+ * MASTER BACKEND SCRIPT - CRM & Herramientas Modulares
+ * Unifica Contactos, Organizaciones, Kanban, Invoices, Mailer y Drive
+ */
+
+// 1. FUNCIÓN DE INICIALIZACIÓN (Ejecutar una vez manualmente)
+function setupMasterSpreadsheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheetsToCreate = [
+    { name: "Organizaciones", headers: ["ID", "Logo", "Nombre", "Direccion", "RNC", "Telefono", "Website", "Email", "Tipo", "Tags"] },
+    { name: "Contactos", headers: ["ID", "Foto", "Nombre", "Apellidos", "TelOficina", "Celular", "Correo", "Cargo", "Cumpleanos", "OrgID", "Notas"] },
+    { name: "Kanban", headers: ["ID", "Name", "Status", "Deadline", "Priority", "Estimated Hours", "Contact ID", "Org ID"] },
+    { name: "BrandingBook", headers: ["Fecha", "Usuario", "Proyecto", "Progreso", "Datos del Brand"] },
+    { name: "MailerSend", headers: ["DataStore"] },
+    { name: "Invoices", headers: ["Date Added", "Invoice No.", "Issue Date", "Expiry Date", "NCF", "Client Name", "Client Email", "Total Amount"] },
+    { name: "DataVault", headers: ["ID", "Data", "Tags"] }
+  ];
+
+  sheetsToCreate.forEach(sheetData => {
+    let sheet = ss.getSheetByName(sheetData.name);
+    if (!sheet) {
+      sheet = ss.insertSheet(sheetData.name);
+      sheet.appendRow(sheetData.headers);
+      sheet.getRange(1, 1, 1, sheetData.headers.length).setFontWeight("bold").setBackground("#f3f4f6");
+    }
+  });
+}
+
+// 2. ENRUTADOR PRINCIPAL
+function doGet(e) {
+  const action = e.parameter.action;
+  let result = { status: "error", message: "Acción no especificada" };
+
+  try {
+    if (action === "getOrganizaciones") result = getRecords("Organizaciones");
+    else if (action === "getContactos") result = getRecords("Contactos");
+  } catch (error) {
+    result = { status: "error", message: error.toString() };
+  }
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action;
+    let result = { status: "error", message: "Acción POST no reconocida" };
+
+    if (action === "saveOrganizacion") result = saveRecord("Organizaciones", data.payload);
+    else if (action === "saveContacto") result = saveRecord("Contactos", data.payload);
+    else if (action === "deleteRecord") result = deleteRecord(data.sheetName, data.id);
+    else if (action === "saveKanbanTask") result = saveRecord("Kanban", data.payload);
+    else if (action === "saveBrandData") {
+       const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("BrandingBook");
+       sheet.appendRow([new Date(), data.user_id || 'Anónimo', data.project || 'Branding', data.progress || '0%', JSON.stringify(data.brand_data || {})]);
+       result = { success: true };
+    }
+    else if (action === "saveInvoice") {
+       const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Invoices");
+       sheet.appendRow([new Date(), data.record.invoiceNo, data.record.invoiceDate, data.record.expiryDate, data.record.ncf, data.record.clientName, data.record.clientEmail, data.record.total]);
+       result = { success: true };
+    }
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// 3. FUNCIONES CRUD GENÉRICAS
+function getRecords(sheetName) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  if (!sheet) throw new Error("Pestaña no encontrada: " + sheetName);
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return []; 
+  const headers = data[0];
+  const records = [];
+  for (let i = 1; i < data.length; i++) {
+    let row = data[i];
+    let obj = {};
+    for (let j = 0; j < headers.length; j++) {
+      obj[headers[j]] = row[j];
+    }
+    records.push(obj);
+  }
+  return records;
+}
+
+function saveRecord(sheetName, recordObj) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  if (!sheet) throw new Error("Pestaña no encontrada: " + sheetName);
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  if (!recordObj.ID) {
+    recordObj.ID = Utilities.getUuid();
+  }
+  const rowData = headers.map(header => recordObj[header] || "");
+  const data = sheet.getDataRange().getValues();
+  let updated = false;
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === recordObj.ID) { 
+      sheet.getRange(i + 1, 1, 1, rowData.length).setValues([rowData]);
+      updated = true;
+      break;
+    }
+  }
+  if (!updated) {
+    sheet.appendRow(rowData);
+  }
+  return { status: "success", action: updated ? "updated" : "created", id: recordObj.ID };
+}
+
+function deleteRecord(sheetName, id) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === id) {
+      sheet.deleteRow(i + 1);
+      return { status: "success", message: "Eliminado" };
+    }
+  }
+  return { status: "error", message: "ID no encontrado" };
+}`;
+
+        let organizaciones = [];
+        let viewMode = 'grid';
+
+        // Helper para optimizar y convertir imagen a Base64
+        function handleImageUpload(event, hiddenInputId, previewId, iconId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 250; // Redimensionamos para no saturar Sheets/LocalStorage
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const dataUrl = canvas.toDataURL('image/webp', 0.8);
+                    document.getElementById(hiddenInputId).value = dataUrl;
+                    document.getElementById(previewId).src = dataUrl;
+                    document.getElementById(previewId).classList.remove('hidden');
+                    document.getElementById(iconId).classList.add('hidden');
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lógica de Notificaciones
+            const btnNotif = document.getElementById('btnNotifications');
+            const dropNotif = document.getElementById('notificationsDropdown');
+            
+            btnNotif.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropNotif.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!dropNotif.contains(e.target) && !e.target.closest('#btnNotifications')) {
+                    dropNotif.classList.add('hidden');
+                }
+            });
+
+            if (IS_LOCAL) {
+                document.getElementById('notificationBadge').classList.remove('hidden');
+                document.getElementById('localNotification').classList.remove('hidden');
+                document.getElementById('notificationCount').innerText = '3';
+            } else {
+                document.getElementById('notificationCount').innerText = '2';
+            }
+
+            fetchData();
+            
+            document.getElementById('searchInput').addEventListener('input', (e) => renderData(e.target.value));
+            
+            document.getElementById('btnGrid').addEventListener('click', () => setView('grid'));
+            document.getElementById('btnList').addEventListener('click', () => setView('list'));
+
+            document.getElementById('orgForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await saveData();
+            });
+        });
+
+        async function fetchData() {
+            try {
+                if (IS_LOCAL) {
+                    const localData = localStorage.getItem('organizaciones_db');
+                    organizaciones = localData ? JSON.parse(localData) : [];
+                    document.getElementById('loader').classList.add('hidden');
+                    renderData();
+                    return;
+                }
+                
+                const response = await fetch(`${SCRIPT_URL}?action=getOrganizaciones`);
+                organizaciones = await response.json();
+                renderData();
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('loader').innerHTML = "<p class='text-red-500'>Error al conectar con la base de datos.</p>";
+            }
+        }
+
+        function setView(mode) {
+            viewMode = mode;
+            const container = document.getElementById('contentContainer');
+            const btnGrid = document.getElementById('btnGrid');
+            const btnList = document.getElementById('btnList');
+
+            if (mode === 'grid') {
+                container.className = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full';
+                btnGrid.classList.add('bg-white/20', 'text-white'); btnGrid.classList.remove('text-theme-header-icon');
+                btnList.classList.remove('bg-white/20', 'text-white'); btnList.classList.add('text-theme-header-icon');
+            } else {
+                container.className = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex flex-col gap-4 w-full';
+                btnList.classList.add('bg-white/20', 'text-white'); btnList.classList.remove('text-theme-header-icon');
+                btnGrid.classList.remove('bg-white/20', 'text-white'); btnGrid.classList.add('text-theme-header-icon');
+            }
+            renderData(document.getElementById('searchInput').value);
+        }
+
+        function getLogoUrl(org) {
+            if (org.Logo) return org.Logo;
+            if (org.Website) {
+                let domain = new URL(org.Website.startsWith('http') ? org.Website : `https://${org.Website}`).hostname;
+                return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+            }
+            return 'https://ui-avatars.com/api/?name=' + encodeURIComponent(org.Nombre) + '&background=random';
+        }
+
+        function renderData(searchTerm = '') {
+            const container = document.getElementById('contentContainer');
+            container.innerHTML = '';
+
+            const filtered = organizaciones.filter(org => 
+                org.Nombre?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                (org.Tags && org.Tags.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+
+            // Actualizar Contador en la cabecera
+            document.getElementById('dataCounter').innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
+                        <img src="https://bucket.mlcdn.com/a/3336/3336910/images/813e15c6b877a0405960859cab3b7092145d33f0.png" class="w-32 h-32 object-contain opacity-10 mb-6" alt="Icono vacío">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">No hay organizaciones aún</h3>
+                        <p class="text-gray-500 max-w-sm mx-auto">Haz clic en el botón "+" abajo a la derecha para crear tu primera organización en la base de datos.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(org => {
+                const logo = getLogoUrl(org);
+                const tagsHtml = org.Tags ? org.Tags.split(',').map(t => `<span class="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-full mr-1">${t.trim()}</span>`).join('') : '';
+                
+                let cardHtml = '';
+                if (viewMode === 'grid') {
+                    cardHtml = `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow relative">
+                            <button onclick='editOrg(${JSON.stringify(org).replace(/'/g, "&#39;")})' class="absolute top-4 right-4 text-gray-400 hover:text-indigo-600"><i class="fa-solid fa-pen"></i></button>
+                            <div class="flex items-center gap-4 mb-4">
+                                <img src="${logo}" class="w-14 h-14 rounded-lg object-contain bg-gray-50 border" alt="Logo">
+                                <div>
+                                    <h3 class="font-bold text-lg leading-tight">${org.Nombre}</h3>
+                                    <span class="text-xs font-medium px-2 py-0.5 rounded-md ${org.Tipo === 'Cliente' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">${org.Tipo}</span>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-2 mb-4">
+                                ${org.Telefono ? `<p><i class="fa-solid fa-phone w-5"></i> ${org.Telefono}</p>` : ''}
+                                ${org.Email ? `<p><i class="fa-solid fa-envelope w-5"></i> <a href="mailto:${org.Email}" class="text-indigo-600">${org.Email}</a></p>` : ''}
+                                ${org.Website ? `<p><i class="fa-solid fa-globe w-5"></i> <a href="${org.Website}" target="_blank" class="text-indigo-600">Website</a></p>` : ''}
+                            </div>
+                            <div class="flex flex-wrap mt-auto pt-3 border-t border-gray-100">${tagsHtml}</div>
+                        </div>
+                    `;
+                } else {
+                    cardHtml = `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow flex items-center gap-4">
+                            <img src="${logo}" class="w-12 h-12 rounded-lg object-contain bg-gray-50 border">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-lg">${org.Nombre} <span class="ml-2 text-xs font-medium px-2 py-0.5 rounded-md ${org.Tipo === 'Cliente' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">${org.Tipo}</span></h3>
+                                <div class="text-sm text-gray-500 flex gap-4 mt-1">
+                                    ${org.Telefono ? `<span><i class="fa-solid fa-phone"></i> ${org.Telefono}</span>` : ''}
+                                    ${org.Email ? `<span><i class="fa-solid fa-envelope"></i> ${org.Email}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="hidden md:flex flex-wrap w-1/4">${tagsHtml}</div>
+                            <button onclick='editOrg(${JSON.stringify(org).replace(/'/g, "&#39;")})' class="p-2 text-gray-400 hover:text-indigo-600 rounded-full hover:bg-gray-100"><i class="fa-solid fa-pen"></i></button>
+                        </div>
+                    `;
+                }
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function openModal() {
+            document.getElementById('orgForm').reset();
+            document.getElementById('orgID').value = '';
+            document.getElementById('orgLogo').value = '';
+            document.getElementById('logoPreview').classList.add('hidden');
+            document.getElementById('logoIcon').classList.remove('hidden');
+            document.getElementById('modalTitle').innerText = 'Añadir Organización';
+            document.getElementById('orgModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('orgModal').classList.add('hidden');
+        }
+
+        function editOrg(org) {
+            document.getElementById('orgID').value = org.ID || '';
+            document.getElementById('orgNombre').value = org.Nombre || '';
+            document.getElementById('orgTipo').value = org.Tipo || 'Cliente';
+            document.getElementById('orgRNC').value = org.RNC || '';
+            document.getElementById('orgTelefono').value = org.Telefono || '';
+            document.getElementById('orgDireccion').value = org.Direccion || '';
+            document.getElementById('orgEmail').value = org.Email || '';
+            document.getElementById('orgWebsite').value = org.Website || '';
+            document.getElementById('orgLogo').value = org.Logo || '';
+            
+            if (org.Logo && org.Logo.startsWith('data:image')) {
+                document.getElementById('logoPreview').src = org.Logo;
+                document.getElementById('logoPreview').classList.remove('hidden');
+                document.getElementById('logoIcon').classList.add('hidden');
+            } else {
+                document.getElementById('logoPreview').classList.add('hidden');
+                document.getElementById('logoIcon').classList.remove('hidden');
+            }
+
+            document.getElementById('orgTags').value = org.Tags || '';
+            
+            document.getElementById('modalTitle').innerText = 'Editar Organización';
+            document.getElementById('orgModal').classList.remove('hidden');
+        }
+
+        async function saveData() {
+            const btnSubmit = document.querySelector('#orgForm button[type="submit"]');
+            const originalText = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            btnSubmit.disabled = true;
+
+            const payload = {
+                ID: document.getElementById('orgID').value,
+                Nombre: document.getElementById('orgNombre').value,
+                Tipo: document.getElementById('orgTipo').value,
+                RNC: document.getElementById('orgRNC').value,
+                Telefono: document.getElementById('orgTelefono').value,
+                Direccion: document.getElementById('orgDireccion').value,
+                Email: document.getElementById('orgEmail').value,
+                Website: document.getElementById('orgWebsite').value,
+                Logo: document.getElementById('orgLogo').value,
+                Tags: document.getElementById('orgTags').value
+            };
+
+            if (IS_LOCAL) {
+                if (!payload.ID) payload.ID = 'loc_' + Date.now();
+                const existingIdx = organizaciones.findIndex(o => o.ID === payload.ID);
+                if (existingIdx >= 0) organizaciones[existingIdx] = payload;
+                else organizaciones.push(payload);
+                
+                localStorage.setItem('organizaciones_db', JSON.stringify(organizaciones));
+                closeModal();
+                fetchData();
+                btnSubmit.innerHTML = originalText;
+                btnSubmit.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'saveOrganizacion', payload: payload })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    closeModal();
+                    fetchData(); // Recargar datos
+                } else {
+                    alert("Error: " + result.message);
+                }
+            } catch (error) {
+                console.error("Error saving:", error);
+                // Si hay error CORS pero los datos se guardan (típico de GAS sin redirección configurada perfecta):
+                closeModal();
+                setTimeout(fetchData, 1000); 
+            } finally {
+                btnSubmit.innerHTML = originalText;
+                btnSubmit.disabled = false;
+            }
+        }
+
+        // === FUNCIONES DE CONFIGURACIÓN ===
+        function openSettingsModal() {
+            document.getElementById('backendUrlInput').value = SCRIPT_URL;
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+            document.getElementById('copyFeedback').classList.add('hidden');
+        }
+
+        function copyMasterScript() {
+            navigator.clipboard.writeText(MASTER_SCRIPT_CODE).then(() => {
+                const feedback = document.getElementById('copyFeedback');
+                feedback.classList.remove('hidden');
+                setTimeout(() => feedback.classList.add('hidden'), 3000);
+            }).catch(err => {
+                // Fallback method
+                const textArea = document.createElement("textarea");
+                textArea.value = MASTER_SCRIPT_CODE;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const feedback = document.getElementById('copyFeedback');
+                    feedback.classList.remove('hidden');
+                    setTimeout(() => feedback.classList.add('hidden'), 3000);
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function saveBackendUrl() {
+            const newUrl = document.getElementById('backendUrlInput').value.trim();
+            localStorage.setItem('backend_url', newUrl);
+            location.reload(); // Recarga para inicializar con la nueva URL
+        }
+    </script>
+</body>
+</html>
