@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,17 +13,53 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    <!-- Tailwind Configuration -->
+    <!-- Tailwind Configuration (Mapped to CSS Variables) -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: { 
-                        brand: { 
-                            primary: '#8b84f4', 
-                            highlight: '#e07cd0', 
-                            bg: '#f1f0fb', 
-                            sidebar: '#29225b' 
+                        theme: { 
+                            primary: 'var(--theme-primary)',
+                            'primary-hover': 'var(--theme-primary-hover)',
+                            bg: 'var(--theme-bg)',
+                            surface: 'var(--theme-surface)',
+                            
+                            header: {
+                                bg: 'var(--theme-header-bg)',
+                                border: 'var(--theme-header-border)',
+                                text: 'var(--theme-header-text)',
+                                icon: 'var(--theme-header-icon)',
+                                'icon-hover': 'var(--theme-header-icon-hover)',
+                            },
+                            
+                            search: {
+                                bg: 'var(--theme-search-bg)',
+                                border: 'var(--theme-search-border)',
+                                text: 'var(--theme-search-text)',
+                                focus: 'var(--theme-search-focus)',
+                            },
+
+                            text: {
+                                main: 'var(--theme-text-main)',
+                                muted: 'var(--theme-text-muted)',
+                                inverted: 'var(--theme-text-inverted)',
+                            },
+                            
+                            border: {
+                                DEFAULT: 'var(--theme-border)',
+                                hover: 'var(--theme-border-hover)',
+                            },
+                            
+                            danger: {
+                                DEFAULT: 'var(--theme-danger)',
+                                hover: 'var(--theme-danger-hover)',
+                            },
+
+                            overlay: {
+                                modal: 'var(--theme-overlay-modal)',
+                                card: 'var(--theme-overlay-card)',
+                            }
                         } 
                     },
                     fontFamily: {
@@ -35,17 +70,13 @@
         }
     </script>
 
-
-
-
-  <!-- ICONS CODE -->
     <script> 
         function removeFromLinks(rel) {
             for (link of document.head.getElementsByTagName("link")) {
                 if (link.rel == rel) {
                     document.head.removeChild(link);
                 }
-            };
+            }
         }
         function createNewFavicon(rel, img) {
             var newFavicon = document.createElement("link");
@@ -66,19 +97,52 @@
     <!-- Favicon -->
     <link rel="icon" href="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/logo-animation-bebell-1.gif?v=1777437988">
 
-
-
-
-
-
-
-
-
-
-
-    
-
     <style>
+        :root {
+            /* =========================================
+               DATA VAULT THEME COLORS
+               =========================================
+               Change these values to update the entire 
+               application's color scheme instantly. 
+               ========================================= */
+
+            /* 1. CORE BRAND COLORS */
+            --theme-primary: #000000;       /* Primary actions (Save buttons, active tags) */
+            --theme-primary-hover: #262626; /* Hover state for primary actions */
+            --theme-bg: #f9fafb;            /* Main application page background */
+            --theme-surface: #ffffff;       /* Surface elements (Cards, modals, standard inputs) */
+
+            /* 2. HEADER / TOP NAVIGATION */
+            --theme-header-bg: #000000;     /* Top navigation bar background */
+            --theme-header-border: #262626; /* Border under the header & between header items */
+            --theme-header-text: #ffffff;   /* Text color inside the header */
+            --theme-header-icon: #9ca3af;   /* Icon color inside the header (inactive state) */
+            --theme-header-icon-hover: #ffffff; /* Icon color on hover inside the header */
+
+            /* 3. SEARCH BAR */
+            --theme-search-bg: #171717;     /* Search input background */
+            --theme-search-border: #404040; /* Search input border */
+            --theme-search-text: #ffffff;   /* Search input typing text */
+            --theme-search-focus: #000000;  /* Search input background on focus */
+
+            /* 4. TYPOGRAPHY */
+            --theme-text-main: #111827;     /* Main body text (Headings, titles, primary info) */
+            --theme-text-muted: #6b7280;    /* Secondary text (Descriptions, hints, inactive tabs) */
+            --theme-text-inverted: #ffffff; /* Text used on dark backgrounds (like primary buttons) */
+
+            /* 5. BORDERS & UI ELEMENTS */
+            --theme-border: #e5e7eb;        /* Default borders (Cards, lists, default inputs) */
+            --theme-border-hover: #000000;  /* Border color when hovering or focusing an input */
+
+            /* 6. STATUS & ACTIONS */
+            --theme-danger: #ef4444;        /* Destructive actions (Delete buttons) */
+            --theme-danger-hover: #dc2626;  /* Destructive actions on hover */
+
+            /* 7. TRANSLUCENT OVERLAYS (Must use rgba for opacity support) */
+            --theme-overlay-modal: rgba(0, 0, 0, 0.6);  /* Modal backdrop overlay */
+            --theme-overlay-card: rgba(0, 0, 0, 0.95);  /* Hover reveal overlay on Grid cards */
+        }
+
         /* Custom scrollbar for tags & descriptions */
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
@@ -89,7 +153,7 @@
             border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(41, 34, 91, 0.2);
+            background: var(--theme-border);
             border-radius: 4px;
         }
         .dark-scrollbar::-webkit-scrollbar-thumb {
@@ -111,23 +175,23 @@
         }
     </style>
 </head>
-<body class="bg-brand-bg text-slate-800 min-h-screen font-sans antialiased flex flex-col">
+<body class="bg-theme-bg text-theme-text-main min-h-screen font-sans antialiased flex flex-col">
 
-    <!-- Navbar -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <header class="bg-theme-header-bg border-b border-theme-header-border sticky top-0 z-30 shadow-sm text-theme-header-text">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
             <!-- Logo -->
             <div class="flex items-center gap-2 flex-shrink-0">
                 <img src="https://bucket.mlcdn.com/a/3336/3336910/images/cba115699f5ea034d4c572a5a342f865e517ea42.png" alt="Brand Logo" class="h-10 sm:h-12 w-auto object-contain">
-                <span class="font-bold text-xl tracking-tight hidden sm:block text-brand-sidebar">Data Vault</span>
+                <span class="font-bold text-xl tracking-tight hidden sm:block text-theme-header-text">Data Vault</span>
             </div>
 
             <!-- Search Bar -->
             <div class="flex-1 max-w-2xl relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg class="h-5 w-5 text-theme-header-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Search your vault..." class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-brand-bg placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-primary focus:border-brand-primary sm:text-sm transition-colors">
+                <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Search your vault..." class="block w-full pl-10 pr-3 py-2 border border-theme-search-border rounded-full leading-5 bg-theme-search-bg text-theme-search-text placeholder-theme-header-icon focus:outline-none focus:bg-theme-search-focus focus:ring-2 focus:ring-theme-header-text focus:border-theme-header-text sm:text-sm transition-colors">
             </div>
 
             <!-- Actions & Metrics -->
@@ -135,28 +199,29 @@
                 
                 <!-- Metrics Counter -->
                 <div class="hidden md:flex flex-col items-end mr-2">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold" data-i18n="total_saved">Total Saved</span>
-                    <span id="totalCount" class="text-xl font-black text-brand-highlight leading-none">0</span>
+                    <span class="text-[10px] uppercase tracking-wider text-theme-header-icon font-bold" data-i18n="total_saved">Total Saved</span>
+                    <span id="totalCount" class="text-xl font-black text-theme-header-text leading-none">0</span>
                 </div>
 
-                <div class="bg-brand-bg p-1 rounded-lg flex items-center border border-slate-200">
-                    <button id="btnGridView" data-i18n-title="grid_view" class="p-1.5 rounded-md text-slate-500 hover:text-brand-sidebar focus:outline-none transition-colors" title="Grid View">
+                <!-- View Toggles -->
+                <div class="bg-theme-search-bg p-1 rounded-lg flex items-center border border-theme-header-border">
+                    <button id="btnGridView" data-i18n-title="grid_view" class="p-1.5 rounded-md text-theme-header-icon hover:text-theme-header-icon-hover focus:outline-none transition-colors" title="Grid View">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     </button>
-                    <button id="btnListView" data-i18n-title="list_view" class="p-1.5 rounded-md text-slate-500 hover:text-brand-sidebar focus:outline-none transition-colors" title="List View">
+                    <button id="btnListView" data-i18n-title="list_view" class="p-1.5 rounded-md text-theme-header-icon hover:text-theme-header-icon-hover focus:outline-none transition-colors" title="List View">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                 </div>
                 
-                <button onclick="toggleLanguage()" id="langToggleBtn" class="p-2 text-brand-primary hover:text-brand-sidebar bg-brand-bg hover:bg-slate-200 rounded-lg transition-colors border border-slate-200 font-bold text-xs w-9 flex justify-center items-center" title="Change Language">
+                <button onclick="toggleLanguage()" id="langToggleBtn" class="p-2 text-theme-header-text bg-theme-search-bg hover:border-theme-header-icon-hover rounded-lg transition-colors border border-theme-header-border font-bold text-xs w-9 flex justify-center items-center" title="Change Language">
                     ES
                 </button>
 
-                <button onclick="openSettingsModal()" data-i18n-title="settings" class="p-2 text-slate-500 hover:text-brand-sidebar bg-brand-bg hover:bg-slate-200 rounded-lg transition-colors border border-slate-200" title="Settings">
+                <button onclick="openSettingsModal()" data-i18n-title="settings" class="p-2 text-theme-header-icon hover:text-theme-header-icon-hover bg-theme-search-bg hover:border-theme-header-icon-hover rounded-lg transition-colors border border-theme-header-border" title="Settings">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
                 
-                <button onclick="openAddModal()" class="flex items-center gap-2 bg-brand-primary hover:opacity-90 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+                <button onclick="openAddModal()" class="flex items-center gap-2 bg-theme-surface text-theme-text-main hover:bg-theme-border px-4 py-2 rounded-lg font-semibold transition-colors shadow-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span class="hidden sm:block" data-i18n="add_link">Add Link</span>
                 </button>
@@ -164,7 +229,6 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <!-- Tag Filters -->
@@ -174,12 +238,12 @@
 
         <!-- Empty State -->
         <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-center">
-            <div class="w-24 h-24 bg-brand-primary/10 text-brand-primary rounded-full flex items-center justify-center mb-6">
+            <div class="w-24 h-24 bg-theme-border text-theme-text-main rounded-full flex items-center justify-center mb-6">
                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
             </div>
-            <h2 class="text-2xl font-bold text-brand-sidebar mb-2" data-i18n="empty_title">Your Vault is Empty</h2>
-            <p class="text-slate-500 mb-8 max-w-md" data-i18n="empty_desc">Store your important links, resources, and articles here. Everything stays organized and quickly accessible.</p>
-            <button onclick="openAddModal()" class="bg-brand-primary hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-sm shadow-brand-primary/30" data-i18n="empty_btn">
+            <h2 class="text-2xl font-bold text-theme-text-main mb-2" data-i18n="empty_title">Your Vault is Empty</h2>
+            <p class="text-theme-text-muted mb-8 max-w-md" data-i18n="empty_desc">Store your important links, resources, and articles here. Everything stays organized and quickly accessible.</p>
+            <button onclick="openAddModal()" class="bg-theme-primary hover:bg-theme-primary-hover text-theme-text-inverted px-6 py-3 rounded-xl font-medium transition-colors shadow-sm" data-i18n="empty_btn">
                 Add Your First Link
             </button>
         </div>
@@ -190,21 +254,20 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full mt-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm font-medium text-slate-500">
-        <span data-i18n="footer">Developed with 💖 by</span> Bebell Digital Solutions.
+    <footer class="w-full mt-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm font-medium text-theme-text-muted">
+        <span data-i18n="footer">Developed with 🧡 by</span> Bebell Digital Solutions.
     </footer>
 
-    <!-- Add/Edit Link Modal -->
     <div id="modal-add" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-brand-sidebar/50 backdrop-blur-sm transition-opacity" onclick="closeAddModal()"></div>
+        <div class="fixed inset-0 bg-theme-overlay-modal backdrop-blur-sm transition-opacity" onclick="closeAddModal()"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg w-full">
+                <div class="relative transform overflow-hidden rounded-2xl bg-theme-surface text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg w-full border border-theme-border">
                     <form id="linkForm" onsubmit="handleFormSubmit(event)">
-                        <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="bg-theme-surface px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                             <div class="flex justify-between items-center mb-5">
-                                <h3 class="text-xl font-semibold leading-6 text-brand-sidebar" id="modal-title" data-i18n="modal_add_title">Save a Link</h3>
-                                <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-500 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                                <h3 class="text-xl font-semibold leading-6 text-theme-text-main" id="modal-title" data-i18n="modal_add_title">Save a Link</h3>
+                                <button type="button" onclick="closeAddModal()" class="text-theme-text-muted hover:text-theme-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-theme-border-hover">
                                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
@@ -213,33 +276,33 @@
 
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1"><span data-i18n="modal_add_url">URL</span> <span class="text-red-500">*</span></label>
-                                    <input type="url" id="linkUrl" required placeholder="https://example.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none">
+                                    <label class="block text-sm font-medium text-theme-text-main mb-1"><span data-i18n="modal_add_url">URL</span> <span class="text-theme-danger">*</span></label>
+                                    <input type="url" id="linkUrl" required placeholder="https://example.com" class="w-full px-3 py-2 bg-theme-surface text-theme-text-main border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-border-hover focus:border-theme-border-hover outline-none transition-colors">
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1"><span data-i18n="modal_add_name">Name / Title</span> <span class="text-red-500">*</span></label>
-                                    <input type="text" id="linkName" data-i18n-placeholder="name_placeholder" required placeholder="My Awesome Resource" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none">
+                                    <label class="block text-sm font-medium text-theme-text-main mb-1"><span data-i18n="modal_add_name">Name / Title</span> <span class="text-theme-danger">*</span></label>
+                                    <input type="text" id="linkName" data-i18n-placeholder="name_placeholder" required placeholder="My Awesome Resource" class="w-full px-3 py-2 bg-theme-surface text-theme-text-main border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-border-hover focus:border-theme-border-hover outline-none transition-colors">
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="modal_add_desc">Description</label>
-                                    <textarea id="linkDesc" data-i18n-placeholder="desc_placeholder" rows="3" placeholder="What is this link about?" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none resize-none"></textarea>
+                                    <label class="block text-sm font-medium text-theme-text-main mb-1" data-i18n="modal_add_desc">Description</label>
+                                    <textarea id="linkDesc" data-i18n-placeholder="desc_placeholder" rows="3" placeholder="What is this link about?" class="w-full px-3 py-2 bg-theme-surface text-theme-text-main border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-border-hover focus:border-theme-border-hover outline-none resize-none transition-colors"></textarea>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="modal_add_tags">Tags</label>
-                                    <div class="border border-slate-300 rounded-lg p-2 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex flex-wrap gap-2 items-center bg-white min-h-[42px]">
+                                    <label class="block text-sm font-medium text-theme-text-main mb-1" data-i18n="modal_add_tags">Tags</label>
+                                    <div class="border border-theme-border rounded-lg p-2 focus-within:ring-2 focus-within:ring-theme-border-hover focus-within:border-theme-border-hover flex flex-wrap gap-2 items-center bg-theme-surface min-h-[42px] transition-colors">
                                         <div id="tagsContainer" class="flex flex-wrap gap-2"></div>
-                                        <input type="text" id="tagInput" data-i18n-placeholder="tag_placeholder" placeholder="Add tag and press Enter" class="flex-1 min-w-[120px] outline-none text-sm p-1">
+                                        <input type="text" id="tagInput" data-i18n-placeholder="tag_placeholder" placeholder="Add tag and press Enter" class="flex-1 bg-transparent text-theme-text-main min-w-[120px] outline-none text-sm p-1">
                                     </div>
-                                    <p class="text-xs text-slate-500 mt-1" data-i18n="modal_add_tags_hint">Press enter or comma to add a tag.</p>
+                                    <p class="text-xs text-theme-text-muted mt-1" data-i18n="modal_add_tags_hint">Press enter or comma to add a tag.</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-brand-bg px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-2xl border-t border-slate-200">
-                            <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto transition-colors" data-i18n="modal_add_save">Save Link</button>
-                            <button type="button" onclick="closeAddModal()" class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-sidebar shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition-colors" data-i18n="modal_add_cancel">Cancel</button>
+                        <div class="bg-theme-bg px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-2xl border-t border-theme-border">
+                            <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-theme-primary px-4 py-2 text-sm font-semibold text-theme-text-inverted shadow-sm hover:bg-theme-primary-hover sm:ml-3 sm:w-auto transition-colors" data-i18n="modal_add_save">Save Link</button>
+                            <button type="button" onclick="closeAddModal()" class="mt-3 inline-flex w-full justify-center rounded-lg bg-theme-surface px-4 py-2 text-sm font-semibold text-theme-text-main shadow-sm ring-1 ring-inset ring-theme-border hover:bg-theme-bg sm:mt-0 sm:w-auto transition-colors" data-i18n="modal_add_cancel">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -247,68 +310,65 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div id="modal-settings" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-brand-sidebar/50 backdrop-blur-sm transition-opacity" onclick="closeSettingsModal()"></div>
+        <div class="fixed inset-0 bg-theme-overlay-modal backdrop-blur-sm transition-opacity" onclick="closeSettingsModal()"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl w-full flex flex-col max-h-[90vh]">
-                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 overflow-y-auto custom-scrollbar flex-1">
+                <div class="relative transform overflow-hidden rounded-2xl bg-theme-surface text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl w-full flex flex-col max-h-[90vh] border border-theme-border">
+                    <div class="bg-theme-surface px-4 pb-4 pt-5 sm:p-6 overflow-y-auto custom-scrollbar flex-1">
                         <div class="flex justify-between items-center mb-5">
-                            <h3 class="text-xl font-semibold leading-6 text-brand-sidebar flex items-center gap-2">
-                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <h3 class="text-xl font-semibold leading-6 text-theme-text-main flex items-center gap-2">
+                                <svg class="w-5 h-5 text-theme-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 <span data-i18n="modal_settings_title">Configuration</span>
                             </h3>
-                            <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-500 rounded-md focus:outline-none">
+                            <button onclick="closeSettingsModal()" class="text-theme-text-muted hover:text-theme-text-main rounded-md focus:outline-none">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
                         
-                        <div class="mb-6 bg-brand-bg p-4 rounded-xl border border-slate-200">
-                            <label class="block text-sm font-bold text-slate-700 mb-2" data-i18n="modal_settings_gas">Google App Script Web App URL</label>
-                            <input type="url" id="settingsGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none font-mono text-sm mb-2">
-                            <p class="text-xs text-slate-500" data-i18n="modal_settings_gas_hint">Leave this empty if you only want to store data in your browser's local storage.</p>
+                        <div class="mb-6 bg-theme-bg p-4 rounded-xl border border-theme-border">
+                            <label class="block text-sm font-bold text-theme-text-main mb-2" data-i18n="modal_settings_gas">Google App Script Web App URL</label>
+                            <input type="url" id="settingsGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 bg-theme-surface border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-border-hover focus:border-theme-border-hover outline-none font-mono text-sm mb-2 transition-colors">
+                            <p class="text-xs text-theme-text-muted" data-i18n="modal_settings_gas_hint">Leave this empty if you only want to store data in your browser's local storage.</p>
                         </div>
                         
-                        <div class="border-t border-slate-200 pt-6">
-                            <details class="group bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                                <summary class="font-bold text-brand-sidebar p-4 cursor-pointer flex items-center justify-between select-none hover:bg-brand-bg transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        <div class="border-t border-theme-border pt-6">
+                            <details class="group bg-theme-surface border border-theme-border rounded-xl shadow-sm overflow-hidden">
+                                <summary class="font-bold text-theme-text-main p-4 cursor-pointer flex items-center justify-between select-none hover:bg-theme-bg transition-colors list-none [&::-webkit-details-marker]:hidden">
                                     <div class="flex items-center gap-2 text-base">
-                                        <svg class="w-5 h-5 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        <svg class="w-5 h-5 text-theme-text-main" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                         <span data-i18n="modal_settings_details">Create and Connect your Web App</span>
                                     </div>
-                                    <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <svg class="w-5 h-5 text-theme-text-muted group-open:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </summary>
                                 
-                                <div class="p-5 border-t border-slate-200 bg-brand-bg">
-                                    <!-- Video Embed -->
+                                <div class="p-5 border-t border-theme-border bg-theme-bg">
                                     <div class="mb-6">
-                                        <p class="text-sm font-medium text-slate-700 mb-2" data-i18n="modal_settings_video">Prefer to watch a quick video?</p>
-                                        <div class="aspect-video w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-brand-sidebar">
-                                            <!-- Replace YOUR_VIDEO_ID with your actual YouTube video ID -->
+                                        <p class="text-sm font-medium text-theme-text-main mb-2" data-i18n="modal_settings_video">Prefer to watch a quick video?</p>
+                                        <div class="aspect-video w-full rounded-xl overflow-hidden shadow-sm border border-theme-border bg-black">
                                             <iframe class="w-full h-full" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                                         </div>
                                     </div>
 
-                                    <div class="space-y-5 text-sm text-slate-700 border-t border-slate-200 pt-5">
+                                    <div class="space-y-5 text-sm text-theme-text-main border-t border-theme-border pt-5">
                                         <div class="flex gap-3">
-                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">1</div>
-                                            <div class="pt-1" data-i18n="modal_settings_step1">Create a new <a href="https://sheets.new" target="_blank" class="text-brand-primary font-medium hover:underline">Google Sheet</a>. Name it anything you want (e.g. "Vault DB").</div>
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-theme-surface border border-theme-border text-theme-text-main flex items-center justify-center font-bold text-sm">1</div>
+                                            <div class="pt-1" data-i18n="modal_settings_step1">Create a new <a href="https://sheets.new" target="_blank" class="font-semibold hover:underline">Google Sheet</a>. Name it anything you want (e.g. "Vault DB").</div>
                                         </div>
                                         <div class="flex gap-3">
-                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">2</div>
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-theme-surface border border-theme-border text-theme-text-main flex items-center justify-center font-bold text-sm">2</div>
                                             <div class="pt-1" data-i18n="modal_settings_step2">In the top menu of your sheet, click <strong>Extensions</strong> > <strong>Apps Script</strong>.</div>
                                         </div>
                                         <div class="flex gap-3">
-                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">3</div>
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-theme-surface border border-theme-border text-theme-text-main flex items-center justify-center font-bold text-sm">3</div>
                                             <div class="w-full overflow-hidden">
                                                 <div class="flex justify-between items-end mb-2 pt-1">
                                                     <span data-i18n="modal_settings_step3">Paste the following code into the editor, <strong>replacing everything</strong> currently there:</span>
-                                                    <button type="button" onclick="copyGasCode(event)" class="text-brand-sidebar hover:text-brand-primary font-medium text-xs flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 px-3 py-1.5 rounded-md border border-brand-primary/20 transition-colors shadow-sm">
+                                                    <button type="button" onclick="copyGasCode(event)" class="text-theme-text-main font-medium text-xs flex items-center gap-1.5 bg-theme-surface hover:bg-theme-border px-3 py-1.5 rounded-md border border-theme-border transition-colors shadow-sm">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> <span data-i18n="btn_copy">Copy</span>
                                                     </button>
                                                 </div>
-                                                <pre class="bg-slate-900 text-emerald-400 p-4 rounded-xl overflow-x-auto custom-scrollbar dark-scrollbar text-xs font-mono shadow-inner"><code id="gasCodeBlock">function doGet(e) {
+                                                <pre class="bg-theme-text-main text-theme-border p-4 rounded-xl overflow-x-auto custom-scrollbar dark-scrollbar text-xs font-mono shadow-inner"><code id="gasCodeBlock">function doGet(e) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const data = sheet.getDataRange().getValues();
   let results = [];
@@ -344,15 +404,15 @@ function doPost(e) {
                                             </div>
                                         </div>
                                         <div class="flex gap-3">
-                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">4</div>
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-theme-surface border border-theme-border text-theme-text-main flex items-center justify-center font-bold text-sm">4</div>
                                             <div class="pt-1" data-i18n="modal_settings_step4">Click the blue <strong>Deploy</strong> button (top right) > <strong>New deployment</strong>.</div>
                                         </div>
                                         <div class="flex gap-3">
-                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">5</div>
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-theme-surface border border-theme-border text-theme-text-main flex items-center justify-center font-bold text-sm">5</div>
                                             <div class="pt-1" data-i18n="modal_settings_step5">Click the gear icon "Select type" and choose <strong>Web app</strong>. Under "Who has access", select <strong>Anyone</strong>. Click Deploy (Authorize access if prompted).</div>
                                         </div>
                                         <div class="flex gap-3">
-                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-sm">
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-sm">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                             </div>
                                             <div class="pt-1 font-medium" data-i18n="modal_settings_step6">Copy the generated <strong>Web app URL</strong> and paste it into the input field at the top of this modal!</div>
@@ -362,8 +422,8 @@ function doPost(e) {
                             </details>
                         </div>
                     </div>
-                    <div class="bg-brand-bg px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-2xl border-t border-slate-200 shrink-0">
-                        <button type="button" onclick="saveSettings()" class="inline-flex w-full justify-center rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto transition-colors" data-i18n="modal_settings_save">Save & Sync Settings</button>
+                    <div class="bg-theme-bg px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-2xl border-t border-theme-border shrink-0">
+                        <button type="button" onclick="saveSettings()" class="inline-flex w-full justify-center rounded-lg bg-theme-primary px-4 py-2.5 text-sm font-semibold text-theme-text-inverted shadow-sm hover:bg-theme-primary-hover sm:ml-3 sm:w-auto transition-colors" data-i18n="modal_settings_save">Save & Sync Settings</button>
                     </div>
                 </div>
             </div>
@@ -372,8 +432,8 @@ function doPost(e) {
 
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
-        <div class="bg-brand-sidebar text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
-            <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="bg-theme-primary text-theme-text-inverted px-4 py-3 rounded-lg shadow-xl border border-theme-primary-hover flex items-center gap-3">
+            <svg class="w-5 h-5 text-theme-text-inverted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span id="toastMessage" class="text-sm font-medium">Action successful</span>
         </div>
     </div>
@@ -403,7 +463,7 @@ function doPost(e) {
                 modal_settings_gas_hint: "Leave this empty if you only want to store data in your browser's local storage.",
                 modal_settings_details: "Create and Connect your Web App",
                 modal_settings_video: "Prefer to watch a quick video?",
-                modal_settings_step1: `Create a new <a href="https://sheets.new" target="_blank" class="text-brand-primary font-medium hover:underline">Google Sheet</a>. Name it anything you want (e.g. "Vault DB").`,
+                modal_settings_step1: `Create a new <a href="https://sheets.new" target="_blank" class="font-semibold hover:underline">Google Sheet</a>. Name it anything you want (e.g. "Vault DB").`,
                 modal_settings_step2: `In the top menu of your sheet, click <strong>Extensions</strong> > <strong>Apps Script</strong>.`,
                 modal_settings_step3: `Paste the following code into the editor, <strong>replacing everything</strong> currently there:`,
                 modal_settings_step4: `Click the blue <strong>Deploy</strong> button (top right) > <strong>New deployment</strong>.`,
@@ -452,7 +512,7 @@ function doPost(e) {
                 modal_settings_gas_hint: "Deja esto en blanco si solo quieres guardar los datos de forma local en tu navegador.",
                 modal_settings_details: "Crea y Conecta tu Web App",
                 modal_settings_video: "¿Prefieres ver un video rápido?",
-                modal_settings_step1: `Crea una nueva <a href="https://sheets.new" target="_blank" class="text-brand-primary font-medium hover:underline">Hoja de Google</a>. Nómbrala como quieras (ej. "Mi Bóveda").`,
+                modal_settings_step1: `Crea una nueva <a href="https://sheets.new" target="_blank" class="font-semibold hover:underline">Hoja de Google</a>. Nómbrala como quieras (ej. "Mi Bóveda").`,
                 modal_settings_step2: `En el menú superior de tu hoja, haz clic en <strong>Extensiones</strong> > <strong>Apps Script</strong>.`,
                 modal_settings_step3: `Pega el siguiente código en el editor, <strong>reemplazando todo</strong> lo que haya allí:`,
                 modal_settings_step4: `Haz clic en el botón azul de <strong>Implementar</strong> (arriba a la derecha) > <strong>Nueva implementación</strong>.`,
@@ -481,27 +541,15 @@ function doPost(e) {
             }
         };
 
-        // Auto-detect Language Logic
         function getInitialLanguage() {
-            // 1. Check if the user has manually toggled and saved a preference previously
             const savedLang = localStorage.getItem('vault_lang');
             if (savedLang) return savedLang;
-
-            // 2. If no saved preference, auto-detect from the browser
             const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
-            
-            // If the browser language starts with 'es' (e.g. es, es-ES, es-MX), set to Spanish
-            if (browserLang.startsWith('es')) {
-                return 'es';
-            }
-            
-            // 3. Default to English for everything else
+            if (browserLang.startsWith('es')) return 'es';
             return 'en';
         }
 
         let currentLang = getInitialLanguage();
-        
-        // Save the detected/loaded language right back to storage to keep it consistent
         localStorage.setItem('vault_lang', currentLang);
 
         function t(key) {
@@ -511,29 +559,20 @@ function doPost(e) {
         function applyLanguage() {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if(i18nDictionary[currentLang][key]) {
-                    el.innerHTML = i18nDictionary[currentLang][key];
-                }
+                if(i18nDictionary[currentLang][key]) el.innerHTML = i18nDictionary[currentLang][key];
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
-                if(i18nDictionary[currentLang][key]) {
-                    el.placeholder = i18nDictionary[currentLang][key];
-                }
+                if(i18nDictionary[currentLang][key]) el.placeholder = i18nDictionary[currentLang][key];
             });
             document.querySelectorAll('[data-i18n-title]').forEach(el => {
                 const key = el.getAttribute('data-i18n-title');
-                if(i18nDictionary[currentLang][key]) {
-                    el.title = i18nDictionary[currentLang][key];
-                }
+                if(i18nDictionary[currentLang][key]) el.title = i18nDictionary[currentLang][key];
             });
             
-            // Toggle shows opposite language to switch to
             document.getElementById('langToggleBtn').textContent = currentLang === 'en' ? 'ES' : 'EN';
             
-            // Re-render strings inside dynamic content
             if (document.getElementById('modal-title').textContent !== t('modal_edit_title')) {
-                // If not currently editing, ensure title is correct for Adding
                 document.getElementById('modal-title').textContent = t('modal_add_title');
             }
             
@@ -566,12 +605,10 @@ function doPost(e) {
         const btnGridView = document.getElementById('btnGridView');
         const btnListView = document.getElementById('btnListView');
 
-        // Modal Elements
         const modalAdd = document.getElementById('modal-add');
         const modalSettings = document.getElementById('modal-settings');
         const formTitle = document.getElementById('modal-title');
         
-        // Form Inputs
         const linkIdInput = document.getElementById('linkId');
         const linkUrlInput = document.getElementById('linkUrl');
         const linkNameInput = document.getElementById('linkName');
@@ -580,7 +617,6 @@ function doPost(e) {
         const tagsContainer = document.getElementById('tagsContainer');
         const settingsGasUrl = document.getElementById('settingsGasUrl');
 
-        // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
             applyLanguage();
             updateViewToggleButtons();
@@ -592,17 +628,14 @@ function doPost(e) {
                 renderApp();
             }
 
-            // Search Listener
             searchInput.addEventListener('input', (e) => {
                 searchQuery = e.target.value.toLowerCase();
                 renderApp();
             });
 
-            // View Toggle Listeners
             btnGridView.addEventListener('click', () => setView('grid'));
             btnListView.addEventListener('click', () => setView('list'));
 
-            // Tag Input Listeners
             tagInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ',') {
                     e.preventDefault();
@@ -612,7 +645,6 @@ function doPost(e) {
             tagInput.addEventListener('blur', addTagFromInput);
         });
 
-        // --- Core Rendering ---
         function renderApp() {
             const filteredLinks = links.filter(link => {
                 const searchString = `${link.name} ${link.desc} ${link.tags.join(' ')} ${link.url}`.toLowerCase();
@@ -632,9 +664,9 @@ function doPost(e) {
             if (filteredLinks.length === 0) {
                 linksContainer.innerHTML = `
                     <div class="text-center py-20">
-                        <div class="text-slate-400 mb-3"><svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
-                        <h3 class="text-lg font-medium text-brand-sidebar">${t('no_results_title')}</h3>
-                        <p class="text-slate-500">${t('no_results_desc')}</p>
+                        <div class="text-theme-text-muted mb-3"><svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <h3 class="text-lg font-medium text-theme-text-main">${t('no_results_title')}</h3>
+                        <p class="text-theme-text-muted">${t('no_results_desc')}</p>
                     </div>`;
                 return;
             }
@@ -655,14 +687,20 @@ function doPost(e) {
 
             filterTagsContainer.classList.remove('hidden');
 
-            let html = `<button onclick="setFilter(null)" class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${activeTagFilter === null ? 'bg-brand-primary text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-brand-bg'}">${t('all_tags')}</button>`;
+            let html = `<button onclick="setFilter(null)" class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${activeTagFilter === null ? 'bg-theme-primary text-theme-text-inverted shadow-sm' : 'bg-theme-surface border border-theme-border text-theme-text-muted hover:bg-theme-bg'}">${t('all_tags')}</button>`;
 
             uniqueTags.forEach(tag => {
                 const isActive = activeTagFilter === tag;
-                html += `<button onclick="setFilter('${tag}')" class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${isActive ? 'bg-brand-primary text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-brand-bg'}">${tag}</button>`;
+                html += `<button onclick="setFilter('${tag}')" class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${isActive ? 'bg-theme-primary text-theme-text-inverted shadow-sm' : 'bg-theme-surface border border-theme-border text-theme-text-muted hover:bg-theme-bg'}">${tag}</button>`;
             });
 
             filterTagsContainer.innerHTML = html;
+        }
+
+        function setFilter(tag) {
+            activeTagFilter = tag;
+            renderFilterBar();
+            renderApp();
         }
 
         function renderGrid(data) {
@@ -671,46 +709,46 @@ function doPost(e) {
             data.forEach(link => {
                 const domain = getDomain(link.url);
                 const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(link.url)}`;
-                const tagHtml = link.tags.map(tag => `<span class="bg-white/20 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm truncate max-w-[100px]" title="${tag}">${tag}</span>`).join('');
+                const tagHtml = link.tags.map(tag => `<span class="bg-white/20 text-theme-text-inverted text-xs px-2 py-1 rounded-md backdrop-blur-sm truncate max-w-[100px]" title="${tag}">${tag}</span>`).join('');
                 
                 html += `
-                <div class="group relative bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col h-48 cursor-pointer" onclick="openUrl('${link.url}')">
+                <div class="group relative bg-theme-surface border border-theme-border rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col h-48 cursor-pointer" onclick="openUrl('${link.url}')">
                     
                     <!-- Default View -->
-                    <div class="p-5 flex flex-col h-full z-10 bg-white group-hover:bg-brand-bg transition-colors">
+                    <div class="p-5 flex flex-col h-full z-10 bg-theme-surface group-hover:bg-theme-bg transition-colors">
                         <div class="flex items-start justify-between gap-3 mb-auto">
-                            <div class="w-12 h-12 rounded-xl bg-brand-bg flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-200">
-                                <img src="${faviconUrl}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238b84f4%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22></circle><line x1=%222%22 y1=%2212%22 x2=%2222%22 y2=%2212%22></line><path d=%22M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z%22></path></svg>'" class="w-full h-full object-cover">
+                            <div class="w-12 h-12 rounded-xl bg-theme-bg flex items-center justify-center flex-shrink-0 overflow-hidden border border-theme-border">
+                                <img src="${faviconUrl}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22></circle><line x1=%222%22 y1=%2212%22 x2=%2222%22 y2=%2212%22></line><path d=%22M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z%22></path></svg>'" class="w-full h-full object-cover">
                             </div>
-                            <button onclick="copyUrl(event, '${link.url}')" class="text-slate-400 hover:text-brand-primary bg-white p-1.5 rounded-md hover:bg-brand-primary/10 transition-colors" title="Copy URL">
+                            <button onclick="copyUrl(event, '${link.url}')" class="text-theme-text-muted hover:text-theme-text-main bg-theme-surface p-1.5 rounded-md hover:bg-theme-border transition-colors" title="Copy URL">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                             </button>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-brand-sidebar truncate" title="${link.name}">${link.name}</h3>
-                            <p class="text-sm text-slate-500 truncate">${domain}</p>
+                            <h3 class="font-semibold text-theme-text-main truncate" title="${link.name}">${link.name}</h3>
+                            <p class="text-sm text-theme-text-muted truncate">${domain}</p>
                         </div>
                     </div>
 
                     <!-- Hover Reveal (Description & Actions) -->
-                    <div class="absolute inset-0 bg-brand-sidebar/95 text-white z-20 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 hover-reveal p-5 flex flex-col justify-between" onclick="event.stopPropagation()">
+                    <div class="absolute inset-0 bg-theme-overlay-card text-theme-text-inverted z-20 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 hover-reveal p-5 flex flex-col justify-between" onclick="event.stopPropagation()">
                         <div class="overflow-y-auto custom-scrollbar dark-scrollbar flex-1 mb-3">
-                            <h3 class="font-bold text-white mb-2 line-clamp-1">${link.name}</h3>
-                            <p class="text-sm text-slate-300 whitespace-pre-wrap ${link.desc ? '' : 'italic opacity-70'}">${link.desc || t('no_desc')}</p>
+                            <h3 class="font-bold mb-2 line-clamp-1 text-theme-text-inverted">${link.name}</h3>
+                            <p class="text-sm text-theme-text-inverted opacity-80 whitespace-pre-wrap ${link.desc ? '' : 'italic'}">${link.desc || t('no_desc')}</p>
                         </div>
                         
                         <div class="flex flex-col gap-3 shrink-0">
                             ${link.tags.length > 0 ? `<div class="flex flex-wrap gap-1.5 max-h-[50px] overflow-y-auto dark-scrollbar">${tagHtml}</div>` : ''}
                             
-                            <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
-                                <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-sm font-medium text-brand-highlight hover:text-brand-highlight/80 transition-colors">
+                            <div class="flex items-center justify-between pt-3 border-t border-theme-text-inverted/20">
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-sm font-medium text-theme-text-inverted opacity-80 hover:opacity-100 transition-opacity">
                                     ${t('open_link')} <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                 </a>
                                 <div class="flex gap-2">
-                                    <button onclick="editLink('${link.id}', event)" class="p-1.5 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 rounded transition-colors" title="Edit">
+                                    <button onclick="editLink('${link.id}', event)" class="p-1.5 text-theme-text-inverted opacity-70 hover:opacity-100 bg-white/10 hover:bg-white/20 rounded transition-colors" title="Edit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <button onclick="deleteLink('${link.id}', event)" class="p-1.5 text-slate-300 hover:text-red-400 bg-white/10 hover:bg-white/20 hover:bg-red-500/20 rounded transition-colors" title="Delete">
+                                    <button onclick="deleteLink('${link.id}', event)" class="p-1.5 text-theme-text-inverted opacity-70 hover:opacity-100 bg-white/10 hover:bg-theme-danger rounded transition-colors" title="Delete">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
                                 </div>
@@ -724,39 +762,39 @@ function doPost(e) {
         }
 
         function renderList(data) {
-            let html = `<div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden text-left divide-y divide-slate-100">`;
+            let html = `<div class="bg-theme-surface border border-theme-border rounded-xl shadow-sm overflow-hidden text-left divide-y divide-theme-border">`;
             
             data.forEach(link => {
                 const domain = getDomain(link.url);
                 const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(link.url)}`;
-                const tagHtml = link.tags.map(tag => `<span class="bg-brand-bg text-brand-sidebar border border-slate-200 text-xs px-2 py-0.5 rounded-full whitespace-nowrap">${tag}</span>`).join('');
+                const tagHtml = link.tags.map(tag => `<span class="bg-theme-bg text-theme-text-main border border-theme-border text-xs px-2 py-0.5 rounded-full whitespace-nowrap">${tag}</span>`).join('');
 
                 html += `
-                <div class="p-4 hover:bg-brand-bg transition-colors flex items-center gap-4 group">
-                    <div class="w-10 h-10 rounded-lg bg-brand-bg flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-200 hidden sm:flex">
-                        <img src="${faviconUrl}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238b84f4%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22></circle><line x1=%222%22 y1=%2212%22 x2=%2222%22 y2=%2212%22></line><path d=%22M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z%22></path></svg>'" class="w-full h-full object-cover">
+                <div class="p-4 hover:bg-theme-bg transition-colors flex items-center gap-4 group">
+                    <div class="w-10 h-10 rounded-lg bg-theme-bg flex items-center justify-center flex-shrink-0 overflow-hidden border border-theme-border hidden sm:flex">
+                        <img src="${faviconUrl}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22></circle><line x1=%222%22 y1=%2212%22 x2=%2222%22 y2=%2212%22></line><path d=%22M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z%22></path></svg>'" class="w-full h-full object-cover">
                     </div>
                     
                     <div class="flex-1 min-w-0 flex flex-col justify-center">
                         <div class="flex items-center gap-2 mb-1">
-                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-sidebar hover:text-brand-primary truncate transition-colors">${link.name}</a>
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="font-semibold text-theme-text-main hover:opacity-80 truncate transition-opacity">${link.name}</a>
                             ${tagHtml ? `<div class="hidden md:flex flex-wrap gap-1 items-center ml-2 shrink-0">${tagHtml}</div>` : ''}
                         </div>
-                        <div class="flex items-center gap-3 text-sm text-slate-500">
-                            <span class="truncate max-w-[200px] sm:max-w-xs text-brand-primary">${domain}</span>
-                            <span class="hidden sm:inline text-slate-300">•</span>
+                        <div class="flex items-center gap-3 text-sm text-theme-text-muted">
+                            <span class="truncate max-w-[200px] sm:max-w-xs font-medium">${domain}</span>
+                            <span class="hidden sm:inline opacity-50">•</span>
                             <span class="truncate hidden sm:block flex-1">${link.desc || t('no_desc')}</span>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                        <button onclick="copyUrl(event, '${link.url}')" class="p-2 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors" title="Copy URL">
+                        <button onclick="copyUrl(event, '${link.url}')" class="p-2 text-theme-text-muted hover:text-theme-text-main hover:bg-theme-surface rounded-lg transition-colors" title="Copy URL">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                         </button>
-                        <button onclick="editLink('${link.id}', event)" class="p-2 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors" title="Edit">
+                        <button onclick="editLink('${link.id}', event)" class="p-2 text-theme-text-muted hover:text-theme-text-main hover:bg-theme-surface rounded-lg transition-colors" title="Edit">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         </button>
-                        <button onclick="deleteLink('${link.id}', event)" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                        <button onclick="deleteLink('${link.id}', event)" class="p-2 text-theme-text-muted hover:text-theme-text-inverted hover:bg-theme-danger rounded-lg transition-colors" title="Delete">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                     </div>
@@ -766,21 +804,16 @@ function doPost(e) {
             linksContainer.innerHTML = html;
         }
 
-        // --- Data Logic ---
         function saveToStorage() {
             localStorage.setItem('vault_links', JSON.stringify(links));
             updateMetrics();
             renderFilterBar();
             renderApp();
-            
-            // Sync to backend if configured
             if(gasUrl) syncToBackend();
         }
 
         function handleFormSubmit(e) {
             e.preventDefault();
-            
-            // Ensure any pending tag text is added
             addTagFromInput();
 
             const id = linkIdInput.value;
@@ -807,9 +840,7 @@ function doPost(e) {
             saveToStorage();
             closeAddModal();
 
-            if (isNew) {
-                fireConfetti();
-            }
+            if (isNew) fireConfetti();
         }
 
         function editLink(id, event) {
@@ -825,7 +856,6 @@ function doPost(e) {
             
             formTitle.textContent = t('modal_edit_title');
             renderTags();
-            
             modalAdd.classList.remove('hidden');
         }
 
@@ -838,7 +868,6 @@ function doPost(e) {
             }
         }
 
-        // --- Animations & UI Details ---
         function updateMetrics() {
             const endValue = links.length;
             animateValue("totalCount", animatedCount, endValue, 600);
@@ -856,7 +885,6 @@ function doPost(e) {
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
                 } else {
-                    // Small pop effect when animation finishes
                     obj.classList.add('scale-125', 'transition-transform');
                     setTimeout(() => obj.classList.remove('scale-125'), 150);
                 }
@@ -866,16 +894,17 @@ function doPost(e) {
 
         function fireConfetti() {
             if(typeof confetti === 'function') {
+                // Confetti colors adapted to read CSS variables if possible, 
+                // falling back to a grayscale set matching the default monochrome theme
                 confetti({
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 },
-                    colors: ['#8b84f4', '#e07cd0', '#29225b', '#f1f0fb']
+                    colors: ['#000000', '#4b5563', '#9ca3af', '#e5e7eb']
                 });
             }
         }
 
-        // --- Backend Sync (Google Apps Script API logic) ---
         async function fetchFromBackend() {
             try {
                 const res = await fetch(gasUrl, { method: 'GET' });
@@ -915,12 +944,11 @@ function doPost(e) {
             if(gasUrl) fetchFromBackend();
         }
 
-        // --- Tag Management ---
         function renderTags() {
             tagsContainer.innerHTML = currentTags.map((tag, index) => `
-                <span class="bg-brand-primary/10 text-brand-sidebar text-sm px-2 py-1 rounded-md flex items-center gap-1 group">
+                <span class="bg-theme-bg border border-theme-border text-theme-text-main text-sm px-2 py-1 rounded-md flex items-center gap-1 group transition-colors">
                     ${tag}
-                    <button type="button" onclick="removeTag(${index})" class="text-brand-primary hover:text-brand-sidebar focus:outline-none opacity-50 group-hover:opacity-100 transition-colors">
+                    <button type="button" onclick="removeTag(${index})" class="text-theme-text-muted hover:text-theme-text-main focus:outline-none opacity-50 group-hover:opacity-100 transition-colors">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </span>
@@ -941,7 +969,6 @@ function doPost(e) {
             renderTags();
         }
 
-        // --- UI Interactions ---
         function setView(view) {
             viewMode = view;
             localStorage.setItem('vault_view', view);
@@ -950,16 +977,17 @@ function doPost(e) {
         }
 
         function updateViewToggleButtons() {
+            // These buttons are inside the dark header container background
             if (viewMode === 'grid') {
-                btnGridView.classList.add('bg-white', 'shadow-sm', 'text-brand-sidebar');
-                btnGridView.classList.remove('text-slate-500');
-                btnListView.classList.remove('bg-white', 'shadow-sm', 'text-brand-sidebar');
-                btnListView.classList.add('text-slate-500');
+                btnGridView.classList.add('bg-theme-surface', 'shadow-sm', 'text-theme-text-main');
+                btnGridView.classList.remove('text-theme-header-icon');
+                btnListView.classList.remove('bg-theme-surface', 'shadow-sm', 'text-theme-text-main');
+                btnListView.classList.add('text-theme-header-icon');
             } else {
-                btnListView.classList.add('bg-white', 'shadow-sm', 'text-brand-sidebar');
-                btnListView.classList.remove('text-slate-500');
-                btnGridView.classList.remove('bg-white', 'shadow-sm', 'text-brand-sidebar');
-                btnGridView.classList.add('text-slate-500');
+                btnListView.classList.add('bg-theme-surface', 'shadow-sm', 'text-theme-text-main');
+                btnListView.classList.remove('text-theme-header-icon');
+                btnGridView.classList.remove('bg-theme-surface', 'shadow-sm', 'text-theme-text-main');
+                btnGridView.classList.add('text-theme-header-icon');
             }
         }
 
@@ -1050,7 +1078,6 @@ function doPost(e) {
             }, 3000);
         }
 
-        // Utility
         function getDomain(url) {
             try {
                 return new URL(url).hostname.replace('www.', '');
@@ -1059,7 +1086,6 @@ function doPost(e) {
             }
         }
 
-        // Link metadata autofill utility
         linkUrlInput.addEventListener('blur', function() {
             if(!linkNameInput.value && this.value) {
                 try {
