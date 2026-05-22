@@ -251,38 +251,6 @@
 <body class="bg-mainBg font-sans text-gray-800 antialiased overflow-hidden">
 
 
-
-<div id="lang-widget">
-  
-  <!-- Main button -->
-  <div class="lang-main" id="langToggle">
-    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/04172d964853053c192e7b072482628f0961be0e.png" alt="Language">
-  </div>
-
-  <!-- Options -->
-  <div class="lang-options">
-    
-    <a href="https://usuario.tarjeta-digital.site/aceroba-001" class="lang-option">
-      <img src="https://bucket.mlcdn.com/a/3336/3336910/images/2a2015de3de6179da8f920cd265146636a76b469.png" alt="Español">
-    </a>
-
-    <a href="https://usuario.tarjeta-digital.site/aceroba-en-001" class="lang-option">
-      <img src="https://bucket.mlcdn.com/a/3336/3336910/images/050703a1a818733ee85b103a6a8c4ea5180ade19.png" alt="English">
-    </a>
-
-    <a href="https://usuario.tarjeta-digital.site/aceroba-tr-001" class="lang-option">
-      <img src="https://bucket.mlcdn.com/a/3336/3336910/images/ed5b81f3a0ab0272a670c583b223c98eab0b12a6.png" alt="Türkçe">
-    </a>
-
-  </div>
-</div>
-
-
-
-
-
-    
-
     <!-- ==================== WELCOME OVERLAY ==================== -->
     <div id="welcome-overlay" class="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-1000 opacity-0">
         <div id="welcome-text" class="text-center transform scale-50 opacity-0 transition-all duration-1000 ease-out flex flex-col items-center justify-center p-8">
@@ -1175,31 +1143,6 @@
         }
     </script>
 
-
-<script>
-  var widget = document.getElementById("lang-widget");
-  var toggleBtn = document.getElementById("langToggle");
-
-  toggleBtn.addEventListener("click", function (e) {
-    e.preventDefault(); // Prevents jump if clicked rapidly
-    e.stopPropagation(); // Prevents the document listener from instantly closing it
-    widget.classList.toggle("active");
-  });
-  
-  // Close widget if user taps/clicks outside of it
-  document.addEventListener("click", function(e) {
-    if (!widget.contains(e.target) && widget.classList.contains("active")) {
-      widget.classList.remove("active");
-    }
-  });
-
-  // Mobile enhancement: auto-close widget when the user scrolls the page
-  window.addEventListener("scroll", function() {
-    if (widget.classList.contains("active")) {
-      widget.classList.remove("active");
-    }
-  }, { passive: true });
-</script>
 
 
     
