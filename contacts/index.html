@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Contactos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            primary: 'var(--theme-primary)',
+                            'primary-hover': 'var(--theme-primary-hover)',
+                            bg: 'var(--theme-bg)',
+                            surface: 'var(--theme-surface)',
+                            'header-bg': 'var(--theme-header-bg)',
+                            'header-border': 'var(--theme-header-border)',
+                            'header-text': 'var(--theme-header-text)',
+                            'header-icon': 'var(--theme-header-icon)',
+                            'header-icon-hover': 'var(--theme-header-icon-hover)',
+                            'search-bg': 'var(--theme-search-bg)',
+                            'search-border': 'var(--theme-search-border)',
+                            'search-text': 'var(--theme-search-text)',
+                            'search-focus': 'var(--theme-search-focus)',
+                            'text-main': 'var(--theme-text-main)',
+                            'text-muted': 'var(--theme-text-muted)',
+                            'text-inverted': 'var(--theme-text-inverted)',
+                            border: 'var(--theme-border)',
+                            'border-hover': 'var(--theme-border-hover)',
+                            danger: 'var(--theme-danger)',
+                            'danger-hover': 'var(--theme-danger-hover)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* 1. CORE BRAND COLORS */
+            --theme-primary: #000000;       /* Primary actions (Save buttons, active tags) */
+            --theme-primary-hover: #262626; /* Hover state for primary actions */
+            --theme-bg: #f9fafb;            /* Main application page background */
+            --theme-surface: #ffffff;       /* Surface elements (Cards, modals, standard inputs) */
+
+            /* 2. HEADER / TOP NAVIGATION */
+            --theme-header-bg: #000000;     /* Top navigation bar background */
+            --theme-header-border: #262626; /* Border under the header & between header items */
+            --theme-header-text: #ffffff;   /* Text color inside the header */
+            --theme-header-icon: #9ca3af;   /* Icon color inside the header (inactive state) */
+            --theme-header-icon-hover: #ffffff; /* Icon color on hover inside the header */
+
+            /* 3. SEARCH BAR */
+            --theme-search-bg: #171717;     /* Search input background */
+            --theme-search-border: #404040; /* Search input border */
+            --theme-search-text: #ffffff;   /* Search input typing text */
+            --theme-search-focus: #000000;  /* Search input background on focus */
+
+            /* 4. TYPOGRAPHY */
+            --theme-text-main: #111827;     /* Main body text */
+            --theme-text-muted: #6b7280;    /* Secondary text */
+            --theme-text-inverted: #ffffff; /* Text used on dark backgrounds */
+
+            /* 5. BORDERS & UI ELEMENTS */
+            --theme-border: #e5e7eb;        /* Default borders */
+            --theme-border-hover: #000000;  /* Border color when hovering or focusing an input */
+
+            /* 6. STATUS & ACTIONS */
+            --theme-danger: #ef4444;        /* Destructive actions (Delete buttons) */
+            --theme-danger-hover: #dc2626;  /* Destructive actions on hover */
+
+            /* 7. TRANSLUCENT OVERLAYS */
+            --theme-overlay-modal: rgba(0, 0, 0, 0.6);  /* Modal backdrop overlay */
+            --theme-overlay-card: rgba(0, 0, 0, 0.95);  /* Hover reveal overlay on Grid cards */
+        }
+
+        /* Custom scrollbars */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--theme-border); border-radius: 4px; }
+        .dark-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); }
+        
+        .hover-reveal { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* General Utilities */
+        .btn-primary { background-color: var(--theme-primary); color: var(--theme-text-inverted); transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: var(--theme-primary-hover); }
+        .text-primary { color: var(--theme-primary); }
+        .modal-overlay { background-color: var(--theme-overlay-modal); backdrop-filter: blur(2px); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-theme-bg text-theme-text-main min-h-screen font-sans antialiased flex flex-col">
+
+    <header class="bg-theme-header-bg border-b border-theme-header-border sticky top-0 z-30 shadow-sm text-theme-header-text overflow-x-auto hide-scroll">
+        <div class="min-w-[800px] max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <!-- Logo & Nav -->
+            <div class="flex items-center h-full shrink-0">
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/db23e75e612447d35bb75e2cf93a6a7574e6c7a0.png" alt="Logo" class="h-full w-auto object-contain p-4">
+                
+                <!-- Tool Name -->
+                <div class="flex items-center ml-2 border-l border-theme-header-border pl-4 h-8">
+                    <h1 class="text-white text-lg font-bold flex items-center gap-2 tracking-wide">
+                        <i class="fa-solid fa-users text-theme-header-icon"></i>
+                        <span>Contactos</span>
+                    </h1>
+                </div>
+            </div>
+            
+            <!-- Search & Counter -->
+            <div class="flex-1 max-w-md px-2 flex items-center justify-end gap-3">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-theme-header-icon text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar..." class="w-full pl-9 pr-4 py-1.5 rounded-full bg-theme-search-bg border border-theme-search-border text-theme-search-text placeholder-theme-header-icon focus:outline-none focus:bg-theme-search-focus focus:border-theme-border-hover transition-colors text-sm">
+                </div>
+                <!-- Contador a la derecha del buscador -->
+                <div class="shrink-0 bg-theme-search-bg border border-theme-search-border rounded-full px-3 py-1.5 flex items-center justify-center min-w-[2.5rem] gap-1.5 shadow-inner" title="Total de contactos">
+                    <span class="text-theme-header-icon text-xs font-medium uppercase tracking-wider">Total:</span>
+                    <span id="dataCounter" class="text-white text-xs font-bold">0</span>
+                </div>
+            </div>
+
+            <!-- Actions (Views, Alerts, New Button) -->
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- Local Storage Warning -->
+                <div id="localWarning" class="hidden text-yellow-500 cursor-help relative group">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                    <div class="absolute right-0 top-full mt-2 w-48 bg-gray-800 text-white text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                        Modo Local Activo. Los datos se guardan temporalmente en tu navegador.
+                    </div>
+                </div>
+
+                <!-- Botones de Vistas (Siempre visibles) -->
+                <div class="bg-theme-search-bg rounded-full border border-theme-search-border p-1 flex items-center">
+                    <button id="btnGrid" class="px-3 py-1 rounded-full bg-white/20 text-white text-sm transition-colors" title="Vista Cuadrícula"><i class="fa-solid fa-border-all"></i></button>
+                    <button id="btnList" class="px-3 py-1 rounded-full text-theme-header-icon hover:text-white text-sm transition-colors" title="Vista Lista"><i class="fa-solid fa-list"></i></button>
+                </div>
+                
+                <button onclick="openModal()" class="bg-theme-surface text-theme-text-main hover:bg-gray-200 px-4 py-1.5 rounded-full shadow-sm font-medium flex items-center gap-2 text-sm transition-colors">
+                    <i class="fa-solid fa-user-plus"></i> <span>Nuevo</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <div id="contentContainer" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
+        <div id="loader" class="col-span-full text-center py-10">
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-theme-primary"></i>
+            <p class="mt-2 text-theme-text-muted">Cargando contactos y organizaciones...</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Button (FAB) -->
+    <button onclick="openModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-theme-primary text-white rounded-full shadow-2xl hover:bg-theme-primary-hover hover:scale-105 transition-transform duration-200 z-40 flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-gray-300" title="Nuevo Contacto">
+        <i class="fa-solid fa-plus text-2xl"></i>
+    </button>
+
+    <!-- Modal Formulario -->
+    <div id="contactModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+                <h2 id="modalTitle" class="text-xl font-bold">Añadir Contacto</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <form id="contactForm" class="p-6 space-y-4">
+                <input type="hidden" id="conID">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                        <input type="text" id="conNombre" required class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+                        <input type="text" id="conApellidos" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Foto de Perfil</label>
+                        <div class="flex items-center gap-4">
+                            <div class="h-16 w-16 bg-gray-50 border border-gray-200 rounded-full flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                                <img id="fotoPreview" src="" class="h-full w-full object-cover hidden" alt="Foto Preview">
+                                <i id="fotoIcon" class="fa-solid fa-user text-gray-300 text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <input type="hidden" id="conFoto">
+                                <input type="file" id="conFotoFile" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'conFoto', 'fotoPreview', 'fotoIcon')">
+                                <button type="button" onclick="document.getElementById('conFotoFile').click()" class="px-4 py-2 bg-gray-800 text-white hover:bg-gray-900 rounded-md shadow-sm text-sm font-medium flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-camera"></i> Subir Foto Local
+                                </button>
+                                <p class="text-xs text-gray-500 mt-1">Sube una foto. Se guardará directamente en el sistema optimizada.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cargo / Puesto</label>
+                        <input type="text" id="conCargo" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Organización</label>
+                        <select id="conOrgID" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                            <option value="">-- Sin Organización --</option>
+                            <!-- Llenado vía JS -->
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Heredará los tags de la empresa</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                        <input type="email" id="conCorreo" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Celular</label>
+                        <input type="text" id="conCelular" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tel. Oficina</label>
+                        <input type="text" id="conTelOficina" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cumpleaños</label>
+                        <input type="date" id="conCumpleanos" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                        <textarea id="conNotas" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2"></textarea>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="btn-primary px-4 py-2 rounded-lg flex items-center gap-2">
+                        <i class="fa-solid fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURACIÓN DE APPS SCRIPT ===
+        // DEBE SER LA MISMA URL QUE USASTE EN ORGANIZACIONES
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycb.../exec'; 
+        const IS_LOCAL = SCRIPT_URL.includes('AKfycb...');
+
+        let contactos = [];
+        let organizacionesMap = {}; // ID -> Objeto Org
+        let viewMode = 'grid';
+
+        // Helper para optimizar y convertir imagen a Base64
+        function handleImageUpload(event, hiddenInputId, previewId, iconId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 250; 
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const dataUrl = canvas.toDataURL('image/webp', 0.8);
+                    document.getElementById(hiddenInputId).value = dataUrl;
+                    document.getElementById(previewId).src = dataUrl;
+                    document.getElementById(previewId).classList.remove('hidden');
+                    document.getElementById(iconId).classList.add('hidden');
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (IS_LOCAL) document.getElementById('localWarning').classList.remove('hidden');
+            fetchData();
+            document.getElementById('searchInput').addEventListener('input', (e) => renderData(e.target.value));
+            document.getElementById('btnGrid').addEventListener('click', () => setView('grid'));
+            document.getElementById('btnList').addEventListener('click', () => setView('list'));
+            document.getElementById('contactForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await saveData();
+            });
+        });
+
+        async function fetchData() {
+            try {
+                if (IS_LOCAL) {
+                    const localData = localStorage.getItem('contactos_db');
+                    contactos = localData ? JSON.parse(localData) : [];
+                    
+                    const localOrgs = localStorage.getItem('organizaciones_db');
+                    const orgsArray = localOrgs ? JSON.parse(localOrgs) : [];
+                    
+                    const selectOrg = document.getElementById('conOrgID');
+                    selectOrg.innerHTML = '<option value="">-- Sin Organización --</option>';
+                    
+                    orgsArray.forEach(org => {
+                        organizacionesMap[org.ID] = org;
+                        selectOrg.innerHTML += `<option value="${org.ID}">${org.Nombre}</option>`;
+                    });
+
+                    document.getElementById('loader').classList.add('hidden');
+                    renderData();
+                    return;
+                }
+                
+                // Fetch concurrente de Contactos y Orgs (para poder enlazar los datos)
+                const [resCont, resOrg] = await Promise.all([
+                    fetch(`${SCRIPT_URL}?action=getContactos`),
+                    fetch(`${SCRIPT_URL}?action=getOrganizaciones`)
+                ]);
+                
+                contactos = await resCont.json();
+                const orgsArray = await resOrg.json();
+                
+                // Mapear orgs e inyectar al Select
+                const selectOrg = document.getElementById('conOrgID');
+                selectOrg.innerHTML = '<option value="">-- Sin Organización --</option>';
+                
+                orgsArray.forEach(org => {
+                    organizacionesMap[org.ID] = org;
+                    selectOrg.innerHTML += `<option value="${org.ID}">${org.Nombre}</option>`;
+                });
+
+                renderData();
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('loader').innerHTML = "<p class='text-red-500'>Error al conectar con la base de datos.</p>";
+            }
+        }
+
+        function setView(mode) {
+            viewMode = mode;
+            const container = document.getElementById('contentContainer');
+            const btnGrid = document.getElementById('btnGrid');
+            const btnList = document.getElementById('btnList');
+
+            if (mode === 'grid') {
+                container.className = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full';
+                btnGrid.classList.add('bg-white/20', 'text-white'); btnGrid.classList.remove('text-theme-header-icon');
+                btnList.classList.remove('bg-white/20', 'text-white'); btnList.classList.add('text-theme-header-icon');
+            } else {
+                container.className = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex flex-col gap-4 w-full';
+                btnList.classList.add('bg-white/20', 'text-white'); btnList.classList.remove('text-theme-header-icon');
+                btnGrid.classList.remove('bg-white/20', 'text-white'); btnGrid.classList.add('text-theme-header-icon');
+            }
+            renderData(document.getElementById('searchInput').value);
+        }
+
+        function renderData(searchTerm = '') {
+            const container = document.getElementById('contentContainer');
+            container.innerHTML = '';
+
+            const filtered = contactos.filter(con => {
+                const nombreCompleto = `${con.Nombre} ${con.Apellidos || ''}`.toLowerCase();
+                const orgName = con.OrgID && organizacionesMap[con.OrgID] ? organizacionesMap[con.OrgID].Nombre.toLowerCase() : '';
+                return nombreCompleto.includes(searchTerm.toLowerCase()) || 
+                       (con.Cargo && con.Cargo.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                       orgName.includes(searchTerm.toLowerCase());
+            });
+
+            // Actualizar Contador
+            document.getElementById('dataCounter').innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
+                        <img src="https://bucket.mlcdn.com/a/3336/3336910/images/813e15c6b877a0405960859cab3b7092145d33f0.png" class="w-32 h-32 object-contain opacity-10 mb-6" alt="Icono vacío">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">No hay contactos aún</h3>
+                        <p class="text-gray-500 max-w-sm mx-auto">Haz clic en el botón "+" abajo a la derecha para añadir tu primer contacto a la base de datos.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(con => {
+                const foto = con.Foto || `https://ui-avatars.com/api/?name=${encodeURIComponent(con.Nombre)}+${encodeURIComponent(con.Apellidos||'')}&background=fbcfe8&color=be185d`;
+                const org = con.OrgID ? organizacionesMap[con.OrgID] : null;
+                const orgName = org ? org.Nombre : '';
+                
+                // Herencia automática de tags de la Organización
+                const tagsHtml = org && org.Tags ? org.Tags.split(',').map(t => `<span class="px-2 py-1 bg-pink-50 text-pink-700 text-[10px] rounded-full mr-1">${t.trim()}</span>`).join('') : '';
+
+                let cardHtml = '';
+                if (viewMode === 'grid') {
+                    cardHtml = `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow relative flex flex-col items-center text-center">
+                            <button onclick='editContact(${JSON.stringify(con).replace(/'/g, "&#39;")})' class="absolute top-4 right-4 text-gray-400 hover:text-pink-600"><i class="fa-solid fa-pen"></i></button>
+                            <img src="${foto}" class="w-20 h-20 rounded-full object-cover border-4 border-pink-50 shadow-sm mb-3">
+                            <h3 class="font-bold text-lg text-gray-900">${con.Nombre} ${con.Apellidos || ''}</h3>
+                            <p class="text-sm font-medium text-pink-600 mb-1">${con.Cargo || 'Sin cargo'}</p>
+                            ${orgName ? `<p class="text-xs text-gray-500 mb-3"><i class="fa-regular fa-building"></i> ${orgName}</p>` : '<div class="h-6"></div>'}
+                            
+                            <div class="w-full flex justify-center gap-3 mt-2 text-gray-400">
+                                ${con.Correo ? `<a href="mailto:${con.Correo}" class="hover:text-pink-500" title="${con.Correo}"><i class="fa-solid fa-envelope"></i></a>` : ''}
+                                ${con.Celular ? `<a href="tel:${con.Celular}" class="hover:text-pink-500" title="${con.Celular}"><i class="fa-solid fa-mobile-screen"></i></a>` : ''}
+                                ${con.TelOficina ? `<a href="tel:${con.TelOficina}" class="hover:text-pink-500" title="${con.TelOficina}"><i class="fa-solid fa-phone"></i></a>` : ''}
+                            </div>
+                            <div class="flex flex-wrap justify-center mt-4 pt-3 border-t border-gray-100 w-full">${tagsHtml}</div>
+                        </div>
+                    `;
+                } else {
+                    cardHtml = `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow flex items-center gap-4">
+                            <img src="${foto}" class="w-12 h-12 rounded-full object-cover">
+                            <div class="flex-1 grid grid-cols-3 gap-4 items-center">
+                                <div>
+                                    <h3 class="font-bold text-gray-900">${con.Nombre} ${con.Apellidos || ''}</h3>
+                                    <p class="text-xs text-pink-600">${con.Cargo || ''}</p>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    ${orgName ? `<i class="fa-regular fa-building"></i> ${orgName}` : ''}
+                                </div>
+                                <div class="text-sm text-gray-500 flex gap-3">
+                                    ${con.Correo ? `<a href="mailto:${con.Correo}"><i class="fa-solid fa-envelope hover:text-pink-500"></i></a>` : ''}
+                                    ${con.Celular ? `<span><i class="fa-solid fa-mobile-screen"></i> ${con.Celular}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="hidden md:flex flex-wrap w-1/5">${tagsHtml}</div>
+                            <button onclick='editContact(${JSON.stringify(con).replace(/'/g, "&#39;")})' class="p-2 text-gray-400 hover:text-pink-600 rounded-full hover:bg-gray-100"><i class="fa-solid fa-pen"></i></button>
+                        </div>
+                    `;
+                }
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function openModal() {
+            document.getElementById('contactForm').reset();
+            document.getElementById('conID').value = '';
+            document.getElementById('conFoto').value = '';
+            document.getElementById('fotoPreview').classList.add('hidden');
+            document.getElementById('fotoIcon').classList.remove('hidden');
+            document.getElementById('modalTitle').innerText = 'Añadir Contacto';
+            document.getElementById('contactModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('contactModal').classList.add('hidden');
+        }
+
+        function editContact(con) {
+            document.getElementById('conID').value = con.ID || '';
+            document.getElementById('conNombre').value = con.Nombre || '';
+            document.getElementById('conApellidos').value = con.Apellidos || '';
+            document.getElementById('conFoto').value = con.Foto || '';
+            
+            if (con.Foto && con.Foto.startsWith('data:image')) {
+                document.getElementById('fotoPreview').src = con.Foto;
+                document.getElementById('fotoPreview').classList.remove('hidden');
+                document.getElementById('fotoIcon').classList.add('hidden');
+            } else {
+                document.getElementById('fotoPreview').classList.add('hidden');
+                document.getElementById('fotoIcon').classList.remove('hidden');
+            }
+
+            document.getElementById('conCargo').value = con.Cargo || '';
+            document.getElementById('conOrgID').value = con.OrgID || '';
+            document.getElementById('conCorreo').value = con.Correo || '';
+            document.getElementById('conCelular').value = con.Celular || '';
+            document.getElementById('conTelOficina').value = con.TelOficina || '';
+            
+            // Format date if exists (GAS returns full date string, input type=date needs YYYY-MM-DD)
+            if (con.Cumpleanos && con.Cumpleanos.length > 5) {
+                try {
+                    const d = new Date(con.Cumpleanos);
+                    document.getElementById('conCumpleanos').value = d.toISOString().split('T')[0];
+                } catch(e) {}
+            } else {
+                document.getElementById('conCumpleanos').value = '';
+            }
+            
+            document.getElementById('conNotas').value = con.Notas || '';
+            
+            document.getElementById('modalTitle').innerText = 'Editar Contacto';
+            document.getElementById('contactModal').classList.remove('hidden');
+        }
+
+        async function saveData() {
+            const btnSubmit = document.querySelector('#contactForm button[type="submit"]');
+            const originalText = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            btnSubmit.disabled = true;
+
+            const payload = {
+                ID: document.getElementById('conID').value,
+                Nombre: document.getElementById('conNombre').value,
+                Apellidos: document.getElementById('conApellidos').value,
+                Foto: document.getElementById('conFoto').value,
+                Cargo: document.getElementById('conCargo').value,
+                OrgID: document.getElementById('conOrgID').value,
+                Correo: document.getElementById('conCorreo').value,
+                Celular: document.getElementById('conCelular').value,
+                TelOficina: document.getElementById('conTelOficina').value,
+                Cumpleanos: document.getElementById('conCumpleanos').value,
+                Notas: document.getElementById('conNotas').value
+            };
+
+            if (IS_LOCAL) {
+                if (!payload.ID) payload.ID = 'loc_' + Date.now();
+                const existingIdx = contactos.findIndex(c => c.ID === payload.ID);
+                if (existingIdx >= 0) contactos[existingIdx] = payload;
+                else contactos.push(payload);
+                
+                localStorage.setItem('contactos_db', JSON.stringify(contactos));
+                closeModal();
+                fetchData();
+                btnSubmit.innerHTML = originalText;
+                btnSubmit.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'saveContacto', payload: payload })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    closeModal();
+                    fetchData();
+                } else {
+                    alert("Error: " + result.message);
+                }
+            } catch (error) {
+                console.error("Error saving:", error);
+                // Mitigación de CORS típica de GAS
+                closeModal();
+                setTimeout(fetchData, 1000); 
+            } finally {
+                btnSubmit.innerHTML = originalText;
+                btnSubmit.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
