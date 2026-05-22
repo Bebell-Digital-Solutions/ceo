@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Pro - Generador Dinámico</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: 'var(--color-sidebar)',
+                        sidebarHover: 'rgba(255, 255, 255, 0.05)',
+                        mainBg: 'var(--color-mainbg)',
+                        highlight: 'var(--color-highlight)',
+                        highlightHover: 'var(--color-highlight-hover)',
+                        highlightLight: 'var(--color-highlight-light)',
+                        /* Topbar Colors */
+                        topbarBg: 'var(--color-topbar-bg)',
+                        topbarText: 'var(--color-topbar-text)',
+                        topbarMuted: 'var(--color-topbar-muted)',
+                        topbarHover: 'var(--color-topbar-hover)',
+                        topbarBorder: 'var(--color-topbar-border)',
+                        /* Topbar Button Colors */
+                        topbarBtnSaveBg: 'var(--color-topbar-btn-save-bg)',
+                        topbarBtnSaveHover: 'var(--color-topbar-btn-save-hover)',
+                        topbarBtnActionBg: 'var(--color-topbar-btn-action-bg)',
+                        topbarBtnActionHover: 'var(--color-topbar-btn-action-hover)',
+                        topbarBtnText: 'var(--color-topbar-btn-text)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- ICONS CODE -->
+    <script> 
+        function removeFromLinks(rel) {
+            for (let link of document.head.getElementsByTagName("link")) {
+                if (link.rel == rel) {
+                    document.head.removeChild(link);
+                }
+            };
+        }
+        function createNewFavicon(rel, img) {
+            var newFavicon = document.createElement("link");
+            newFavicon.type = "image/png";
+            newFavicon.rel = rel;
+            newFavicon.href = img;
+            var firstHeadElement = document.head.firstChild;
+            document.head.insertBefore(newFavicon, firstHeadElement);
+        }
+        removeFromLinks("icon");
+        removeFromLinks("shortcut icon");
+        removeFromLinks("apple-touch-icon");
+        createNewFavicon("icon", "https://bucket.mlcdn.com/a/3336/3336910/images/ba48dc6c14746407eea5796b6d07e1b22022eaf4.png");
+        createNewFavicon("shortcut icon", "https://bucket.mlcdn.com/a/3336/3336910/images/ba48dc6c14746407eea5796b6d07e1b22022eaf4.png");
+        createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/images/ba48dc6c14746407eea5796b6d07e1b22022eaf4.png"); 
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/62b84f7fc50fa710b34af34db694d8eefa926c92.png">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            /* Application Core Colors */
+            --color-sidebar: #1e293b;
+            --color-highlight: #6366f1; 
+            --color-highlight-hover: #4f46e5;
+            --color-highlight-light: #818cf8;
+            --color-mainbg: #f1f5f9;
+            
+            /* Topbar Specific Colors */
+            --color-topbar-bg: #000000;           
+            --color-topbar-text: #f8fafc;         
+            --color-topbar-muted: #94a3b8;        
+            --color-topbar-hover: #1f2937;        
+            --color-topbar-border: #334155;       
+            
+            /* Topbar Button Colors */
+            --color-topbar-btn-save-bg: #16a34a;      
+            --color-topbar-btn-save-hover: #15803d;   
+            --color-topbar-btn-action-bg: #6366f1;    
+            --color-topbar-btn-action-hover: #4f46e5; 
+            --color-topbar-btn-text: #ffffff;         
+        }
+
+        body { font-family: 'Inter', sans-serif; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .modal-enter { animation: fadeIn 0.3s ease-out forwards; }
+        .modal-leave { animation: fadeOut 0.2s ease-in forwards; pointer-events: none; }
+        
+        @keyframes fadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(8px); } }
+        @keyframes fadeOut { from { opacity: 1; backdrop-filter: blur(8px); } to { opacity: 0; backdrop-filter: blur(0px); display:none;} }
+
+        /* Custom Pulse Animation */
+        .pulse {
+           width: 56px;
+           height: 56px;
+           color: var(--color-highlight);
+           background: radial-gradient(circle at 60% 65%, currentColor 62%, #0000 65%) top left,
+                 radial-gradient(circle at 40% 65%, currentColor 62%, #0000 65%) top right,
+                 linear-gradient(to bottom left, currentColor 42%,#0000 43%) bottom left ,
+                 linear-gradient(to bottom right,currentColor 42%,#0000 43%) bottom right;
+           background-size: 50% 50%;
+           background-repeat: no-repeat;
+           position: relative;
+        }
+
+        .pulse:after {
+           content: "";
+           position: absolute;
+           inset: 0;
+           background: inherit;
+           opacity: 0.4;
+           animation: pl3 1.4s infinite;
+        }
+
+        @keyframes pl3 {
+           to {
+              transform: scale(1.8);
+              opacity: 0;
+           }
+        }
+
+        @media print {
+            .print-hidden { display: none !important; }
+            #invoice-document { box-shadow: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }
+            .header-input { border: none !important; background: transparent !important; color: white !important; -webkit-print-color-adjust: exact; }
+            body { overflow: visible !important; height: auto !important; }
+            #root, #root > div, #root > div > div { overflow: visible !important; height: auto !important; }
+        }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        i[data-lucide] { display: inline-block; vertical-align: middle; }
+    </style>
+</head>
+<body class="h-screen w-full flex bg-mainBg overflow-hidden font-sans text-gray-800">
+
+    <!-- 1. LINK AUTHENTICATION SCREEN -->
+    <div id="auth-loader" class="fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-4 transition-all duration-500">
+        <div id="auth-icon-container" class="relative mb-4 flex items-center justify-center h-[112px] w-[112px]">
+            <div class="pulse" id="auth-spinner"></div>
+            <i data-lucide="shield-alert" class="w-16 h-16 text-red-500 hidden absolute" id="auth-error-icon"></i>
+        </div>
+        <h2 id="loader-title" class="text-xl font-bold text-gray-800" data-i18n="auth_title">Verifying Secure Link...</h2>
+        <p id="loader-subtitle" class="text-gray-500 text-sm mt-2" data-i18n="auth_subtitle">Connecting to dashboard database.</p>
+        <button id="reset-session-btn" onclick="resetSession()" class="hidden mt-6 text-sm text-highlight hover:text-highlightHover font-medium underline">Try a different account</button>
+    </div>
+
+    <div id="root" class="w-full h-full"></div>
+
+    <script>
+        // Init icons for the loader immediately
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+        function resetSession() {
+            console.log("Session reset functionality triggered.");
+        }
+    </script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const Icon = ({ name, size = 18, className = "" }) => {
+            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
+        };
+
+        const EditableField = ({ value, onChange, className, type = "text", rows = 1 }) => {
+            const baseStyle = `w-full bg-transparent border border-transparent hover:border-gray-300 focus:border-highlight rounded px-1 transition-colors outline-none resize-none ${className}`;
+            if (type === "textarea") {
+                return <textarea value={value} onChange={e => onChange(e.target.value)} rows={rows} className={baseStyle} />;
+            }
+            return <input type={type} value={value} onChange={e => onChange(e.target.value)} className={baseStyle} />;
+        };
+
+        const AnimatedCounter = ({ value, duration = 1500 }) => {
+            const [count, setCount] = useState(0);
+            useEffect(() => {
+                let start = null;
+                let animationFrameId;
+                const step = (timestamp) => {
+                    if (!start) start = timestamp;
+                    const progress = Math.min((timestamp - start) / duration, 1);
+                    setCount(Math.floor(progress * value));
+                    if (progress < 1) {
+                        animationFrameId = window.requestAnimationFrame(step);
+                    } else {
+                        setCount(value);
+                    }
+                };
+                animationFrameId = window.requestAnimationFrame(step);
+                return () => window.cancelAnimationFrame(animationFrameId);
+            }, [value, duration]);
+            return <span>{count}</span>;
+        };
+
+        // RESTORED STANDALONE SCRIPT FOR SETTINGS MODAL (With 3-tab routing added to match)
+        const APPS_SCRIPT_CODE = `function doPost(e) {
+  var response = { success: false, message: "Unknown error" };
+  try {
+    if (!e || !e.postData || !e.postData.contents) throw new Error("No data provided");
+    var data = JSON.parse(e.postData.contents);
+    
+    if (data.action === "save") {
+      var sheetDoc;
+      try { sheetDoc = SpreadsheetApp.getActiveSpreadsheet(); } catch(err) {}
+      
+      if (!sheetDoc) {
+        var props = PropertiesService.getUserProperties();
+        var sheetId = props.getProperty('INVOICE_SHEET_ID');
+        if (sheetId) { try { sheetDoc = SpreadsheetApp.openById(sheetId); } catch(err) {} }
+        
+        if (!sheetDoc) {
+          sheetDoc = SpreadsheetApp.create("Invoice Pro - Records");
+          props.setProperty('INVOICE_SHEET_ID', sheetDoc.getId());
+        }
+      }
+      
+      var docType = data.record.docType;
+      var sheetName = "Facturas";
+      if (docType === "quote") sheetName = "Cotizaciones";
+      else if (docType === "receipt") sheetName = "Recibos";
+      
+      var sheet = sheetDoc.getSheetByName(sheetName);
+      if (!sheet) {
+        sheet = sheetDoc.insertSheet(sheetName);
+        sheet.appendRow(["Date Added", "Invoice No.", "Issue Date", "Expiry Date", "NCF", "Client Name", "Client Email", "Total Amount"]);
+      }
+      sheet.appendRow([new Date(), data.record.invoiceNo, data.record.invoiceDate, data.record.expiryDate, data.record.ncf, data.record.clientName, data.record.clientEmail, data.record.total]);
+      response = { success: true, message: "Saved to Sheets: " + sheetDoc.getUrl() };
+      
+    } else if (data.action === "email") {
+      var pdfBase64 = data.pdfBase64.split(',')[1];
+      var pdfBlob = Utilities.newBlob(Utilities.base64Decode(pdfBase64), 'application/pdf', data.fileName || 'Document.pdf');
+      GmailApp.sendEmail(data.emailTo, data.subject || "Document", data.body || "Attached.", { attachments: [pdfBlob], name: data.companyName });
+      response = { success: true, message: "Email sent." };
+    } else throw new Error("Invalid action.");
+  } catch (error) { response = { success: false, message: error.toString() }; }
+  return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+}
+function doOptions(e) { return ContentService.createTextOutput("").setMimeType(ContentService.MimeType.JSON); }`;
+
+        function App() {
+            const [lang, setLang] = useState('es'); 
+            const [showSettings, setShowSettings] = useState(false);
+            const [showEmailModal, setShowEmailModal] = useState(false);
+            const [showScriptModal, setShowScriptModal] = useState(false);
+            const [loadingAction, setLoadingAction] = useState(false);
+            const [feedbackMsg, setFeedbackMsg] = useState(null);
+            
+            const [docCounts, setDocCounts] = useState({ quote: 0, invoice: 0, receipt: 0 });
+
+            const [settings, setSettings] = useState({
+                appScriptUrl: '',
+                paymentInstructions: '',
+                customLinks: [
+                    { name: '', url: '' },
+                    { name: '', url: '' },
+                    { name: '', url: '' }
+                ]
+            });
+
+            const [invoice, setInvoice] = useState({
+                docType: 'quote',
+                logoUrl: 'https://bucket.mlcdn.com/a/3336/3336910/images/aef13c2b8cac66b298d70671340dbe036d365fc7.png',
+                companyName: 'Nombre de Empresa',
+                companySlogan: 'Su eslogan aquí',
+                companyTaxId: 'RNC / Tax ID: 123456789',
+                companyAddress: 'Calle Principal 123, Ciudad',
+                companyPhone: '+1 (809) 123-4567',
+                companyEmail: 'contacto@empresa.com',
+                companyWebsite: 'www.empresa.com',
+                invoiceDate: new Date().toISOString().split('T')[0],
+                invoiceNo: 'COT-001',
+                expiryDate: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString().split('T')[0],
+                ncf: 'B0100000001',
+                clientName: 'Nombre del Cliente',
+                clientAddress: 'Dirección del Cliente',
+                clientEmail: 'cliente@correo.com',
+                clientPhone: 'Teléfono Cliente',
+                items: [{ id: 1, desc: 'Servicio de Diseño Web', qty: 1, price: 500, discount: 0, taxRate: 18 }],
+                notes: '',
+                thankYou: '¡Gracias por su preferencia!',
+                globalDiscountRate: 0,
+                globalTaxRate: 18
+            });
+
+            // Initialize app and handle loader
+            useEffect(() => { 
+                if (window.lucide) window.lucide.createIcons(); 
+                
+                // Simulate loading time, then dismiss the auth screen
+                const authTimer = setTimeout(() => {
+                    const loader = document.getElementById('auth-loader');
+                    if (loader) {
+                        loader.classList.add('opacity-0', 'pointer-events-none');
+                        setTimeout(() => {
+                            if(loader.parentNode) loader.parentNode.removeChild(loader);
+                        }, 500);
+                    }
+                }, 1800);
+
+                return () => clearTimeout(authTimer);
+            }, []);
+
+            useEffect(() => {
+                const savedSettings = JSON.parse(localStorage.getItem('invoiceAppSettings') || 'null');
+                if (savedSettings) setSettings(savedSettings);
+                
+                const savedCounts = JSON.parse(localStorage.getItem('invoiceDocCounts') || '{"quotes":0,"invoices":0,"receipts":0}');
+                setDocCounts(savedCounts);
+            }, []);
+
+            useEffect(() => {
+                const defaultNoteEs = `Notas: El pago vence el ${invoice.expiryDate}. Por favor, realice su pago a tiempo.`;
+                const defaultNoteEn = `Notes: Payment is due by ${invoice.expiryDate}. Please ensure timely payment.`;
+                setInvoice(prev => ({
+                    ...prev,
+                    notes: prev.notes === '' || prev.notes.startsWith('Notas: El pago') || prev.notes.startsWith('Notes: Payment') 
+                        ? (lang === 'es' ? defaultNoteEs : defaultNoteEn) : prev.notes
+                }));
+            }, [invoice.expiryDate, lang]);
+
+            const t = {
+                en: {
+                    settings: 'Settings', lang: 'Language', download: 'Download PDF', send: 'Send Email', save: 'Save to Sheets',
+                    docTypes: { quote: 'QUOTE', invoice: 'INVOICE', receipt: 'RECEIPT' },
+                    docTypesPlural: { quote: 'QUOTES', invoice: 'INVOICES', receipt: 'RECEIPTS' },
+                    billedTo: 'Billed To:', paymentInfo: 'Payment Instructions', date: 'Date', docNo: 'Doc. Number', expiry: 'Expiry Date', ncf: 'NCF / Tax Number',
+                    item: 'Description', qty: 'Qty', price: 'Unit.', subtotal: 'Subtotal', discount: 'Discount', tax: 'Tax', total: 'Total',
+                    addBtn: 'Add New Line', urlPrompt: 'Google Apps Script URL', saveUrl: 'Save Settings',
+                    linksTitle: 'Custom Action Buttons (Bottom of Document)', linkName: 'Button Name', linkUrl: 'Button URL',
+                    emailPromptTitle: 'Send via Email', emailTo: 'Send to:', emailSubject: 'Subject', emailBody: 'Message',
+                    sendBtn: 'Send Now', cancel: 'Cancel', defaultSubject: `Document ${invoice.invoiceNo} from ${invoice.companyName}`,
+                    defaultBody: `Hello ${invoice.clientName},\n\nPlease find attached the document ${invoice.invoiceNo}.`,
+                    deleteTip: 'Delete line', applyGlobal: 'Global %',
+                    docsCreated: 'Documents Generated', setupGuide: 'How to get this URL?', copyCode: 'Copy Code', steps: 'Setup Steps'
+                },
+                es: {
+                    settings: 'Configuración', lang: 'Idioma', download: 'Descargar PDF', send: 'Enviar Correo', save: 'Guardar en Sheets',
+                    docTypes: { quote: 'COTIZACIÓN', invoice: 'FACTURA', receipt: 'RECIBO' },
+                    docTypesPlural: { quote: 'COTIZACIONES', invoice: 'FACTURAS', receipt: 'RECIBOS' },
+                    billedTo: 'Facturado A:', paymentInfo: 'Instrucciones de Pago', date: 'Fecha', docNo: 'N° Documento', expiry: 'Vence el', ncf: 'Número de Comprobante Fiscal (NCF)',
+                    item: 'Descripción', qty: 'Cant.', price: 'Unit.', subtotal: 'Subtotal', discount: 'Descuento', tax: 'Impuesto', total: 'Total',
+                    addBtn: 'Añadir Nueva Línea', urlPrompt: 'URL de Google Apps Script', saveUrl: 'Guardar Ajustes',
+                    linksTitle: 'Botones de Acción Personalizados (Pie de Documento)', linkName: 'Nombre del Botón', linkUrl: 'URL del Botón',
+                    emailPromptTitle: 'Enviar por Correo', emailTo: 'Enviar a:', emailSubject: 'Asunto', emailBody: 'Mensaje',
+                    sendBtn: 'Enviar Ahora', cancel: 'Cancelar', defaultSubject: `Documento ${invoice.invoiceNo} de ${invoice.companyName}`,
+                    defaultBody: `Hola ${invoice.clientName},\n\nAdjunto encontrará el documento ${invoice.invoiceNo}.`,
+                    deleteTip: 'Eliminar línea', applyGlobal: 'Global %',
+                    docsCreated: 'Documentos Generados', setupGuide: '¿Cómo obtener esta URL?', copyCode: 'Copiar Código', steps: 'Pasos de Configuración'
+                }
+            }[lang];
+
+            const totals = (() => {
+                let subtotal = 0, totalDiscount = 0, totalTax = 0;
+                invoice.items.forEach(item => {
+                    const lineSubtotal = item.qty * item.price;
+                    const lineDiscount = Number(item.discount) || 0;
+                    const lineTax = (lineSubtotal - lineDiscount) * ((Number(item.taxRate) || 0) / 100);
+                    subtotal += lineSubtotal; totalDiscount += lineDiscount; totalTax += lineTax;
+                });
+                return { subtotal, totalDiscount, totalTax, grandTotal: subtotal - totalDiscount + totalTax };
+            })();
+
+            const handleChange = (field, value) => setInvoice(prev => ({ ...prev, [field]: value }));
+            
+            const applyGlobalDiscount = (rate) => {
+                const newItems = invoice.items.map(item => ({
+                    ...item,
+                    discount: Number(((item.qty * item.price) * (rate / 100)).toFixed(2))
+                }));
+                setInvoice(prev => ({ ...prev, items: newItems, globalDiscountRate: rate }));
+            };
+
+            const applyGlobalTax = (rate) => {
+                const newItems = invoice.items.map(item => ({ ...item, taxRate: rate }));
+                setInvoice(prev => ({ ...prev, items: newItems, globalTaxRate: rate }));
+            };
+
+            const handleItemChange = (index, field, value) => {
+                const newItems = [...invoice.items];
+                newItems[index][field] = value;
+                setInvoice(prev => ({ ...prev, items: newItems }));
+            };
+
+            const addItem = () => setInvoice(prev => ({ 
+                ...prev, 
+                items: [...prev.items, { 
+                    id: Date.now(), 
+                    desc: '', 
+                    qty: 1, 
+                    price: 0, 
+                    discount: 0, 
+                    taxRate: prev.globalTaxRate 
+                }] 
+            }));
+
+            const incrementCount = () => {
+                const type = invoice.docType;
+                setDocCounts(prev => {
+                    const newCounts = { ...prev, [type]: (prev[type] || 0) + 1 };
+                    localStorage.setItem('invoiceDocCounts', JSON.stringify(newCounts));
+                    return newCounts;
+                });
+            };
+
+            const removeItem = (index) => setInvoice(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== index) }));
+            const showFeedback = (msg, type = 'success') => { 
+                setFeedbackMsg({text: msg, type}); 
+                setTimeout(() => setFeedbackMsg(null), 3000); 
+            };
+            const saveSettings = () => { localStorage.setItem('invoiceAppSettings', JSON.stringify(settings)); setShowSettings(false); showFeedback(lang === 'es' ? 'Configuración guardada!' : 'Settings saved!'); };
+
+            const handleDownloadPDF = () => {
+                const element = document.getElementById('invoice-document');
+                window.html2pdf().set({
+                    margin: 10, filename: `${invoice.invoiceNo}.pdf`, image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).from(element).save();
+                incrementCount();
+            };
+
+            const handleSyncToSheets = async () => {
+                if (!settings.appScriptUrl) return showFeedback(lang === 'es' ? 'Falta URL del Script en Configuración' : 'Missing Script URL in Settings', 'error');
+                setLoadingAction(true);
+                try {
+                    await fetch(settings.appScriptUrl, {
+                        method: 'POST', mode: 'no-cors', 
+                        body: JSON.stringify({ action: 'save', record: { ...invoice, total: totals.grandTotal.toFixed(2) } })
+                    });
+                    incrementCount();
+                    showFeedback(lang === 'es' ? 'Datos sincronizados!' : 'Sync sent!');
+                } catch (e) { showFeedback(lang === 'es' ? 'Error al sincronizar' : 'Error Sync', 'error'); } finally { setLoadingAction(false); }
+            };
+
+            const handleSendEmail = async (e) => {
+                e.preventDefault();
+                if (!settings.appScriptUrl) {
+                    setShowEmailModal(false);
+                    return showFeedback(lang === 'es' ? 'Falta URL del Script en Configuración' : 'Missing Script URL in Settings', 'error');
+                }
+                setLoadingAction(true);
+                try {
+                    const pdfBase64 = await window.html2pdf().set({ margin: 10, html2canvas: { scale: 2, useCORS: true } })
+                        .from(document.getElementById('invoice-document')).output('datauristring');
+                    const formData = new FormData(e.target);
+                    await fetch(settings.appScriptUrl, {
+                        method: 'POST', mode: 'no-cors',
+                        body: JSON.stringify({
+                            action: 'email', emailTo: formData.get('emailTo'), subject: formData.get('subject'),
+                            body: formData.get('body'), fileName: `${invoice.invoiceNo}.pdf`, pdfBase64, companyName: invoice.companyName
+                        })
+                    });
+                    incrementCount();
+                    showFeedback(lang === 'es' ? 'Correo enviado!' : 'Email sent!'); setShowEmailModal(false);
+                } catch (e) { showFeedback(lang === 'es' ? 'Error al enviar' : 'Email error', 'error'); } finally { setLoadingAction(false); }
+            };
+
+            return (
+                <div className="flex flex-col h-full w-full">
+                    {/* TOPBAR */}
+                    <div className="bg-topbarBg shadow-sm sticky top-0 z-40 px-4 py-3 flex flex-wrap items-center justify-between gap-4 border-b border-topbarBorder print-hidden transition-colors">
+                        <div className="flex items-center space-x-3 font-bold text-2xl text-topbarText">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/62b84f7fc50fa710b34af34db694d8eefa926c92.png" alt="Brand Icon" className="h-10 w-auto object-contain" />
+                            <span>Invoice Pro</span>
+                        </div>
+                        <div className="flex items-center space-x-3 text-sm">
+                            {feedbackMsg && (
+                                <span className={`font-bold animate-pulse ${feedbackMsg.type === 'error' ? 'text-red-400' : 'text-green-400'}`}>
+                                    {feedbackMsg.text}
+                                </span>
+                            )}
+                            <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')} className="flex items-center gap-1 p-2 hover:bg-topbarHover rounded-[7px] font-bold text-topbarMuted hover:text-topbarText transition-colors">
+                                <Icon name="globe" size={16} /> <span>{lang === 'es' ? 'EN' : 'ES'}</span>
+                            </button>
+                            <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-topbarHover rounded-[7px] text-topbarMuted hover:text-topbarText transition-colors">
+                                <Icon name="settings" size={18} />
+                            </button>
+                            <div className="w-px h-6 bg-topbarBorder mx-1"></div>
+                            <button onClick={handleSyncToSheets} disabled={loadingAction} className="bg-topbarBtnSaveBg text-topbarBtnText px-3 py-1.5 rounded-[7px] flex items-center gap-1 font-semibold hover:bg-topbarBtnSaveHover transition-colors shadow-sm">
+                                <Icon name="save" size={16}/> <span className="hidden sm:inline">{t.save}</span>
+                            </button>
+                            <button onClick={() => setShowEmailModal(true)} disabled={loadingAction} className="bg-topbarBtnActionBg text-topbarBtnText px-3 py-1.5 rounded-[7px] flex items-center gap-1 font-semibold hover:bg-topbarBtnActionHover transition-colors shadow-sm">
+                                <Icon name="mail" size={16}/> <span className="hidden sm:inline">{t.send}</span>
+                            </button>
+                            <button onClick={handleDownloadPDF} disabled={loadingAction} className="bg-topbarBtnActionBg text-topbarBtnText px-3 py-1.5 rounded-[7px] flex items-center gap-1 font-semibold hover:bg-topbarBtnActionHover transition-colors shadow-sm">
+                                <Icon name="download" size={16}/> <span className="hidden sm:inline">{t.download}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* MAIN SCROLLABLE AREA */}
+                    <div className="flex-1 overflow-y-auto pb-12 w-full">
+                        {/* STATS DASHBOARD */}
+                        <div className="bg-highlight text-white text-xs py-2 px-4 shadow-inner flex flex-wrap justify-center items-center gap-4 sm:gap-8 font-medium print-hidden">
+                            <span className="text-white/80 uppercase tracking-widest">{t.docsCreated}:</span>
+                            <div className="flex gap-4 sm:gap-6">
+                                <span className="flex items-center gap-1.5"><Icon name="file-text" size={14} className="text-white"/> {t.docTypesPlural.quote}: <AnimatedCounter value={docCounts.quote} /></span>
+                                <span className="flex items-center gap-1.5"><Icon name="file-spreadsheet" size={14} className="text-green-200"/> {t.docTypesPlural.invoice}: <AnimatedCounter value={docCounts.invoice} /></span>
+                                <span className="flex items-center gap-1.5"><Icon name="receipt" size={14} className="text-yellow-200"/> {t.docTypesPlural.receipt}: <AnimatedCounter value={docCounts.receipt} /></span>
+                            </div>
+                        </div>
+
+                        {/* DOCUMENT */}
+                        <div className="max-w-5xl mx-auto mt-8 px-2">
+                            <div id="invoice-document" className="bg-white shadow-lg mx-auto p-8 sm:p-12 text-sm max-w-[210mm] min-h-[297mm]">
+                                <div className="flex flex-col md:flex-row justify-between gap-8 mb-8 border-b-2 border-sidebar pb-6">
+                                    <div className="flex gap-4 flex-1">
+                                        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-50 border border-dashed border-gray-300 relative shrink-0 overflow-hidden rounded flex items-center justify-center group hover:border-highlight transition-colors">
+    <img src={invoice.logoUrl} className="max-w-full max-h-full object-contain" />
+    <input 
+        type="file" 
+        accept="image/*"
+        onChange={e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    handleChange('logoUrl', event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }} 
+        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" 
+        title="Upload Logo" 
+    />
+</div>
+                                        
+                                        {}
+                                        <div className="flex-1 flex flex-col">
+                                            <EditableField value={invoice.companyName} onChange={v => handleChange('companyName', v)} className="text-2xl font-black text-gray-900" />
+                                            <EditableField value={invoice.companySlogan} onChange={v => handleChange('companySlogan', v)} className="text-gray-500 italic text-xs mb-2" />
+                                            <EditableField value={invoice.companyTaxId} onChange={v => handleChange('companyTaxId', v)} className="font-semibold text-gray-700" />
+                                            <EditableField value={invoice.companyAddress} onChange={v => handleChange('companyAddress', v)} />
+                                            <EditableField value={invoice.companyPhone} onChange={v => handleChange('companyPhone', v)} />
+                                            <EditableField value={invoice.companyEmail} onChange={v => handleChange('companyEmail', v)} />
+                                            <EditableField value={invoice.companyWebsite} onChange={v => handleChange('companyWebsite', v)} />
+                                        </div>
+                                    </div>
+                                    <div className="w-full md:w-64">
+                                        <select value={invoice.docType} onChange={e => handleChange('docType', e.target.value)} className="text-3xl font-black text-gray-300 uppercase tracking-widest text-right bg-transparent outline-none cursor-pointer w-full mb-4 hover:text-gray-400 focus:text-highlight transition-colors">
+                                            <option value="quote">{t.docTypes.quote}</option>
+                                            <option value="invoice">{t.docTypes.invoice}</option>
+                                            <option value="receipt">{t.docTypes.receipt}</option>
+                                        </select>
+                                        <div className="grid grid-cols-2 gap-2 text-right">
+                                            <span className="font-bold text-gray-500">{t.date}:</span> <EditableField type="date" value={invoice.invoiceDate} onChange={v => handleChange('invoiceDate', v)} className="text-right" />
+                                            <span className="font-bold text-gray-500">{t.docNo}:</span> <EditableField value={invoice.invoiceNo} onChange={v => handleChange('invoiceNo', v)} className="text-right font-bold" />
+                                            <span className="font-bold text-gray-500">{t.expiry}:</span> <EditableField type="date" value={invoice.expiryDate} onChange={v => handleChange('expiryDate', v)} className="text-right" />
+                                        </div>
+                                        <div className="mt-4 pt-3 border-t flex flex-col items-end text-right">
+                                            <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400">{t.ncf}</span>
+                                            <EditableField value={invoice.ncf} onChange={v => handleChange('ncf', v)} className="text-right font-bold text-highlightHover" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {}
+                                <div className="flex flex-col md:flex-row gap-6 mb-8">
+                                    <div className="p-4 bg-mainBg rounded-lg flex-1 border border-gray-100">
+                                        <h3 className="font-bold text-gray-400 mb-2 uppercase text-[10px] tracking-widest">{t.billedTo}</h3>
+                                        <EditableField value={invoice.clientName} onChange={v => handleChange('clientName', v)} className="font-bold text-lg" />
+                                        <EditableField value={invoice.clientAddress} onChange={v => handleChange('clientAddress', v)} />
+                                        <EditableField value={invoice.clientEmail} onChange={v => handleChange('clientEmail', v)} className="text-highlight" />
+                                        <EditableField value={invoice.clientPhone} onChange={v => handleChange('clientPhone', v)} />
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-lg flex-1 border border-gray-200">
+                                        <h3 className="font-bold text-gray-400 mb-2 uppercase text-[10px] tracking-widest">{t.paymentInfo}</h3>
+                                        <p className="text-xs text-gray-700 whitespace-pre-wrap font-medium">{settings.paymentInstructions || (lang === 'es' ? 'Defina instrucciones en Configuración.' : 'Set instructions in Settings.')}</p>
+                                    </div>
+                                </div>
+
+                                {}
+                                <table className="w-full text-left mb-8">
+                                    <thead className="bg-sidebar text-white text-[10px] uppercase">
+                                        <tr>
+                                            <th className="p-3 w-2/5 align-middle">{t.item}</th>
+                                            <th className="p-3 text-center align-middle">{t.qty}</th>
+                                            <th className="p-3 text-right align-middle">{t.price}</th>
+                                            <th className="p-3 text-right align-middle">
+                                                <div className="flex flex-col items-end">
+                                                    <span>{t.discount}</span>
+                                                    <input 
+                                                        type="number" 
+                                                        placeholder="Global %"
+                                                        value={invoice.globalDiscountRate}
+                                                        onChange={e => applyGlobalDiscount(Number(e.target.value))}
+                                                        className="header-input w-16 text-[9px] bg-white/10 text-white border border-white/20 rounded px-1 mt-1 font-normal text-right focus:bg-white focus:text-sidebar outline-none print-hidden"
+                                                    />
+                                                </div>
+                                            </th>
+                                            <th className="p-3 text-right align-middle">
+                                                <div className="flex flex-col items-end">
+                                                    <span>{t.tax} %</span>
+                                                    <input 
+                                                        type="number" 
+                                                        placeholder="Global %"
+                                                        value={invoice.globalTaxRate}
+                                                        onChange={e => applyGlobalTax(Number(e.target.value))}
+                                                        className="header-input w-16 text-[9px] bg-white/10 text-white border border-white/20 rounded px-1 mt-1 font-normal text-right focus:bg-white focus:text-sidebar outline-none print-hidden"
+                                                    />
+                                                </div>
+                                            </th>
+                                            <th className="p-3 text-right align-middle">{t.total}</th>
+                                            <th className="p-1 w-8 print-hidden"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {invoice.items.map((item, idx) => {
+                                            const lineSubtotal = item.qty * item.price;
+                                            const lineDiscount = Number(item.discount) || 0;
+                                            const lineTax = (lineSubtotal - lineDiscount) * (item.taxRate / 100);
+                                            const lineTotal = lineSubtotal - lineDiscount + lineTax;
+                                            
+                                            return (
+                                                <tr key={item.id} className="border-b border-gray-100 group hover:bg-gray-50/50">
+                                                    <td className="p-2"><EditableField type="textarea" value={item.desc} onChange={v => handleItemChange(idx, 'desc', v)} /></td>
+                                                    <td className="p-2"><EditableField type="number" value={item.qty} onChange={v => handleItemChange(idx, 'qty', Number(v))} className="text-center" /></td>
+                                                    <td className="p-2"><EditableField type="number" value={item.price} onChange={v => handleItemChange(idx, 'price', Number(v))} className="text-right" /></td>
+                                                    <td className="p-2"><EditableField type="number" value={item.discount} onChange={v => handleItemChange(idx, 'discount', Number(v))} className="text-right" /></td>
+                                                    <td className="p-2"><EditableField type="number" value={item.taxRate} onChange={v => handleItemChange(idx, 'taxRate', Number(v))} className="text-right" /></td>
+                                                    <td className="p-2 text-right font-bold">${lineTotal.toFixed(2)}</td>
+                                                    <td className="p-1 print-hidden opacity-0 group-hover:opacity-100">
+                                                        <button onClick={() => removeItem(idx)} title={t.deleteTip} className="text-red-400 hover:text-red-600 transition-colors">
+                                                            <Icon name="trash-2" size={14}/>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                                <button onClick={addItem} className="print-hidden mb-8 flex items-center gap-1 text-highlight font-bold text-xs hover:text-highlightHover transition-colors">
+                                    <Icon name="plus-circle" size={14}/> {t.addBtn}
+                                </button>
+
+                                {}
+                                <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                                    <div className="w-full md:w-1/2">
+                                        <h4 className="font-bold text-gray-400 text-[10px] uppercase mb-1">{lang === 'es' ? 'NOTAS' : 'NOTES'}</h4>
+                                        <EditableField type="textarea" rows={4} value={invoice.notes} onChange={v => handleChange('notes', v)} className="bg-yellow-50/50 p-3 border border-yellow-100 text-gray-700 text-xs rounded" />
+                                    </div>
+                                    <div className="w-full md:w-64 space-y-2 bg-gray-50 p-4 rounded border">
+                                        <div className="flex justify-between"><span>{t.subtotal}:</span><span>${totals.subtotal.toFixed(2)}</span></div>
+                                        <div className="flex justify-between text-red-500"><span>{t.discount}:</span><span>-${totals.totalDiscount.toFixed(2)}</span></div>
+                                        <div className="flex justify-between"><span>{t.tax}:</span><span>${totals.totalTax.toFixed(2)}</span></div>
+                                        <div className="border-t pt-2 flex justify-between font-black text-xl text-highlight"><span>{t.total}:</span><span>${totals.grandTotal.toFixed(2)}</span></div>
+                                    </div>
+                                </div>
+                                <div className="mt-16 text-center text-gray-400 italic font-medium">
+                                    <EditableField value={invoice.thankYou} onChange={v => handleChange('thankYou', v)} className="text-center" />
+                                </div>
+                                <div className="mt-12 flex flex-wrap justify-center gap-4">
+                                    {settings.customLinks.map((l, i) => l.name && l.url && (
+                                        <a key={i} href={l.url} target="_blank" className="px-6 py-2 bg-highlightLight/10 text-highlight rounded-full font-bold text-xs border border-highlight/20 hover:bg-highlightLight/20 no-underline transition-all">
+                                            {l.name}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* MODALS */}
+                    {}
+                    {showSettings && (
+                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 modal-enter">
+                            <div className="bg-white rounded-xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
+                                <div className="p-5 bg-gray-50 border-b flex justify-between items-center">
+                                    <h2 className="font-black text-gray-800 uppercase tracking-widest flex items-center gap-2">
+                                        <Icon name="settings" size={20}/> {t.settings}
+                                    </h2>
+                                    <button onClick={() => setShowSettings(false)} className="text-gray-400 hover:text-black text-2xl font-light">&times;</button>
+                                </div>
+                                <div className="p-6 overflow-y-auto space-y-6">
+                                    <div>
+                                        <div className="flex justify-between items-baseline mb-1">
+                                            <label className="block text-xs font-bold uppercase text-gray-400">{t.urlPrompt}</label>
+                                            <button onClick={() => setShowScriptModal(true)} className="text-[11px] text-highlight hover:text-highlightHover underline font-semibold flex items-center gap-1"><Icon name="help-circle" size={12}/> {t.setupGuide}</button>
+                                        </div>
+                                        <input type="url" value={settings.appScriptUrl} onChange={e => setSettings({...settings, appScriptUrl: e.target.value})} className="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-highlight" placeholder="https://script.google.com/..." />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase text-gray-400 mb-1">{t.paymentInfo}</label>
+                                        <textarea value={settings.paymentInstructions} onChange={e => setSettings({...settings, paymentInstructions: e.target.value})} className="w-full border rounded p-2 text-sm h-24 outline-none focus:ring-2 focus:ring-highlight" placeholder={lang === 'es' ? 'Banco, Cuenta, etc.' : 'Bank, Account, etc.'} />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase text-gray-400 mb-1">{t.linksTitle}</label>
+                                        <div className="space-y-2">
+                                            {settings.customLinks.map((l, i) => (
+                                                <div key={i} className="flex gap-2">
+                                                    <input placeholder={t.linkName} value={l.name} onChange={e => {const nl=[...settings.customLinks]; nl[i].name=e.target.value; setSettings({...settings, customLinks:nl})}} className="w-1/3 border rounded p-2 text-xs outline-none focus:ring-2 focus:ring-highlight" />
+                                                    <input placeholder={t.linkUrl} value={l.url} onChange={e => {const nl=[...settings.customLinks]; nl[i].url=e.target.value; setSettings({...settings, customLinks:nl})}} className="w-2/3 border rounded p-2 text-xs outline-none focus:ring-2 focus:ring-highlight" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-4 bg-gray-50 border-t flex justify-end gap-2">
+                                    <button onClick={() => setShowSettings(false)} className="px-4 py-2 font-bold text-gray-400 uppercase text-xs hover:text-gray-600">{t.cancel}</button>
+                                    <button onClick={saveSettings} className="px-6 py-2 bg-highlight text-white rounded font-bold uppercase text-xs hover:bg-highlightHover transition-colors">Guardar</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showEmailModal && (
+                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 modal-enter">
+                            <form onSubmit={handleSendEmail} className="bg-white rounded-xl max-w-lg w-full overflow-hidden">
+                                <div className="p-5 bg-gray-50 border-b flex justify-between items-center">
+                                    <h2 className="font-bold flex items-center gap-2 text-gray-800"><Icon name="mail" /> {t.emailPromptTitle}</h2>
+                                    <button type="button" onClick={() => setShowEmailModal(false)} className="text-xl text-gray-400 hover:text-black">&times;</button>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    <input name="emailTo" required defaultValue={invoice.clientEmail} placeholder={t.emailTo} className="w-full border p-2 rounded text-sm outline-none focus:ring-2 focus:ring-highlight" />
+                                    <input name="subject" required defaultValue={t.defaultSubject} placeholder={t.emailSubject} className="w-full border p-2 rounded text-sm outline-none focus:ring-2 focus:ring-highlight" />
+                                    <textarea name="body" required rows={4} defaultValue={t.defaultBody} className="w-full border p-2 rounded text-sm outline-none focus:ring-2 focus:ring-highlight" />
+                                </div>
+                                <div className="p-4 bg-gray-50 border-t flex justify-end gap-2">
+                                    <button type="button" onClick={() => setShowEmailModal(false)} className="px-4 py-2 font-semibold text-gray-500">{t.cancel}</button>
+                                    <button type="submit" disabled={loadingAction} className="px-6 py-2 bg-highlight text-white rounded font-bold disabled:opacity-50 hover:bg-highlightHover transition-colors">{t.sendBtn}</button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {showScriptModal && (
+                        <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 modal-enter">
+                            <div className="bg-white rounded-xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+                                <div className="p-5 bg-gray-50 border-b flex justify-between items-center">
+                                    <h2 className="font-bold flex items-center gap-2"><Icon name="code" /> {t.steps}</h2>
+                                    <button onClick={() => setShowScriptModal(false)} className="text-xl text-gray-400 hover:text-black">&times;</button>
+                                </div>
+                                <div className="p-6 overflow-y-auto space-y-4 text-sm text-gray-700">
+                                    <p><b>1.</b> {lang === 'es' ? 'Ve a ' : 'Go to '} <a href="https://script.google.com" target="_blank" className="text-highlight underline hover:text-highlightHover">script.google.com</a> {lang === 'es' ? 'y crea un "Nuevo Proyecto".' : 'and create a "New Project".'}</p>
+                                    <p><b>2.</b> {lang === 'es' ? 'Copia el código a continuación y pégalo en el editor de Apps Script (borrando el código existente).' : 'Copy the code below and paste it into the Apps Script editor (delete any existing code).'}</p>
+                                    
+                                    <div className="relative bg-sidebar text-highlightLight p-4 rounded-md">
+                                        <button onClick={() => {
+                                            const ta = document.createElement('textarea');
+                                            ta.value = APPS_SCRIPT_CODE;
+                                            document.body.appendChild(ta);
+                                            ta.select();
+                                            document.execCommand('copy');
+                                            document.body.removeChild(ta);
+                                            showFeedback(lang === 'es' ? '¡Código Copiado!' : 'Code Copied!');
+                                        }} className="absolute top-2 right-2 px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded font-bold transition-colors">
+                                            {t.copyCode}
+                                        </button>
+                                        <pre className="overflow-x-auto text-[11px] font-mono leading-relaxed">{APPS_SCRIPT_CODE}</pre>
+                                    </div>
+
+                                    <p><b>3.</b> {lang === 'es' ? 'Haz clic en el botón azul "Implementar" (Deploy) > "Nueva implementación" (New deployment).' : 'Click the blue "Deploy" button > "New deployment".'}</p>
+                                    <p><b>4.</b> {lang === 'es' ? 'Haz clic en el ícono de engranaje ⚙️ junto a "Seleccionar tipo" y elige "Aplicación web" (Web app).' : 'Click the ⚙️ gear icon next to "Select type" and select "Web app".'}</p>
+                                    <p><b>5.</b> {lang === 'es' ? 'Configura: Ejecutar como "Yo" (Me) y Quién tiene acceso a "Cualquier persona" (Anyone).' : 'Set: Execute as "Me" and Who has access to "Anyone".'}</p>
+                                    <p><b>6.</b> {lang === 'es' ? 'Haz clic en "Implementar", autoriza el acceso si te lo pide, copia la "URL de la aplicación web" proporcionada y pégala aquí en Configuración.' : 'Click "Deploy", authorize access if asked, copy the provided "Web app URL" and paste it here in the Settings.'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
