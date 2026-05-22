@@ -1,0 +1,1076 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Vault - URL Manager</title>
+    
+    <!-- Import Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        brand: { 
+                            primary: '#8b84f4', 
+                            highlight: '#e07cd0', 
+                            bg: '#f1f0fb', 
+                            sidebar: '#29225b' 
+                        } 
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+
+
+
+  <!-- ICONS CODE -->
+    <script> 
+        function removeFromLinks(rel) {
+            for (link of document.head.getElementsByTagName("link")) {
+                if (link.rel == rel) {
+                    document.head.removeChild(link);
+                }
+            };
+        }
+        function createNewFavicon(rel, img) {
+            var newFavicon = document.createElement("link");
+            newFavicon.type = "image/png";
+            newFavicon.rel = rel;
+            newFavicon.href = img;
+            var firstHeadElement = document.head.firstChild;
+            document.head.insertBefore(newFavicon, firstHeadElement);
+        }
+        removeFromLinks("icon");
+        removeFromLinks("shortcut icon");
+        removeFromLinks("apple-touch-icon");
+        createNewFavicon("icon", "https://bucket.mlcdn.com/a/3336/3336910/images/ba48dc6c14746407eea5796b6d07e1b22022eaf4.png");
+        createNewFavicon("shortcut icon", "https://bucket.mlcdn.com/a/3336/3336910/images/ba48dc6c14746407eea5796b6d07e1b22022eaf4.png");
+        createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/images/ba48dc6c14746407eea5796b6d07e1b22022eaf4.png"); 
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/logo-animation-bebell-1.gif?v=1777437988">
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    <style>
+        /* Custom scrollbar for tags & descriptions */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(41, 34, 91, 0.2);
+            border-radius: 4px;
+        }
+        .dark-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Card Hover transition overrides */
+        .hover-reveal {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Hide scrollbar for filter pill container but keep functionality */
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-brand-bg text-slate-800 min-h-screen font-sans antialiased flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Logo -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/cba115699f5ea034d4c572a5a342f865e517ea42.png" alt="Brand Logo" class="h-10 sm:h-12 w-auto object-contain">
+                <span class="font-bold text-xl tracking-tight hidden sm:block text-brand-sidebar">Data Vault</span>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-2xl relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Search your vault..." class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-brand-bg placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-primary focus:border-brand-primary sm:text-sm transition-colors">
+            </div>
+
+            <!-- Actions & Metrics -->
+            <div class="flex items-center gap-3 flex-shrink-0">
+                
+                <!-- Metrics Counter -->
+                <div class="hidden md:flex flex-col items-end mr-2">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold" data-i18n="total_saved">Total Saved</span>
+                    <span id="totalCount" class="text-xl font-black text-brand-highlight leading-none">0</span>
+                </div>
+
+                <div class="bg-brand-bg p-1 rounded-lg flex items-center border border-slate-200">
+                    <button id="btnGridView" data-i18n-title="grid_view" class="p-1.5 rounded-md text-slate-500 hover:text-brand-sidebar focus:outline-none transition-colors" title="Grid View">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    </button>
+                    <button id="btnListView" data-i18n-title="list_view" class="p-1.5 rounded-md text-slate-500 hover:text-brand-sidebar focus:outline-none transition-colors" title="List View">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+                
+                <button onclick="toggleLanguage()" id="langToggleBtn" class="p-2 text-brand-primary hover:text-brand-sidebar bg-brand-bg hover:bg-slate-200 rounded-lg transition-colors border border-slate-200 font-bold text-xs w-9 flex justify-center items-center" title="Change Language">
+                    ES
+                </button>
+
+                <button onclick="openSettingsModal()" data-i18n-title="settings" class="p-2 text-slate-500 hover:text-brand-sidebar bg-brand-bg hover:bg-slate-200 rounded-lg transition-colors border border-slate-200" title="Settings">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+                
+                <button onclick="openAddModal()" class="flex items-center gap-2 bg-brand-primary hover:opacity-90 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span class="hidden sm:block" data-i18n="add_link">Add Link</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Tag Filters -->
+        <div id="filterTagsContainer" class="mb-6 flex overflow-x-auto hide-scroll gap-2 pb-1 hidden">
+            <!-- Filter Pills injected here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-24 h-24 bg-brand-primary/10 text-brand-primary rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-brand-sidebar mb-2" data-i18n="empty_title">Your Vault is Empty</h2>
+            <p class="text-slate-500 mb-8 max-w-md" data-i18n="empty_desc">Store your important links, resources, and articles here. Everything stays organized and quickly accessible.</p>
+            <button onclick="openAddModal()" class="bg-brand-primary hover:opacity-90 text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-sm shadow-brand-primary/30" data-i18n="empty_btn">
+                Add Your First Link
+            </button>
+        </div>
+
+        <!-- Links Container -->
+        <div id="linksContainer"></div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full mt-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm font-medium text-slate-500">
+        <span data-i18n="footer">Developed with 💖 by</span> Bebell Digital Solutions.
+    </footer>
+
+    <!-- Add/Edit Link Modal -->
+    <div id="modal-add" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-brand-sidebar/50 backdrop-blur-sm transition-opacity" onclick="closeAddModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg w-full">
+                    <form id="linkForm" onsubmit="handleFormSubmit(event)">
+                        <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                            <div class="flex justify-between items-center mb-5">
+                                <h3 class="text-xl font-semibold leading-6 text-brand-sidebar" id="modal-title" data-i18n="modal_add_title">Save a Link</h3>
+                                <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-500 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <input type="hidden" id="linkId">
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1"><span data-i18n="modal_add_url">URL</span> <span class="text-red-500">*</span></label>
+                                    <input type="url" id="linkUrl" required placeholder="https://example.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1"><span data-i18n="modal_add_name">Name / Title</span> <span class="text-red-500">*</span></label>
+                                    <input type="text" id="linkName" data-i18n-placeholder="name_placeholder" required placeholder="My Awesome Resource" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="modal_add_desc">Description</label>
+                                    <textarea id="linkDesc" data-i18n-placeholder="desc_placeholder" rows="3" placeholder="What is this link about?" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none resize-none"></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1" data-i18n="modal_add_tags">Tags</label>
+                                    <div class="border border-slate-300 rounded-lg p-2 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex flex-wrap gap-2 items-center bg-white min-h-[42px]">
+                                        <div id="tagsContainer" class="flex flex-wrap gap-2"></div>
+                                        <input type="text" id="tagInput" data-i18n-placeholder="tag_placeholder" placeholder="Add tag and press Enter" class="flex-1 min-w-[120px] outline-none text-sm p-1">
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-1" data-i18n="modal_add_tags_hint">Press enter or comma to add a tag.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-brand-bg px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-2xl border-t border-slate-200">
+                            <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto transition-colors" data-i18n="modal_add_save">Save Link</button>
+                            <button type="button" onclick="closeAddModal()" class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-sidebar shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition-colors" data-i18n="modal_add_cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-brand-sidebar/50 backdrop-blur-sm transition-opacity" onclick="closeSettingsModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl w-full flex flex-col max-h-[90vh]">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 overflow-y-auto custom-scrollbar flex-1">
+                        <div class="flex justify-between items-center mb-5">
+                            <h3 class="text-xl font-semibold leading-6 text-brand-sidebar flex items-center gap-2">
+                                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <span data-i18n="modal_settings_title">Configuration</span>
+                            </h3>
+                            <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-500 rounded-md focus:outline-none">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="mb-6 bg-brand-bg p-4 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-bold text-slate-700 mb-2" data-i18n="modal_settings_gas">Google App Script Web App URL</label>
+                            <input type="url" id="settingsGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none font-mono text-sm mb-2">
+                            <p class="text-xs text-slate-500" data-i18n="modal_settings_gas_hint">Leave this empty if you only want to store data in your browser's local storage.</p>
+                        </div>
+                        
+                        <div class="border-t border-slate-200 pt-6">
+                            <details class="group bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                                <summary class="font-bold text-brand-sidebar p-4 cursor-pointer flex items-center justify-between select-none hover:bg-brand-bg transition-colors list-none [&::-webkit-details-marker]:hidden">
+                                    <div class="flex items-center gap-2 text-base">
+                                        <svg class="w-5 h-5 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        <span data-i18n="modal_settings_details">Create and Connect your Web App</span>
+                                    </div>
+                                    <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </summary>
+                                
+                                <div class="p-5 border-t border-slate-200 bg-brand-bg">
+                                    <!-- Video Embed -->
+                                    <div class="mb-6">
+                                        <p class="text-sm font-medium text-slate-700 mb-2" data-i18n="modal_settings_video">Prefer to watch a quick video?</p>
+                                        <div class="aspect-video w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-brand-sidebar">
+                                            <!-- Replace YOUR_VIDEO_ID with your actual YouTube video ID -->
+                                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-5 text-sm text-slate-700 border-t border-slate-200 pt-5">
+                                        <div class="flex gap-3">
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">1</div>
+                                            <div class="pt-1" data-i18n="modal_settings_step1">Create a new <a href="https://sheets.new" target="_blank" class="text-brand-primary font-medium hover:underline">Google Sheet</a>. Name it anything you want (e.g. "Vault DB").</div>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">2</div>
+                                            <div class="pt-1" data-i18n="modal_settings_step2">In the top menu of your sheet, click <strong>Extensions</strong> > <strong>Apps Script</strong>.</div>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">3</div>
+                                            <div class="w-full overflow-hidden">
+                                                <div class="flex justify-between items-end mb-2 pt-1">
+                                                    <span data-i18n="modal_settings_step3">Paste the following code into the editor, <strong>replacing everything</strong> currently there:</span>
+                                                    <button type="button" onclick="copyGasCode(event)" class="text-brand-sidebar hover:text-brand-primary font-medium text-xs flex items-center gap-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 px-3 py-1.5 rounded-md border border-brand-primary/20 transition-colors shadow-sm">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> <span data-i18n="btn_copy">Copy</span>
+                                                    </button>
+                                                </div>
+                                                <pre class="bg-slate-900 text-emerald-400 p-4 rounded-xl overflow-x-auto custom-scrollbar dark-scrollbar text-xs font-mono shadow-inner"><code id="gasCodeBlock">function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+  let results = [];
+  if (data.length > 1) {
+    const headers = data[0];
+    for (let i = 1; i < data.length; i++) {
+      let row = data[i];
+      let obj = {};
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = headers[j] === 'tags' ? JSON.parse(row[j] || "[]") : row[j];
+      }
+      results.push(obj);
+    }
+  }
+  return ContentService.createTextOutput(JSON.stringify(results))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const payload = JSON.parse(e.postData.contents);
+  sheet.clear();
+  if (!payload || payload.length === 0) return ContentService.createTextOutput("Success");
+  
+  const headers = Object.keys(payload[0]);
+  sheet.appendRow(headers);
+  const rows = payload.map(obj => headers.map(h => h === 'tags' ? JSON.stringify(obj[h]) : obj[h]));
+  sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
+  
+  return ContentService.createTextOutput(JSON.stringify({status: 'success'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</code></pre>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">4</div>
+                                            <div class="pt-1" data-i18n="modal_settings_step4">Click the blue <strong>Deploy</strong> button (top right) > <strong>New deployment</strong>.</div>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">5</div>
+                                            <div class="pt-1" data-i18n="modal_settings_step5">Click the gear icon "Select type" and choose <strong>Web app</strong>. Under "Who has access", select <strong>Anyone</strong>. Click Deploy (Authorize access if prompted).</div>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <div class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-sm">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            </div>
+                                            <div class="pt-1 font-medium" data-i18n="modal_settings_step6">Copy the generated <strong>Web app URL</strong> and paste it into the input field at the top of this modal!</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                    <div class="bg-brand-bg px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-2xl border-t border-slate-200 shrink-0">
+                        <button type="button" onclick="saveSettings()" class="inline-flex w-full justify-center rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto transition-colors" data-i18n="modal_settings_save">Save & Sync Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <div class="bg-brand-sidebar text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+            <svg class="w-5 h-5 text-brand-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span id="toastMessage" class="text-sm font-medium">Action successful</span>
+        </div>
+    </div>
+
+    <script>
+        // --- Translation Engine (i18n) ---
+        const i18nDictionary = {
+            en: {
+                search_placeholder: "Search your vault...",
+                total_saved: "Total Saved",
+                add_link: "Add Link",
+                empty_title: "Your Vault is Empty",
+                empty_desc: "Store your important links, resources, and articles here. Everything stays organized and quickly accessible.",
+                empty_btn: "Add Your First Link",
+                footer: "Developed with 💖 by",
+                modal_add_title: "Save a Link",
+                modal_add_url: "URL",
+                modal_add_name: "Name / Title",
+                modal_add_desc: "Description",
+                modal_add_tags: "Tags",
+                modal_add_tags_hint: "Press enter or comma to add a tag.",
+                modal_add_save: "Save Link",
+                modal_add_cancel: "Cancel",
+                modal_edit_title: "Edit Link",
+                modal_settings_title: "Configuration",
+                modal_settings_gas: "Google App Script Web App URL",
+                modal_settings_gas_hint: "Leave this empty if you only want to store data in your browser's local storage.",
+                modal_settings_details: "Create and Connect your Web App",
+                modal_settings_video: "Prefer to watch a quick video?",
+                modal_settings_step1: `Create a new <a href="https://sheets.new" target="_blank" class="text-brand-primary font-medium hover:underline">Google Sheet</a>. Name it anything you want (e.g. "Vault DB").`,
+                modal_settings_step2: `In the top menu of your sheet, click <strong>Extensions</strong> > <strong>Apps Script</strong>.`,
+                modal_settings_step3: `Paste the following code into the editor, <strong>replacing everything</strong> currently there:`,
+                modal_settings_step4: `Click the blue <strong>Deploy</strong> button (top right) > <strong>New deployment</strong>.`,
+                modal_settings_step5: `Click the gear icon "Select type" and choose <strong>Web app</strong>. Under "Who has access", select <strong>Anyone</strong>. Click Deploy (Authorize access if prompted).`,
+                modal_settings_step6: `Copy the generated <strong>Web app URL</strong> and paste it into the input field at the top of this modal!`,
+                modal_settings_save: "Save & Sync Settings",
+                no_results_title: "No results found",
+                no_results_desc: "Try adjusting your filters or search query.",
+                all_tags: "All",
+                btn_copy: "Copy",
+                open_link: "Open Link",
+                no_desc: "No description provided.",
+                toast_copied: "URL copied to clipboard!",
+                toast_script_copied: "Script code copied!",
+                toast_deleted: "Link deleted",
+                toast_updated: "Link updated successfully",
+                toast_added: "Link added successfully",
+                toast_settings: "Settings saved",
+                confirm_delete: "Are you sure you want to remove this link?",
+                grid_view: "Grid View",
+                list_view: "List View",
+                settings: "Settings",
+                tag_placeholder: "Add tag and press Enter",
+                desc_placeholder: "What is this link about?",
+                name_placeholder: "My Awesome Resource"
+            },
+            es: {
+                search_placeholder: "Busca en tu bóveda...",
+                total_saved: "Total Guardado",
+                add_link: "Añadir Enlace",
+                empty_title: "Tu Bóveda está Vacía",
+                empty_desc: "Guarda tus enlaces, recursos y artículos importantes aquí. Todo se mantiene organizado y accesible rápidamente.",
+                empty_btn: "Añade tu Primer Enlace",
+                footer: "Desarrollado con 💖 por",
+                modal_add_title: "Guardar un Enlace",
+                modal_add_url: "URL",
+                modal_add_name: "Nombre / Título",
+                modal_add_desc: "Descripción",
+                modal_add_tags: "Etiquetas",
+                modal_add_tags_hint: "Presiona Enter o coma para añadir una etiqueta.",
+                modal_add_save: "Guardar Enlace",
+                modal_add_cancel: "Cancelar",
+                modal_edit_title: "Editar Enlace",
+                modal_settings_title: "Configuración",
+                modal_settings_gas: "URL de Web App de Google App Script",
+                modal_settings_gas_hint: "Deja esto en blanco si solo quieres guardar los datos de forma local en tu navegador.",
+                modal_settings_details: "Crea y Conecta tu Web App",
+                modal_settings_video: "¿Prefieres ver un video rápido?",
+                modal_settings_step1: `Crea una nueva <a href="https://sheets.new" target="_blank" class="text-brand-primary font-medium hover:underline">Hoja de Google</a>. Nómbrala como quieras (ej. "Mi Bóveda").`,
+                modal_settings_step2: `En el menú superior de tu hoja, haz clic en <strong>Extensiones</strong> > <strong>Apps Script</strong>.`,
+                modal_settings_step3: `Pega el siguiente código en el editor, <strong>reemplazando todo</strong> lo que haya allí:`,
+                modal_settings_step4: `Haz clic en el botón azul de <strong>Implementar</strong> (arriba a la derecha) > <strong>Nueva implementación</strong>.`,
+                modal_settings_step5: `Haz clic en el ícono de engranaje "Seleccionar tipo" y elige <strong>Aplicación web</strong>. Bajo "Quién tiene acceso", selecciona <strong>Cualquier persona</strong>. Haz clic en Implementar.`,
+                modal_settings_step6: `¡Copia la <strong>URL de la aplicación web</strong> generada y pégala en el campo de texto en la parte superior de este modal!`,
+                modal_settings_save: "Guardar y Sincronizar",
+                no_results_title: "No se encontraron resultados",
+                no_results_desc: "Intenta ajustar tus filtros o tu búsqueda.",
+                all_tags: "Todos",
+                btn_copy: "Copiar",
+                open_link: "Abrir Enlace",
+                no_desc: "Sin descripción.",
+                toast_copied: "¡URL copiada al portapapeles!",
+                toast_script_copied: "¡Código de script copiado!",
+                toast_deleted: "Enlace eliminado",
+                toast_updated: "Enlace actualizado exitosamente",
+                toast_added: "Enlace añadido exitosamente",
+                toast_settings: "Configuración guardada",
+                confirm_delete: "¿Estás seguro de que quieres eliminar este enlace?",
+                grid_view: "Vista de Cuadrícula",
+                list_view: "Vista de Lista",
+                settings: "Configuración",
+                tag_placeholder: "Añade etiqueta y presiona Enter",
+                desc_placeholder: "¿De qué trata este enlace?",
+                name_placeholder: "Mi Increíble Recurso"
+            }
+        };
+
+        // Auto-detect Language Logic
+        function getInitialLanguage() {
+            // 1. Check if the user has manually toggled and saved a preference previously
+            const savedLang = localStorage.getItem('vault_lang');
+            if (savedLang) return savedLang;
+
+            // 2. If no saved preference, auto-detect from the browser
+            const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
+            
+            // If the browser language starts with 'es' (e.g. es, es-ES, es-MX), set to Spanish
+            if (browserLang.startsWith('es')) {
+                return 'es';
+            }
+            
+            // 3. Default to English for everything else
+            return 'en';
+        }
+
+        let currentLang = getInitialLanguage();
+        
+        // Save the detected/loaded language right back to storage to keep it consistent
+        localStorage.setItem('vault_lang', currentLang);
+
+        function t(key) {
+            return i18nDictionary[currentLang][key] || key;
+        }
+
+        function applyLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(i18nDictionary[currentLang][key]) {
+                    el.innerHTML = i18nDictionary[currentLang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if(i18nDictionary[currentLang][key]) {
+                    el.placeholder = i18nDictionary[currentLang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title');
+                if(i18nDictionary[currentLang][key]) {
+                    el.title = i18nDictionary[currentLang][key];
+                }
+            });
+            
+            // Toggle shows opposite language to switch to
+            document.getElementById('langToggleBtn').textContent = currentLang === 'en' ? 'ES' : 'EN';
+            
+            // Re-render strings inside dynamic content
+            if (document.getElementById('modal-title').textContent !== t('modal_edit_title')) {
+                // If not currently editing, ensure title is correct for Adding
+                document.getElementById('modal-title').textContent = t('modal_add_title');
+            }
+            
+            renderFilterBar();
+            renderApp();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'es' : 'en';
+            localStorage.setItem('vault_lang', currentLang);
+            applyLanguage();
+        }
+
+        // --- State Management ---
+        let links = JSON.parse(localStorage.getItem('vault_links')) || [];
+        let viewMode = localStorage.getItem('vault_view') || 'grid';
+        let gasUrl = localStorage.getItem('vault_gas_url') || '';
+        
+        let currentTags = [];
+        let searchQuery = '';
+        let activeTagFilter = null;
+        let animatedCount = links.length;
+
+        // --- DOM Elements ---
+        const linksContainer = document.getElementById('linksContainer');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        const filterTagsContainer = document.getElementById('filterTagsContainer');
+        
+        const btnGridView = document.getElementById('btnGridView');
+        const btnListView = document.getElementById('btnListView');
+
+        // Modal Elements
+        const modalAdd = document.getElementById('modal-add');
+        const modalSettings = document.getElementById('modal-settings');
+        const formTitle = document.getElementById('modal-title');
+        
+        // Form Inputs
+        const linkIdInput = document.getElementById('linkId');
+        const linkUrlInput = document.getElementById('linkUrl');
+        const linkNameInput = document.getElementById('linkName');
+        const linkDescInput = document.getElementById('linkDesc');
+        const tagInput = document.getElementById('tagInput');
+        const tagsContainer = document.getElementById('tagsContainer');
+        const settingsGasUrl = document.getElementById('settingsGasUrl');
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            applyLanguage();
+            updateViewToggleButtons();
+            document.getElementById('totalCount').innerText = links.length;
+            
+            if(gasUrl) fetchFromBackend();
+            else {
+                renderFilterBar();
+                renderApp();
+            }
+
+            // Search Listener
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase();
+                renderApp();
+            });
+
+            // View Toggle Listeners
+            btnGridView.addEventListener('click', () => setView('grid'));
+            btnListView.addEventListener('click', () => setView('list'));
+
+            // Tag Input Listeners
+            tagInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTagFromInput();
+                }
+            });
+            tagInput.addEventListener('blur', addTagFromInput);
+        });
+
+        // --- Core Rendering ---
+        function renderApp() {
+            const filteredLinks = links.filter(link => {
+                const searchString = `${link.name} ${link.desc} ${link.tags.join(' ')} ${link.url}`.toLowerCase();
+                const matchesSearch = searchString.includes(searchQuery);
+                const matchesFilter = activeTagFilter ? link.tags.includes(activeTagFilter) : true;
+                return matchesSearch && matchesFilter;
+            });
+
+            if (links.length === 0) {
+                emptyState.classList.remove('hidden');
+                linksContainer.innerHTML = '';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            if (filteredLinks.length === 0) {
+                linksContainer.innerHTML = `
+                    <div class="text-center py-20">
+                        <div class="text-slate-400 mb-3"><svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <h3 class="text-lg font-medium text-brand-sidebar">${t('no_results_title')}</h3>
+                        <p class="text-slate-500">${t('no_results_desc')}</p>
+                    </div>`;
+                return;
+            }
+
+            if (viewMode === 'grid') renderGrid(filteredLinks);
+            else renderList(filteredLinks);
+        }
+
+        function renderFilterBar() {
+            const allTags = new Set();
+            links.forEach(l => l.tags.forEach(t => allTags.add(t)));
+            const uniqueTags = Array.from(allTags).sort();
+
+            if (uniqueTags.length === 0) {
+                filterTagsContainer.classList.add('hidden');
+                return;
+            }
+
+            filterTagsContainer.classList.remove('hidden');
+
+            let html = `<button onclick="setFilter(null)" class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${activeTagFilter === null ? 'bg-brand-primary text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-brand-bg'}">${t('all_tags')}</button>`;
+
+            uniqueTags.forEach(tag => {
+                const isActive = activeTagFilter === tag;
+                html += `<button onclick="setFilter('${tag}')" class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${isActive ? 'bg-brand-primary text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-brand-bg'}">${tag}</button>`;
+            });
+
+            filterTagsContainer.innerHTML = html;
+        }
+
+        function renderGrid(data) {
+            let html = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">`;
+            
+            data.forEach(link => {
+                const domain = getDomain(link.url);
+                const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(link.url)}`;
+                const tagHtml = link.tags.map(tag => `<span class="bg-white/20 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm truncate max-w-[100px]" title="${tag}">${tag}</span>`).join('');
+                
+                html += `
+                <div class="group relative bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col h-48 cursor-pointer" onclick="openUrl('${link.url}')">
+                    
+                    <!-- Default View -->
+                    <div class="p-5 flex flex-col h-full z-10 bg-white group-hover:bg-brand-bg transition-colors">
+                        <div class="flex items-start justify-between gap-3 mb-auto">
+                            <div class="w-12 h-12 rounded-xl bg-brand-bg flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-200">
+                                <img src="${faviconUrl}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238b84f4%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22></circle><line x1=%222%22 y1=%2212%22 x2=%2222%22 y2=%2212%22></line><path d=%22M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z%22></path></svg>'" class="w-full h-full object-cover">
+                            </div>
+                            <button onclick="copyUrl(event, '${link.url}')" class="text-slate-400 hover:text-brand-primary bg-white p-1.5 rounded-md hover:bg-brand-primary/10 transition-colors" title="Copy URL">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-brand-sidebar truncate" title="${link.name}">${link.name}</h3>
+                            <p class="text-sm text-slate-500 truncate">${domain}</p>
+                        </div>
+                    </div>
+
+                    <!-- Hover Reveal (Description & Actions) -->
+                    <div class="absolute inset-0 bg-brand-sidebar/95 text-white z-20 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 hover-reveal p-5 flex flex-col justify-between" onclick="event.stopPropagation()">
+                        <div class="overflow-y-auto custom-scrollbar dark-scrollbar flex-1 mb-3">
+                            <h3 class="font-bold text-white mb-2 line-clamp-1">${link.name}</h3>
+                            <p class="text-sm text-slate-300 whitespace-pre-wrap ${link.desc ? '' : 'italic opacity-70'}">${link.desc || t('no_desc')}</p>
+                        </div>
+                        
+                        <div class="flex flex-col gap-3 shrink-0">
+                            ${link.tags.length > 0 ? `<div class="flex flex-wrap gap-1.5 max-h-[50px] overflow-y-auto dark-scrollbar">${tagHtml}</div>` : ''}
+                            
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-sm font-medium text-brand-highlight hover:text-brand-highlight/80 transition-colors">
+                                    ${t('open_link')} <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                </a>
+                                <div class="flex gap-2">
+                                    <button onclick="editLink('${link.id}', event)" class="p-1.5 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 rounded transition-colors" title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </button>
+                                    <button onclick="deleteLink('${link.id}', event)" class="p-1.5 text-slate-300 hover:text-red-400 bg-white/10 hover:bg-white/20 hover:bg-red-500/20 rounded transition-colors" title="Delete">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+            linksContainer.innerHTML = html;
+        }
+
+        function renderList(data) {
+            let html = `<div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden text-left divide-y divide-slate-100">`;
+            
+            data.forEach(link => {
+                const domain = getDomain(link.url);
+                const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(link.url)}`;
+                const tagHtml = link.tags.map(tag => `<span class="bg-brand-bg text-brand-sidebar border border-slate-200 text-xs px-2 py-0.5 rounded-full whitespace-nowrap">${tag}</span>`).join('');
+
+                html += `
+                <div class="p-4 hover:bg-brand-bg transition-colors flex items-center gap-4 group">
+                    <div class="w-10 h-10 rounded-lg bg-brand-bg flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-200 hidden sm:flex">
+                        <img src="${faviconUrl}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238b84f4%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22></circle><line x1=%222%22 y1=%2212%22 x2=%2222%22 y2=%2212%22></line><path d=%22M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z%22></path></svg>'" class="w-full h-full object-cover">
+                    </div>
+                    
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-1">
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-sidebar hover:text-brand-primary truncate transition-colors">${link.name}</a>
+                            ${tagHtml ? `<div class="hidden md:flex flex-wrap gap-1 items-center ml-2 shrink-0">${tagHtml}</div>` : ''}
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-500">
+                            <span class="truncate max-w-[200px] sm:max-w-xs text-brand-primary">${domain}</span>
+                            <span class="hidden sm:inline text-slate-300">•</span>
+                            <span class="truncate hidden sm:block flex-1">${link.desc || t('no_desc')}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                        <button onclick="copyUrl(event, '${link.url}')" class="p-2 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors" title="Copy URL">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                        <button onclick="editLink('${link.id}', event)" class="p-2 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors" title="Edit">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </button>
+                        <button onclick="deleteLink('${link.id}', event)" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+            linksContainer.innerHTML = html;
+        }
+
+        // --- Data Logic ---
+        function saveToStorage() {
+            localStorage.setItem('vault_links', JSON.stringify(links));
+            updateMetrics();
+            renderFilterBar();
+            renderApp();
+            
+            // Sync to backend if configured
+            if(gasUrl) syncToBackend();
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Ensure any pending tag text is added
+            addTagFromInput();
+
+            const id = linkIdInput.value;
+            const linkData = {
+                id: id || Date.now().toString(),
+                url: linkUrlInput.value,
+                name: linkNameInput.value,
+                desc: linkDescInput.value,
+                tags: [...currentTags],
+                updatedAt: new Date().toISOString()
+            };
+
+            let isNew = false;
+            if (id) {
+                const index = links.findIndex(l => l.id === id);
+                if (index > -1) links[index] = linkData;
+                showToast(t('toast_updated'));
+            } else {
+                links.unshift(linkData);
+                isNew = true;
+                showToast(t('toast_added'));
+            }
+
+            saveToStorage();
+            closeAddModal();
+
+            if (isNew) {
+                fireConfetti();
+            }
+        }
+
+        function editLink(id, event) {
+            if(event) event.stopPropagation();
+            const link = links.find(l => l.id === id);
+            if (!link) return;
+
+            linkIdInput.value = link.id;
+            linkUrlInput.value = link.url;
+            linkNameInput.value = link.name;
+            linkDescInput.value = link.desc;
+            currentTags = [...link.tags];
+            
+            formTitle.textContent = t('modal_edit_title');
+            renderTags();
+            
+            modalAdd.classList.remove('hidden');
+        }
+
+        function deleteLink(id, event) {
+            if(event) event.stopPropagation();
+            if (confirm(t('confirm_delete'))) {
+                links = links.filter(l => l.id !== id);
+                saveToStorage();
+                showToast(t('toast_deleted'));
+            }
+        }
+
+        // --- Animations & UI Details ---
+        function updateMetrics() {
+            const endValue = links.length;
+            animateValue("totalCount", animatedCount, endValue, 600);
+            animatedCount = endValue;
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            let obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    // Small pop effect when animation finishes
+                    obj.classList.add('scale-125', 'transition-transform');
+                    setTimeout(() => obj.classList.remove('scale-125'), 150);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function fireConfetti() {
+            if(typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#8b84f4', '#e07cd0', '#29225b', '#f1f0fb']
+                });
+            }
+        }
+
+        // --- Backend Sync (Google Apps Script API logic) ---
+        async function fetchFromBackend() {
+            try {
+                const res = await fetch(gasUrl, { method: 'GET' });
+                if(res.ok) {
+                    const data = await res.json();
+                    if(Array.isArray(data)) {
+                        links = data;
+                        localStorage.setItem('vault_links', JSON.stringify(links));
+                    }
+                }
+            } catch (error) {
+                console.warn("Could not fetch from backend. Using local storage.", error);
+            }
+            updateMetrics();
+            renderFilterBar();
+            renderApp();
+        }
+
+        async function syncToBackend() {
+            try {
+                await fetch(gasUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(links),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (error) {
+                console.error("Failed to sync to backend. Data is saved locally.", error);
+            }
+        }
+
+        function saveSettings() {
+            const url = settingsGasUrl.value.trim();
+            localStorage.setItem('vault_gas_url', url);
+            gasUrl = url;
+            closeSettingsModal();
+            showToast(t('toast_settings'));
+            if(gasUrl) fetchFromBackend();
+        }
+
+        // --- Tag Management ---
+        function renderTags() {
+            tagsContainer.innerHTML = currentTags.map((tag, index) => `
+                <span class="bg-brand-primary/10 text-brand-sidebar text-sm px-2 py-1 rounded-md flex items-center gap-1 group">
+                    ${tag}
+                    <button type="button" onclick="removeTag(${index})" class="text-brand-primary hover:text-brand-sidebar focus:outline-none opacity-50 group-hover:opacity-100 transition-colors">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </span>
+            `).join('');
+        }
+
+        function addTagFromInput() {
+            const value = tagInput.value.trim().replace(',', '');
+            if (value && !currentTags.includes(value)) {
+                currentTags.push(value);
+                renderTags();
+            }
+            tagInput.value = '';
+        }
+
+        function removeTag(index) {
+            currentTags.splice(index, 1);
+            renderTags();
+        }
+
+        // --- UI Interactions ---
+        function setView(view) {
+            viewMode = view;
+            localStorage.setItem('vault_view', view);
+            updateViewToggleButtons();
+            renderApp();
+        }
+
+        function updateViewToggleButtons() {
+            if (viewMode === 'grid') {
+                btnGridView.classList.add('bg-white', 'shadow-sm', 'text-brand-sidebar');
+                btnGridView.classList.remove('text-slate-500');
+                btnListView.classList.remove('bg-white', 'shadow-sm', 'text-brand-sidebar');
+                btnListView.classList.add('text-slate-500');
+            } else {
+                btnListView.classList.add('bg-white', 'shadow-sm', 'text-brand-sidebar');
+                btnListView.classList.remove('text-slate-500');
+                btnGridView.classList.remove('bg-white', 'shadow-sm', 'text-brand-sidebar');
+                btnGridView.classList.add('text-slate-500');
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('linkForm').reset();
+            linkIdInput.value = '';
+            currentTags = [];
+            renderTags();
+            formTitle.textContent = t('modal_add_title');
+            modalAdd.classList.remove('hidden');
+            setTimeout(() => linkUrlInput.focus(), 100);
+        }
+
+        function closeAddModal() {
+            modalAdd.classList.add('hidden');
+        }
+
+        function openSettingsModal() {
+            settingsGasUrl.value = gasUrl;
+            modalSettings.classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            modalSettings.classList.add('hidden');
+        }
+
+        function openUrl(url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function copyUrl(event, url) {
+            event.stopPropagation();
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(() => showToast(t('toast_copied')));
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast(t('toast_copied'));
+                } catch (error) {
+                    console.error('Fallback copy failed', error);
+                }
+                textArea.remove();
+            }
+        }
+
+        function copyGasCode(event) {
+            event.stopPropagation();
+            const code = document.getElementById('gasCodeBlock').textContent;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => showToast(t('toast_script_copied')));
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = code;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast(t('toast_script_copied'));
+                } catch (error) {
+                    console.error('Fallback copy failed', error);
+                }
+                textArea.remove();
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Utility
+        function getDomain(url) {
+            try {
+                return new URL(url).hostname.replace('www.', '');
+            } catch (e) {
+                return url;
+            }
+        }
+
+        // Link metadata autofill utility
+        linkUrlInput.addEventListener('blur', function() {
+            if(!linkNameInput.value && this.value) {
+                try {
+                    let domain = new URL(this.value).hostname.replace('www.', '');
+                    let parts = domain.split('.');
+                    if(parts.length > 1) parts.pop(); 
+                    let name = parts.join(' ');
+                    linkNameInput.value = name.charAt(0).toUpperCase() + name.slice(1);
+                } catch(e) {}
+            }
+        });
+    </script>
+</body>
+</html>
