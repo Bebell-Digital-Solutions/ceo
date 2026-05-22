@@ -61,7 +61,7 @@
     </script>
 
     <!-- Favicon -->
-    <link rel="icon" href="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/logo-animation-bebell-1.gif?v=1777437988">
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/62b84f7fc50fa710b34af34db694d8eefa926c92.png">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -484,9 +484,25 @@ function doOptions(e) { return ContentService.createTextOutput("").setMimeType(C
                                 <div className="flex flex-col md:flex-row justify-between gap-8 mb-8 border-b-2 border-sidebar pb-6">
                                     <div className="flex gap-4 flex-1">
                                         <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-50 border border-dashed border-gray-300 relative shrink-0 overflow-hidden rounded flex items-center justify-center group hover:border-highlight transition-colors">
-                                            <img src={invoice.logoUrl} className="max-w-full max-h-full object-contain" />
-                                            <input type="text" value={invoice.logoUrl} onChange={e => handleChange('logoUrl', e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer" title="Logo URL" />
-                                        </div>
+    <img src={invoice.logoUrl} className="max-w-full max-h-full object-contain" />
+    <input 
+        type="file" 
+        accept="image/*"
+        onChange={e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    handleChange('logoUrl', event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }} 
+        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" 
+        title="Upload Logo" 
+    />
+</div>
+                                        
                                         <div className="flex-1 flex flex-col">
                                             <EditableField value={invoice.companyName} onChange={v => handleChange('companyName', v)} className="text-2xl font-black text-gray-900" />
                                             <EditableField value={invoice.companySlogan} onChange={v => handleChange('companySlogan', v)} className="text-gray-500 italic text-xs mb-2" />
