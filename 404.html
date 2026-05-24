@@ -1,1 +1,625 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Página no encontrada · Centro de Control Administrativo</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/4c1263b4d7ad73dbdf82f0ec2a277f1349f936ac.png" type="image/png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- jQuery (Requerido para la animación del Wordsearch) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
+    <style>
+        /* CSS Variables for Global Color Control */
+        :root {
+            --color-navy-50: #f4f6f9;
+            --color-navy-100: #e7ecf3;
+            --color-navy-200: #c8d6e4;
+            --color-navy-300: #99b3cc;
+            --color-navy-400: #618cb0;
+            --color-navy-500: #3d6d96;
+            --color-navy-600: #2d5378;
+            --color-navy-700: #254462;
+            --color-navy-800: #1a2f45;
+            --color-navy-900: #111d2c;
+            --color-navy-950: #0a121c;
+            --highlight-gold: #ab8843;
+            --color-corporate-gold: #966d1d;
+            --color-corporate-gold-dark: #7a5817;
+            --color-corporate-teal: #14b8a6;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        navy: {
+                            50: 'var(--color-navy-50)',
+                            100: 'var(--color-navy-100)',
+                            200: 'var(--color-navy-200)',
+                            300: 'var(--color-navy-300)',
+                            400: 'var(--color-navy-400)',
+                            500: 'var(--color-navy-500)',
+                            600: 'var(--color-navy-600)',
+                            700: 'var(--color-navy-700)',
+                            800: 'var(--color-navy-800)',
+                            900: 'var(--color-navy-900)',
+                            950: 'var(--color-navy-950)',
+                        },
+                        corporate: {
+                            gold: 'var(--color-corporate-gold)',
+                            goldDark: 'var(--color-corporate-gold-dark)',
+                            teal: 'var(--color-corporate-teal)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Wordsearch Cell Selected State */
+        .ws-cell {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ws-cell.selected {
+            background-color: var(--color-corporate-gold) !important;
+            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(150, 109, 29, 0.3);
+            transform: scale(1.05);
+            z-index: 10;
+            font-weight: 800;
+        }
+        /* Custom Scrollbar for search results */
+        #searchResults::-webkit-scrollbar {
+            width: 6px;
+        }
+        #searchResults::-webkit-scrollbar-track {
+            background: var(--color-navy-50);
+        }
+        #searchResults::-webkit-scrollbar-thumb {
+            background: var(--color-navy-200);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 overflow-x-hidden w-full m-0 p-0 antialiased flex flex-col min-h-screen">
+
+    <!-- Global Toast Alert -->
+    <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-x-[150%] opacity-0 pointer-events-none transition-all duration-300 max-w-md bg-navy-900 text-white rounded-lg shadow-2xl p-4 border-l-4 border-corporate-gold flex items-start space-x-3">
+        <div id="toastIcon" class="text-xl text-corporate-gold mt-0.5">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="flex-1">
+            <h4 id="toastTitle" class="font-bold text-sm">Notificación</h4>
+            <p id="toastMessage" class="text-xs text-slate-300 mt-1"></p>
+        </div>
+        <button onclick="dismissToast()" class="text-slate-400 hover:text-white transition">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 w-full bg-navy-950 backdrop-blur-md border-b border-navy-900 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo & Brand -->
+                <a href="/" class="relative flex items-center w-48 h-12 group">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/1e715576c46879c668b3182393a85b4866e51fa9.png" class="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0" alt="Centro de Control Administrativo">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/3000dc1813e08dc3de96219c1f5290c32ccebb24.gif" class="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100" alt="Centro de Control Administrativo Animated">
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/" data-i18n="nav-philosophy" class="text-sm font-semibold text-slate-300 hover:text-white transition">Filosofía</a>
+                    <a href="/" data-i18n="nav-modules" class="text-sm font-semibold text-slate-300 hover:text-white transition">Módulos</a>
+                    <a href="/" data-i18n="nav-how" class="text-sm font-semibold text-slate-300 hover:text-white transition">Cómo Funciona</a>
+                    <a href="/" data-i18n="nav-ai" class="text-sm font-semibold text-slate-300 hover:text-white transition">Asistencia IA</a>
+                    <a href="/" data-i18n="nav-faq" class="text-sm font-semibold text-slate-300 hover:text-white transition">Preguntas</a>
+                </nav>
+
+                <!-- Actions (Language & Login) -->
+                <div class="flex items-center space-x-3">
+                    <!-- Translate Switcher -->
+                    <button onclick="toggleLanguage()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md border border-slate-700 text-xs font-semibold hover:bg-slate-800 transition text-slate-300 bg-navy-900">
+                        <i class="fas fa-globe text-slate-400"></i>
+                        <span id="langIndicator">ES</span>
+                    </button>
+                    
+                    <!-- CTA Buttons -->
+                    <button onclick="triggerLoginAction()" class="hidden md:inline-flex items-center justify-center px-4 py-2 bg-corporate-gold rounded-md text-sm font-bold text-white hover:bg-corporate-gold-dark transition duration-200 shadow-md">
+                        <i class="fas fa-user-tie mr-2"></i> <span data-i18n="btn-client-login">Portal Cliente</span>
+                    </button>
+                              
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-white focus:outline-none ml-2">
+                        <i id="mobileMenuIcon" class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-navy-950 border-b border-navy-900 px-4 pt-2 pb-4 space-y-1 absolute w-full left-0 top-full shadow-2xl">
+            <a href="/" data-i18n="nav-philosophy" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Filosofía</a>
+            <a href="/" data-i18n="nav-modules" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Módulos</a>
+            <a href="/" data-i18n="nav-how" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Cómo Funciona</a>
+            <a href="/" data-i18n="nav-ai" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Asistencia IA</a>
+            <a href="/" data-i18n="nav-faq" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Preguntas</a>
+            <div class="pt-4 border-t border-navy-900 flex flex-col space-y-2 px-2">
+                <button onclick="triggerLoginAction(); toggleMobileMenu();" class="w-full flex items-center justify-center py-2.5 bg-corporate-gold rounded-md text-sm font-bold text-white hover:bg-corporate-gold-dark transition">
+                    <i class="fas fa-user-tie mr-2"></i> <span data-i18n="btn-client-login">Portal Cliente</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 404 MAIN CONTENT -->
+    <main class="flex-grow flex items-center py-12 lg:py-20 relative overflow-hidden bg-slate-50">
+        <!-- Decorative Background Element -->
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-navy-50/50 -skew-x-12 transform origin-top-right z-0"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                
+                <!-- Left: Animated Wordsearch Grid (Modernized with CSS Grid) -->
+                <div class="w-full max-w-md mx-auto lg:mx-0 select-none">
+                    <div id="wordsearch" class="grid grid-cols-8 gap-1.5 sm:gap-2">
+                        <!-- Row 1 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">k</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">v</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">n</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">z</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">i</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">x</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">m</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">e</div>
+                        
+                        <!-- Row 2 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">t</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">a</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">x</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">l</div>
+                        <div class="ws-cell one aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">4</div>
+                        <div class="ws-cell two aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">0</div>
+                        <div class="ws-cell three aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">4</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">y</div>
+                        
+                        <!-- Row 3 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">y</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">w</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">v</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">b</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">o</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">q</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">d</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">y</div>
+
+                        <!-- Row 4 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">p</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">a</div>
+                        <div class="ws-cell four aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">p</div>
+                        <div class="ws-cell five aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">a</div>
+                        <div class="ws-cell six aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">g</div>
+                        <div class="ws-cell seven aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">e</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">v</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">j</div>
+
+                        <!-- Row 5 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">a</div>
+                        <div class="ws-cell eight aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">n</div>
+                        <div class="ws-cell nine aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">o</div>
+                        <div class="ws-cell ten aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">t</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">s</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">c</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">e</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">w</div>
+
+                        <!-- Row 6 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">v</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">x</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">e</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">p</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">c</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">f</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">h</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">q</div>
+
+                        <!-- Row 7 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">e</div>
+                        <div class="ws-cell eleven aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">f</div>
+                        <div class="ws-cell twelve aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">o</div>
+                        <div class="ws-cell thirteen aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">u</div>
+                        <div class="ws-cell fourteen aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">n</div>
+                        <div class="ws-cell fifteen aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase relative">d</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">s</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">w</div>
+
+                        <!-- Row 8 -->
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">q</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">v</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">o</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">s</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">m</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">v</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">f</div>
+                        <div class="ws-cell aspect-square flex items-center justify-center bg-blue-50 shadow-sm rounded text-navy-600 font-mono text-sm sm:text-xl uppercase">u</div>
+                    </div>
+                </div>
+
+                <!-- Right: Content & Search -->
+                <div class="text-center lg:text-left space-y-6">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-red-100 text-red-600 border border-red-200">
+                        <span class="relative flex h-2 w-2 mr-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                        </span>
+                        <span data-i18n="404-badge">Error 404</span>
+                    </span>
+                    
+                    <h1 class="text-4xl sm:text-5xl font-extrabold text-navy-950 tracking-tight" data-i18n="404-title">¿Estás Perdido(a)?</h1>
+                    
+                    <p class="text-base sm:text-lg text-slate-600 leading-relaxed max-w-lg mx-auto lg:mx-0" data-i18n="404-desc">
+                        Lamentablemente la página que buscas no se pudo encontrar. Puede estar temporalmente no disponible, haber sido movida o ya no existir.
+                    </p>
+                    
+                    <p class="text-sm text-slate-500 max-w-lg mx-auto lg:mx-0" data-i18n="404-subdesc">
+                        Revisa la URL que ingresaste, explora nuestros atajos o utiliza el buscador inteligente a continuación.
+                    </p>
+
+                    <!-- Search Box -->
+                    <div id="search" class="mt-8 relative max-w-lg mx-auto lg:mx-0">
+                        <form onsubmit="performSearch(event)" class="relative flex items-center">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <input type="text" id="searchInput" class="w-full bg-white border border-navy-200 text-navy-900 text-sm rounded-lg focus:ring-2 focus:ring-corporate-gold focus:border-corporate-gold block pl-10 pr-28 py-4 shadow-sm transition outline-none" placeholder="Buscar página o módulo..." autocomplete="off">
+                            <button type="submit" class="absolute right-2 top-2 bottom-2 bg-corporate-gold hover:bg-corporate-gold-dark text-white font-bold rounded-md px-4 text-sm transition-all shadow-md transform hover:scale-95" data-i18n="404-search-btn">
+                                Buscar
+                            </button>
+                        </form>
+                        
+                        <!-- Search Results Dropdown -->
+                        <div id="searchResults" class="hidden absolute top-full left-0 w-full mt-2 bg-white border border-navy-100 rounded-lg shadow-xl max-h-64 overflow-y-auto z-50">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Navigation Chips -->
+                    <div class="pt-6 flex flex-wrap justify-center lg:justify-start gap-3">
+                        <a href="/" class="px-4 py-2 bg-navy-50 text-navy-800 text-sm font-semibold rounded-lg border border-navy-200 hover:bg-navy-900 hover:text-white transition shadow-sm" data-i18n="404-nav-home">
+                            <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
+                        </a>
+                        <a href="/" class="px-4 py-2 bg-navy-50 text-navy-800 text-sm font-semibold rounded-lg border border-navy-200 hover:bg-navy-900 hover:text-white transition shadow-sm" data-i18n="404-nav-about">
+                            <i class="fas fa-users mr-1.5 opacity-70"></i> Sobre Nosotros
+                        </a>
+                        <a href="/" class="px-4 py-2 bg-navy-50 text-navy-800 text-sm font-semibold rounded-lg border border-navy-200 hover:bg-navy-900 hover:text-white transition shadow-sm" data-i18n="404-nav-contact">
+                            <i class="fas fa-envelope mr-1.5 opacity-70"></i> Contacto
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-950 text-white py-16 border-t border-navy-900 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+                <!-- Col 1: Brand & Desc -->
+                <div class="md:col-span-1 space-y-4">
+                    <div class="flex items-center">
+                        <img src="https://bucket.mlcdn.com/a/3336/3336910/images/4c1263b4d7ad73dbdf82f0ec2a277f1349f936ac.png" class="h-10 w-auto" alt="CCA Icon">
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed" data-i18n="foot-desc">
+                        Plataforma de control integral privada para la administración unificada de contactos, facturas, proyectos y asistencia de Inteligencia Artificial mediante infraestructura BYOK.
+                    </p>
+                    <div class="pt-4 flex flex-col items-start">
+                        <p class="text-[10px] text-slate-500 mb-2 uppercase tracking-widest font-bold" data-i18n="foot-payment-title">Pagos Procesados Seguros</p>
+                        <img src="https://bucket.mlcdn.com/a/3336/3336910/images/ba7caa40fbb46e4528aaae8b0128896c5e8ff915.png" class="self-start block h-4 w-auto opacity-70 hover:opacity-70 transition filter grayscale hover:grayscale-0" alt="Secure PayPal Payments">
+                    </div>
+                </div>
+
+                <!-- Col 2: Platform Links -->
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c2-title">Plataforma</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="/" class="hover:text-white transition" data-i18n="nav-philosophy">Filosofía BYOK</a></li>
+                        <li><a href="/" class="hover:text-white transition" data-i18n="nav-modules">Exploración de Módulos</a></li>
+                        <li><a href="/" class="hover:text-white transition" data-i18n="nav-how">Configuración Técnica</a></li>
+                        <li><a href="/" class="hover:text-white transition" data-i18n="nav-ai">Asistentes de Inteligencia Artificial</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Resources -->
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c3-title">Recursos</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="#" onclick="showSimpleToast('Acción no disponible', 'Estás en una página de error 404.'); return false;" class="hover:text-white transition" data-i18n="foot-r1">Script Maestro API</a></li>
+                        <li><a href="/" class="hover:text-white transition" data-i18n="foot-r2">Guía de Solución de Problemas</a></li>
+                        <li><a href="/" class="hover:text-white transition" data-i18n="foot-r3">Manual de Integración en Drive</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Status Indicator -->
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c4-title">Seguridad</h5>
+                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 text-[11px] space-y-2 text-slate-400">
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-status-label">Servidor Central:</span>
+                            <span class="text-emerald-400 font-bold uppercase">ONLINE</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-enc-label">Encriptación HTTPS:</span>
+                            <span class="text-slate-200">256-Bit SSL</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-db-label">Almacenamiento BD:</span>
+                            <span class="text-corporate-gold uppercase font-bold">Local Google Drive</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-slate-800 my-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[10px] space-y-3 sm:space-y-0">
+                <p>&copy; 2026 Centro de Control Administrativo. Todos los derechos reservados.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-white transition" data-i18n="foot-p1">Políticas de Privacidad</a>
+                    <a href="#" class="hover:text-white transition" data-i18n="foot-p2">Términos del Servicio de Código</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* -------------------- MULTILINGUAL SYSTEM -------------------- */
+        const translations = {
+            en: {
+                "nav-philosophy": "Philosophy",
+                "nav-modules": "Modules",
+                "nav-how": "How it Works",
+                "nav-ai": "AI Assistance",
+                "nav-faq": "FAQ",
+                "btn-client-login": "Client Portal",
+                
+                "404-badge": "Error 404",
+                "404-title": "Are you lost?",
+                "404-desc": "Unfortunately, the page you are looking for could not be found. It may be temporarily unavailable, moved, or no longer exist.",
+                "404-subdesc": "Check the URL you entered, explore our quick links, or use the smart search below.",
+                "404-search-ph": "Search page or module...",
+                "404-search-btn": "Search",
+                "404-nav-home": "Home",
+                "404-nav-about": "About Us",
+                "404-nav-contact": "Contact",
+
+                "foot-desc": "Secure, private Administrative Hub enabling startups, freelancers, and businesses to fully organize documents, tasks, and schedules through individual Google Drive structures.",
+                "foot-payment-title": "Secure Payments By",
+                "foot-c2-title": "Platform",
+                "foot-c3-title": "Resources",
+                "foot-c4-title": "Security Log",
+                "foot-r1": "Master Script Source",
+                "foot-r2": "Troubleshooting Guides",
+                "foot-r3": "Drive Integration Walkthroughs",
+                "foot-status-label": "System Server:",
+                "foot-enc-label": "Data Encryption:",
+                "foot-db-label": "Database Storage:",
+                "foot-p1": "Privacy Policy",
+                "foot-p2": "Software Terms of Service"
+            },
+            es: {
+                "nav-philosophy": "Filosofía",
+                "nav-modules": "Módulos",
+                "nav-how": "Cómo Funciona",
+                "nav-ai": "Asistencia IA",
+                "nav-faq": "Preguntas",
+                "btn-client-login": "Portal Cliente",
+                
+                "404-badge": "Error 404",
+                "404-title": "¿Estás Perdido(a)?",
+                "404-desc": "Lamentablemente la página que buscas no se pudo encontrar. Puede estar temporalmente no disponible, haber sido movida o ya no existir.",
+                "404-subdesc": "Revisa la URL que ingresaste, explora nuestros atajos o utiliza el buscador inteligente a continuación.",
+                "404-search-ph": "Buscar página o módulo...",
+                "404-search-btn": "Buscar",
+                "404-nav-home": "Inicio",
+                "404-nav-about": "Sobre Nosotros",
+                "404-nav-contact": "Contacto",
+
+                "foot-desc": "Plataforma de control integral privada para la administración unificada de contactos, facturas, proyectos y asistencia de Inteligencia Artificial mediante infraestructura BYOK.",
+                "foot-payment-title": "Pagos Procesados Seguros",
+                "foot-c2-title": "Plataforma",
+                "foot-c3-title": "Recursos",
+                "foot-c4-title": "Seguridad",
+                "foot-r1": "Script Maestro API",
+                "foot-r2": "Guía de Solución de Problemas",
+                "foot-r3": "Manual de Integración en Drive",
+                "foot-status-label": "Servidor Central:",
+                "foot-enc-label": "Encriptación HTTPS:",
+                "foot-db-label": "Almacenamiento BD:",
+                "foot-p1": "Políticas de Privacidad",
+                "foot-p2": "Términos del Servicio de Código"
+            }
+        };
+
+        let currentLang = 'es'; // Default Language
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            document.getElementById('langIndicator').innerText = currentLang === 'es' ? 'EN' : 'ES';
+            updatePageLanguage();
+            showSimpleToast(
+                currentLang === 'es' ? 'Idioma Cambiado' : 'Language Changed',
+                currentLang === 'es' ? 'La página ahora se muestra en Español' : 'The page is now translated to English'
+            );
+        }
+
+        function updatePageLanguage() {
+            const pack = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(elem => {
+                const key = elem.getAttribute('data-i18n');
+                if (pack[key]) {
+                    elem.innerHTML = pack[key];
+                }
+            });
+            
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = pack["404-search-ph"];
+            }
+        }
+
+        /* -------------------- TOAST ALERTS -------------------- */
+        let toastTimeout;
+        function showSimpleToast(title, msg, iconClass = "fa-info-circle") {
+            const toast = document.getElementById('toastNotification');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastTitle.innerText = title;
+            toastMessage.innerText = msg;
+            toastIcon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+
+            toast.classList.remove('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                dismissToast();
+            }, 5000);
+        }
+
+        function dismissToast() {
+            const toast = document.getElementById('toastNotification');
+            toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+            toast.classList.add('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+        }
+
+        /* -------------------- MOBILE MENU & LOGIN ACTION -------------------- */
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const icon = document.getElementById('mobileMenuIcon');
+
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.className = "fas fa-times text-xl";
+            } else {
+                menu.classList.add('hidden');
+                icon.className = "fas fa-bars text-xl";
+            }
+        }
+
+        function triggerLoginAction() {
+            showSimpleToast(
+                currentLang === 'es' ? "Navegación" : "Navigation",
+                currentLang === 'es' ? "Para iniciar sesión debes ir al inicio." : "To login please go to the home page.",
+                "fa-exclamation-circle"
+            );
+        }
+
+        /* -------------------- 404 PAGE SEARCH LIBRARY -------------------- */
+        const pageLibrary = [
+            { title: "Inicio - Centro de Control Administrativo", url: "/" },
+            { title: "Plataforma BYOK - Seguridad Soberana", url: "/" },
+            { title: "Módulos de Cifrado y Gobernanza", url: "/" },
+            { title: "Dashboard Administrativo en Tiempo Real", url: "/" },
+            { title: "Asistentes de IA para Cumplimiento", url: "/" },
+            { title: "Preguntas frecuentes (FAQ)", url: "/" },
+            { title: "Contacto y Soporte Técnico", url: "/" }
+        ];
+
+        function performSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (query === "") {
+                resultsDiv.classList.add('hidden');
+                showSimpleToast(
+                    currentLang === 'es' ? "Búsqueda vacía" : "Empty search", 
+                    currentLang === 'es' ? "Escribe el nombre de una página o sección" : "Type a page or section name", 
+                    "fa-search"
+                );
+                return;
+            }
+            
+            const matches = pageLibrary.filter(item => 
+                item.title.toLowerCase().includes(query) || 
+                (item.url && item.url.toLowerCase().includes(query))
+            );
+            
+            resultsDiv.classList.remove('hidden');
+            
+            if (matches.length === 0) {
+                resultsDiv.innerHTML = `<div class="text-sm text-slate-500 p-4 text-center"><i class="fas fa-face-frown text-lg mb-2 block"></i> ${currentLang==='es'?'No encontramos páginas que coincidan con':'No matching pages found for'} "${escapeHtml(query)}"</div>`;
+                return;
+            }
+            
+            resultsDiv.innerHTML = `<div class="text-[10px] font-bold uppercase tracking-wider text-navy-600 bg-slate-50 px-4 py-2 border-b border-navy-100">
+                ${currentLang==='es'?'Resultados de búsqueda:':'Search results:'}
+            </div>` +
+            matches.map(m => `
+                <a href="${m.url}" class="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold text-navy-900 group-hover:text-corporate-gold transition"><i class="fas fa-file-alt text-slate-300 mr-2"></i> ${escapeHtml(m.title)}</span>
+                        <i class="fas fa-chevron-right text-[10px] text-slate-300 group-hover:text-corporate-gold"></i>
+                    </div>
+                </a>
+            `).join('');
+        }
+        
+        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+        
+        // Hide search results on click outside
+        document.addEventListener('click', function(e) {
+            const results = document.getElementById('searchResults');
+            const searchArea = document.getElementById('search');
+            if(results && !results.classList.contains('hidden') && !searchArea.contains(e.target)) {
+                results.classList.add('hidden');
+            }
+        });
+
+        /* -------------------- WORDSEARCH ANIMATION SEQUENCE -------------------- */
+        $(function () {
+            // Animación paso a paso: resalta cada letra para formar "404PAGENOTFOUND"
+            let $body = $(this);
+            $body.delay(800).queue(function () { $(".one").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".two").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".three").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".four").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".five").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".six").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".seven").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".eight").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".nine").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".ten").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".eleven").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".twelve").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".thirteen").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".fourteen").addClass("selected"); $(this).dequeue(); })
+                .delay(300).queue(function () { $(".fifteen").addClass("selected"); $(this).dequeue(); });
+        });
+
+        /* INIT */
+        window.onload = function() {
+            updatePageLanguage();
+        }
+    </script>
+</body>
+</html>
