@@ -12,6 +12,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+
+
+
+<link rel="preload" as="image" href="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/frontbanner--cop.gif?v=1779613855">
+
+
+    
     
     <style>
         /* CSS Variables for Global Color Control */
@@ -505,22 +514,43 @@
 
   
 
-   <!-- FULL WIDTH BANNER -->
-    <section class="w-full bg-white pt-16">
-        <img src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/Zylvie_Product_Thumbnails_4.gif?v=1779612405" class="w-full h-auto pl-24 pr-24  object-cover" alt="Banner de Presentación">
-        
-        
-        
-        
-        
-        
-    </section>
+
+<!-- FULL WIDTH BANNER -->
+<section class="w-full bg-white pt-16">
+
+    <img 
+        id="hoverBanner"
+        src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/background-banner-cop.gif?v=1779613366"
+        data-default="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/background-banner-cop.gif?v=1779613366"
+        data-hover="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/frontbanner--cop.gif?v=1779613855"
+        class="w-full h-auto pl-24 pr-24 object-cover transition duration-500 ease-out cursor-pointer"
+        alt="Banner Demo"
+    >
+
+</section>
+
+<script>
+const banner = document.getElementById("hoverBanner");
+
+banner.addEventListener("mouseenter", () => {
+    banner.src = banner.dataset.hover;
+});
+
+banner.addEventListener("mouseleave", () => {
+    banner.src = banner.dataset.default;
+});
+</script>
 
 
 
 
 
 
+
+
+
+
+    
 
 
 
