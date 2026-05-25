@@ -534,7 +534,7 @@
 
 <!-- FULL WIDTH BANNER -->
 <section class="w-full bg-white pt-16">
-
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <img 
         id="hoverBanner"
         src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/Zylvie_Product_Thumbnails.gif?v=1779655212"
@@ -543,7 +543,7 @@
         class="w-full h-auto pl-28 pr-28 object-cover transition duration-500 ease-out cursor-pointer"
         alt="Banner Demo"
     >
-
+</div>
 </section>
 
 <script>
@@ -1250,8 +1250,8 @@ banner.addEventListener("mouseleave", () => {
             
                 
     <img class="w-full bg-corporate-gold mt-14" 
-        id="hoverBanner"
-        src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/Zylvie_Product_Thumbnails.gif?v=1779655212"
+        id="footerBanner"
+        src="https://bucket.mlcdn.com/a/3336/3336910/images/69501cda54fdeef7187dc6a66e74c4e3ad22da61.gif"
         class="w-full h-auto pl-28 pr-28 object-cover transition duration-500 ease-out cursor-pointer"
         alt="Banner footer"
     >             
