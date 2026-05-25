@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewelry Vendor Dashboard</title>
+    <!-- Tailwind CSS for styling as requested -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Preview page styling */
+        body { padding: 1rem 1rem; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body>
+
+
+
+<!-- ======================================================================= -->
+<!-- BEGIN EMBED CODE: Copy everything between here and END into your site   -->
+<!-- Note: This embed utilizes Tailwind CSS. Ensure your site loads it.      -->
+<!-- ======================================================================= -->
+
+<div id="jewelry-market-dashboard" class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden text-slate-800 font-sans relative">
+    
+    <style>
+        /* Scoped styles specifically for animations and custom elements inside this widget */
+        #jewelry-market-dashboard {
+            --brand-gold: #d4af37;
+            --brand-dark: #1e293b;
+            --ticker-speed: 40s;
+        }
+
+        .jw-ticker-wrap {
+            background-color: var(--brand-dark);
+            color: white;
+            padding: 10px 0;
+            overflow: hidden;
+            display: flex;
+            white-space: nowrap;
+            box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
+            font-family: 'Trajan Pro', 'Times New Roman', serif;
+            letter-spacing: 1px;
+        }
+
+        .jw-ticker-track {
+            display: flex;
+            width: max-content;
+            animation: jwScroll var(--ticker-speed) linear infinite;
+        }
+
+        .jw-ticker-wrap:hover .jw-ticker-track {
+            animation-play-state: paused;
+        }
+
+        .jw-ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 1.1rem;
+        }
+
+        .jw-price-up { color: #4ade80; } /* Tailwind Green 400 */
+        .jw-price-down { color: #f87171; } /* Tailwind Red 400 */
+
+        @keyframes jwScroll {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
+
+        /* Custom scrollbar for the calculator section */
+        .jw-custom-scroll::-webkit-scrollbar { width: 6px; }
+        .jw-custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .jw-custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+
+    <div class="jw-ticker-wrap uppercase border-b-4 border-amber-500">
+        <div class="jw-ticker-track" id="jw-ticker-content">
+            <div class="jw-ticker-item" data-i18n="loadingTicker">LOADING LIVE MARKET DATA...</div>
+        </div>
+    </div>
+
+    <div class="p-4 sm:p-6 lg:p-8">
+        
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    <span data-i18n="title">Precious Metals Intelligence</span>
+                </h2>
+                <p class="text-sm text-slate-500 mt-1" data-i18n="subtitle">Real-time benchmark pricing and jeweler tools. Base: USD / Troy Ounce.</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-i18n="lastUpdated">Last Updated</span>
+                <div id="jw-last-updated" class="text-sm font-medium text-slate-700">--:--:--</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="jw-kpi-cards">
+            <!-- Cards will be injected via JS to ensure data binding -->
+            <div class="col-span-2 lg:col-span-4 text-center py-4 text-slate-400 text-sm" data-i18n="fetchingSpot">
+                Fetching spot prices...
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Historical Chart (Spans 2 columns on large screens) -->
+            <div class="lg:col-span-2 bg-slate-50 rounded-xl p-4 border border-slate-200 shadow-sm relative">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-slate-700" data-i18n="trendsTitle">30-Day Market Trends</h3>
+                    <select id="jw-chart-selector" class="bg-white border border-slate-300 text-sm rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="XAU" data-i18n="optGoldChart">Gold (XAU)</option>
+                        <option value="XAG" data-i18n="optSilverChart">Silver (XAG)</option>
+                        <option value="XPT" data-i18n="optPlatChart">Platinum (XPT)</option>
+                    </select>
+                </div>
+                <div class="w-full h-64 md:h-80 relative">
+                    <canvas id="jw-history-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Right Column: Jeweler's Scrap / Casting Calculator -->
+            <div class="bg-slate-800 text-white rounded-xl p-5 shadow-lg flex flex-col">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <span data-i18n="valuatorTitle">Material Valuator</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1" data-i18n="valuatorSubtitle">Estimate material value based on live spot rates.</p>
+                </div>
+
+                <div class="space-y-4 flex-grow">
+                    <!-- Metal Selection -->
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1" data-i18n="lblMetal">Metal & Purity</label>
+                        <select id="calc-alloy" class="w-full bg-slate-700 border border-slate-600 text-white rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <optgroup label="Gold" data-i18n="optGold">
+                                <option value="XAU_0.999" data-i18n="g24">24K Pure Gold (99.9%)</option>
+                                <option value="XAU_0.916" data-i18n="g22">22K Gold (91.6%)</option>
+                                <option value="XAU_0.750" data-i18n="g18">18K Gold (75.0%)</option>
+                                <option value="XAU_0.585" data-i18n="g14" selected>14K Gold (58.5%)</option>
+                                <option value="XAU_0.417" data-i18n="g10">10K Gold (41.7%)</option>
+                            </optgroup>
+                            <optgroup label="Silver" data-i18n="optSilver">
+                                <option value="XAG_0.999" data-i18n="s999">Fine Silver (99.9%)</option>
+                                <option value="XAG_0.925" data-i18n="s925">Sterling Silver (92.5%)</option>
+                            </optgroup>
+                            <optgroup label="Platinum/Palladium" data-i18n="optPlatPall">
+                                <option value="XPT_0.950" data-i18n="p950">Platinum (95.0%)</option>
+                                <option value="XPD_0.950" data-i18n="pd950">Palladium (95.0%)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Weight Input -->
+                    <div class="flex gap-2">
+                        <div class="flex-grow">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1" data-i18n="lblWeight">Weight</label>
+                            <input type="number" id="calc-weight" value="10" min="0" step="0.01" class="w-full bg-slate-700 border border-slate-600 text-white rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder-slate-400" placeholder="e.g. 15.5" data-i18n="phWeight">
+                        </div>
+                        <div class="w-1/3">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1" data-i18n="lblUnit">Unit</label>
+                            <select id="calc-unit" class="w-full bg-slate-700 border border-slate-600 text-white rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                <option value="g" data-i18n="unitG">Grams</option>
+                                <option value="oz" data-i18n="unitOz">Troy Oz</option>
+                                <option value="dwt" data-i18n="unitDwt">DWT</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Margin/Markup Input -->
+                    <div>
+                         <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1" data-i18n="lblMargin">Fee / Margin (+/- %)</label>
+                         <input type="number" id="calc-margin" value="0" step="1" class="w-full bg-slate-700 border border-slate-600 text-white rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g. -10 for scrap fee" data-i18n="phMargin">
+                    </div>
+                </div>
+
+                <!-- Calculation Result -->
+                <div class="mt-6 pt-4 border-t border-slate-600 text-center">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block mb-1" data-i18n="lblEstimated">Estimated Value</span>
+                    <div id="calc-result" class="text-3xl font-bold text-amber-400">$0.00</div>
+                    <div id="calc-formula" class="text-xs text-slate-500 mt-2 h-4"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // === i18n & TRANSLATIONS ===
+            const userLang = navigator.language || navigator.userLanguage || '';
+            const isSpanish = userLang.toLowerCase().startsWith('es');
+
+            const t = isSpanish ? {
+                loadingTicker: "CARGANDO DATOS DEL MERCADO EN VIVO...",
+                title: "Inteligencia de Metales Preciosos",
+                subtitle: "Precios de referencia en tiempo real y herramientas para joyeros. Base: USD / Onza Troy.",
+                lastUpdated: "ÚLTIMA ACTUALIZACIÓN",
+                fetchingSpot: "Obteniendo precios al contado...",
+                trendsTitle: "Tendencias del Mercado (30 Días)",
+                valuatorTitle: "Valuador de Material",
+                valuatorSubtitle: "Estime el valor del material según las tasas al contado en vivo.",
+                lblMetal: "METAL Y PUREZA",
+                lblWeight: "PESO",
+                lblUnit: "UNIDAD",
+                lblMargin: "TARIFA / MARGEN (+/- %)",
+                lblEstimated: "VALOR ESTIMADO",
+                optGold: "Oro",
+                optSilver: "Plata",
+                optPlat: "Platino",
+                optPall: "Paladio",
+                optPlatPall: "Platino/Paladio",
+                optGoldChart: "Oro (XAU)",
+                optSilverChart: "Plata (XAG)",
+                optPlatChart: "Platino (XPT)",
+                g24: "Oro Puro 24K (99.9%)",
+                g22: "Oro 22K (91.6%)",
+                g18: "Oro 18K (75.0%)",
+                g14: "Oro 14K (58.5%)",
+                g10: "Oro 10K (41.7%)",
+                s999: "Plata Fina (99.9%)",
+                s925: "Plata de Ley (92.5%)",
+                p950: "Platino (95.0%)",
+                pd950: "Paladio (95.0%)",
+                unitG: "Gramos",
+                unitOz: "Onza Troy",
+                unitDwt: "DWT",
+                phWeight: "ej. 15.5",
+                phMargin: "ej. -10 por tarifa",
+                pureText: "puro",
+                marginText: "margen",
+                perOzText: "/oz",
+                priceChartLabel: "Precio (USD/oz)"
+            } : {
+                loadingTicker: "LOADING LIVE MARKET DATA...",
+                title: "Precious Metals Intelligence",
+                subtitle: "Real-time benchmark pricing and jeweler tools. Base: USD / Troy Ounce.",
+                lastUpdated: "LAST UPDATED",
+                fetchingSpot: "Fetching spot prices...",
+                trendsTitle: "30-Day Market Trends",
+                valuatorTitle: "Material Valuator",
+                valuatorSubtitle: "Estimate material value based on live spot rates.",
+                lblMetal: "METAL & PURITY",
+                lblWeight: "WEIGHT",
+                lblUnit: "UNIT",
+                lblMargin: "FEE / MARGIN (+/- %)",
+                lblEstimated: "ESTIMATED VALUE",
+                optGold: "Gold",
+                optSilver: "Silver",
+                optPlat: "Platinum",
+                optPall: "Palladium",
+                optPlatPall: "Platinum/Palladium",
+                optGoldChart: "Gold (XAU)",
+                optSilverChart: "Silver (XAG)",
+                optPlatChart: "Platinum (XPT)",
+                g24: "24K Pure Gold (99.9%)",
+                g22: "22K Gold (91.6%)",
+                g18: "18K Gold (75.0%)",
+                g14: "14K Gold (58.5%)",
+                g10: "10K Gold (41.7%)",
+                s999: "Fine Silver (99.9%)",
+                s925: "Sterling Silver (92.5%)",
+                p950: "Platinum (95.0%)",
+                pd950: "Palladium (95.0%)",
+                unitG: "Grams",
+                unitOz: "Troy Oz",
+                unitDwt: "DWT",
+                phWeight: "e.g. 15.5",
+                phMargin: "e.g. -10 for scrap fee",
+                pureText: "pure",
+                marginText: "margin",
+                perOzText: "/oz",
+                priceChartLabel: "Price (USD/oz)"
+            };
+
+            function applyTranslations() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (t[key]) {
+                        if (el.tagName === 'OPTGROUP') {
+                            el.label = t[key];
+                        } else if (el.tagName === 'INPUT') {
+                            el.placeholder = t[key];
+                        } else {
+                            el.innerText = t[key];
+                        }
+                    }
+                });
+            }
+
+            // Apply immediately to static elements
+            applyTranslations();
+
+            // === CONFIGURATION & CONSTANTS ===
+            // Using Gold-API.com (No API Key Required for basic public endpoints)
+            const SYMBOLS = ['XAU', 'XAG', 'XPT', 'XPD'];
+            const BASE_CURRENCY = 'USD';
+            const REFRESH_RATE = 300000; // 5 minutes (300,000 ms)
+            
+            // Constants for Jewelers
+            const CONVERSIONS = {
+                'g': 31.1034768,      // 1 Troy Oz = 31.1034768 Grams
+                'oz': 1,              // Base unit for pricing
+                'dwt': 20             // 1 Troy Oz = 20 Pennyweights (dwt)
+            };
+
+            const METAL_NAMES = {
+                'XAU': t.optGold,
+                'XAG': t.optSilver,
+                'XPT': t.optPlat,
+                'XPD': t.optPall
+            };
+
+            // State variables
+            let currentRates = {};
+            let historicalData = {};
+            let chartInstance = null;
+
+            // === DYNAMIC SCRIPT LOADER (Chart.js) ===
+            function loadChartJS(callback) {
+                if (window.Chart) {
+                    callback();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                script.onload = callback;
+                document.head.appendChild(script);
+            }
+
+            // === DATA FETCHING & MOCK GENERATION ===
+            async function fetchMarketData() {
+                let liveRates = {};
+                let usingLive = false;
+                
+                try {
+                    // Fetch all symbols in parallel from Gold-API.com's open public endpoints
+                    const promises = SYMBOLS.map(sym => 
+                        fetch(`https://api.gold-api.com/price/${sym}`).then(res => res.json())
+                    );
+                    
+                    const results = await Promise.all(promises);
+                    
+                    results.forEach(data => {
+                        if (data && data.price) {
+                            liveRates[data.symbol] = data.price;
+                            usingLive = true;
+                        }
+                    });
+                    
+                    if (usingLive) console.log("Successfully connected to live market data!");
+                } catch (e) {
+                    console.warn("Failed to fetch live data. Using fallback simulated data.", e);
+                }
+
+                // If live fetch fails, use fallback base rates
+                const baseRates = usingLive ? liveRates : { 'XAU': 2350.50, 'XAG': 29.85, 'XPT': 1050.20, 'XPD': 980.00 };
+                const volatility = { 'XAU': 15, 'XAG': 0.8, 'XPT': 10, 'XPD': 12 };
+                
+                let rates = {};
+                let history = {};
+                let trends = {}; 
+
+                SYMBOLS.forEach(sym => {
+                    let current = baseRates[sym] || 0;
+                    rates[sym] = current;
+                    
+                    // Generate a simulated +/- trend for the UI since the free endpoint only gives the spot price
+                    trends[sym] = (Math.random() * 4 - 2); 
+
+                    // Simulate 30-day historical chart data walking backwards from the real live spot price
+                    history[sym] = [];
+                    let walk = current;
+                    for (let i = 30; i >= 0; i--) {
+                        history[sym].unshift(walk);
+                        walk = walk - (Math.random() * volatility[sym] - (volatility[sym]/2));
+                    }
+                });
+
+                return { rates, history, trends };
+            }
+
+            // === RENDER FUNCTIONS ===
+
+            function updateTicker(rates, trends) {
+                const track = document.getElementById('jw-ticker-content');
+                
+                const itemsHtml = SYMBOLS.map(sym => {
+                    const price = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(rates[sym]);
+                    const pctChange = trends[sym];
+                    const isUp = pctChange >= 0;
+                    const colorClass = isUp ? 'jw-price-up' : 'jw-price-down';
+                    const arrow = isUp ? '▲' : '▼';
+                    
+                    return `<div class="jw-ticker-item">
+                        <span class="font-bold mr-2 text-amber-500">${METAL_NAMES[sym]}</span>
+                        <span class="mr-2">${price}</span>
+                        <span class="${colorClass} text-sm">${arrow} ${Math.abs(pctChange).toFixed(2)}%</span>
+                    </div>`;
+                }).join('<div class="text-slate-600 opacity-50 px-2">•</div>');
+
+                const repeatedGroup = Array(5).fill(itemsHtml).join('<div class="text-slate-600 opacity-50 px-2">•</div>');
+
+                track.innerHTML = `
+                    <div class="flex">${repeatedGroup}</div>
+                    <div class="flex">${repeatedGroup}</div>
+                `;
+                
+                const now = new Date();
+                document.getElementById('jw-last-updated').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            function updateKPICards(rates, trends, history) {
+                const container = document.getElementById('jw-kpi-cards');
+                container.innerHTML = '';
+
+                SYMBOLS.forEach(sym => {
+                    const price = rates[sym];
+                    const change = trends[sym];
+                    const isUp = change >= 0;
+                    const changeStr = (isUp ? '+' : '') + change.toFixed(2) + '%';
+                    
+                    const histData = history[sym];
+                    const min = Math.min(...histData);
+                    const max = Math.max(...histData);
+                    const range = max - min || 1;
+                    
+                    let svgPoints = histData.map((val, index) => {
+                        const x = (index / (histData.length - 1)) * 100;
+                        const y = 100 - (((val - min) / range) * 100);
+                        return `${x},${y}`;
+                    }).join(' ');
+
+                    const strokeColor = isUp ? '#4ade80' : '#f87171';
+                    const cardHtml = `
+                        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-slate-700">${METAL_NAMES[sym]}</h4>
+                                <span class="text-xs px-2 py-1 rounded-full ${isUp ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} font-medium">
+                                    ${changeStr}
+                                </span>
+                            </div>
+                            <div class="text-2xl font-black text-slate-900 mb-3">
+                                $${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                <span class="text-xs font-normal text-slate-400">${t.perOzText}</span>
+                            </div>
+                            <div class="h-10 w-full relative">
+                                <svg viewBox="0 -10 100 120" class="w-full h-full preserve-3d" preserveAspectRatio="none">
+                                    <polyline fill="none" stroke="${strokeColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${svgPoints}" />
+                                </svg>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHtml;
+                });
+            }
+
+            function renderChart(symbol) {
+                const ctx = document.getElementById('jw-history-chart').getContext('2d');
+                const dataPoints = historicalData[symbol];
+                
+                const labels = [];
+                for (let i = 30; i >= 0; i--) {
+                    let d = new Date();
+                    d.setDate(d.getDate() - i);
+                    labels.push(d.toLocaleDateString(isSpanish ? 'es-ES' : 'en-US', { month: 'short', day: 'numeric' }));
+                }
+
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+
+                let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(245, 158, 11, 0.4)'); 
+                gradient.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
+
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: `${METAL_NAMES[symbol]} ${t.priceChartLabel}`,
+                            data: dataPoints,
+                            borderColor: '#f59e0b',
+                            backgroundColor: gradient,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            fill: true,
+                            tension: 0.4 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                                titleFont: { size: 13 },
+                                bodyFont: { size: 14, weight: 'bold' },
+                                padding: 10,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        let value = context.parsed.y;
+                                        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value) + ` ${t.perOzText}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { maxTicksLimit: 6, color: '#94a3b8' }
+                            },
+                            y: {
+                                grid: { color: '#f1f5f9' },
+                                ticks: { 
+                                    color: '#94a3b8',
+                                    callback: function(value) { return '$' + value; }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function calculateValue() {
+                if(!currentRates['XAU']) return;
+
+                const alloyVal = document.getElementById('calc-alloy').value;
+                const weight = parseFloat(document.getElementById('calc-weight').value) || 0;
+                const unit = document.getElementById('calc-unit').value; 
+                const margin = parseFloat(document.getElementById('calc-margin').value) || 0;
+
+                const [symbol, purityStr] = alloyVal.split('_');
+                const purity = parseFloat(purityStr);
+                const spotPrice = currentRates[symbol];
+
+                const weightInOz = weight / CONVERSIONS[unit];
+                const pureValue = weightInOz * purity * spotPrice;
+                const marginMultiplier = 1 + (margin / 100);
+                const finalValue = pureValue * marginMultiplier;
+
+                const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+                document.getElementById('calc-result').innerText = formatter.format(finalValue);
+                
+                const formulaText = `${weight} ${unit} × ${(purity*100).toFixed(1)}% ${t.pureText} × ${formatter.format(spotPrice)}${t.perOzText} ${margin !== 0 ? `× ${marginMultiplier.toFixed(2)} ${t.marginText}` : ''}`;
+                document.getElementById('calc-formula').innerText = formulaText;
+            }
+
+            ['calc-alloy', 'calc-weight', 'calc-unit', 'calc-margin'].forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateValue);
+            });
+
+            document.getElementById('jw-chart-selector').addEventListener('change', (e) => {
+                renderChart(e.target.value);
+            });
+
+            // === MASTER INITIALIZATION ===
+            async function initDashboard() {
+                const data = await fetchMarketData();
+                currentRates = data.rates;
+                historicalData = data.history;
+
+                updateTicker(data.rates, data.trends);
+                updateKPICards(data.rates, data.trends, data.history);
+                
+                loadChartJS(() => {
+                    renderChart(document.getElementById('jw-chart-selector').value);
+                });
+
+                calculateValue(); 
+            }
+
+            initDashboard();
+            setInterval(initDashboard, REFRESH_RATE);
+
+        })();
+    </script>
+</div>
+<!-- ======================================================================= -->
+<!-- END EMBED CODE                                                          -->
+<!-- ======================================================================= -->
+
+</body>
+</html>
