@@ -12,6 +12,7 @@
 [![Status](https://img.shields.io/badge/STATUS-ACTIVE-1f2937?style=for-the-badge)](https://ceo.elnegocio.digital)
 [![Version](https://img.shields.io/badge/VERSION-1.0.0-966d1d?style=for-the-badge)](https://ceo.elnegocio.digital)
 [![Infrastructure](https://img.shields.io/badge/BYOK-INFRASTRUCTURE-0f172a?style=for-the-badge)](https://ceo.elnegocio.digital)
+<br>
 [![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-4285F4?style=for-the-badge&logo=googleappsscript&logoColor=white)](https://script.google.com)
 [![Google Sheets](https://img.shields.io/badge/Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://sheets.google.com)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
