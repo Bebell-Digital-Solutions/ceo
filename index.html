@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <title>Centro Estratégico Operativo CEO - Tu Panel de Control Administrativo - Dashboard Privado BYOK</title>
+    
+    
+    
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/05a2e5d302a90f9dc5944d6070bdbfabfc460d11.png" type="image/png">
+    
+    
+    
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+
+
+<link rel="preload" as="image" href="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/frontbanner--cop.gif?v=1779613855">
+
+
+
+
+
+
+    
+    <style>
+        /* CSS Variables for Global Color Control */
+        :root {
+            --color-navy-50: #f4f6f9;
+            --color-navy-100: #e7ecf3;
+            --color-navy-200: #c8d6e4;
+            --color-navy-300: #99b3cc;
+            --color-navy-400: #618cb0;
+            --color-navy-500: #3d6d96;
+            --color-navy-600: #2d5378;
+            --color-navy-700: #254462;
+            --color-navy-800: #1a2f45;
+            --color-navy-900: #111d2c;
+            --color-navy-950: #0a121c;
+            --color-highlight-gold: #ab8843;
+            --color-corporate-gold: #966d1d;
+            --color-corporate-gold-dark: #7a5817;
+            --color-corporate-teal: #14b8a6;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: 'var(--color-navy-50)',
+                            100: 'var(--color-navy-100)',
+                            200: 'var(--color-navy-200)',
+                            300: 'var(--color-navy-300)',
+                            400: 'var(--color-navy-400)',
+                            500: 'var(--color-navy-500)',
+                            600: 'var(--color-navy-600)',
+                            700: 'var(--color-navy-700)',
+                            800: 'var(--color-navy-800)',
+                            900: 'var(--color-navy-900)',
+                            950: 'var(--color-navy-950)',
+                        },
+                        corporate: {
+                            highlight: 'var(--color-highlight-gold)',
+                            gold: 'var(--color-corporate-gold)',
+                            goldDark: 'var(--color-corporate-gold-dark)',
+                            teal: 'var(--color-corporate-teal)',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'scroll': 'scroll 30s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        scroll: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    
+    <style>
+        .gradient-bg {
+            background: radial-gradient(circle at 10% 20%, rgba(244, 246, 249, 1) 0%, rgba(255, 255, 255, 1) 90%);
+        }
+        .navy-gradient {
+            background: linear-gradient(135deg, #111d2c 0%, #1a2f45 100%);
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 30px -10px rgba(17, 29, 44, 0.12);
+        }
+        .custom-shadow-lg {
+            box-shadow: 0 20px 40px -15px rgba(17, 29, 44, 0.18);
+        }
+</style>  
+
+
+</head>
+
+<body class="font-sans text-slate-700 bg-slate-50 overflow-x-hidden w-full m-0 p-0 antialiased">
+
+
+
+
+    <!-- Global Toast Alert (Substitute for Alert) -->
+    <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-x-[150%] opacity-0 pointer-events-none transition-all duration-300 max-w-md bg-navy-900 text-white rounded-lg shadow-2xl p-4 border-l-4 border-corporate-gold flex items-start space-x-3">
+    
+    
+    
+        <div id="toastIcon" class="text-xl text-corporate-gold mt-0.5">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="flex-1">
+            <h4 id="toastTitle" class="font-bold text-sm">Notificación</h4>
+            <p id="toastMessage" class="text-xs text-slate-300 mt-1"></p>
+        </div>
+        <button onclick="dismissToast()" class="text-slate-400 hover:text-white transition">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 w-full bg-navy-950 backdrop-blur-md border-b border-navy-900 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo & Brand -->
+                <a href="/app" class="relative flex items-center w-48 h-12 group">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/84f526cf7f0f03f747a2e76295cc52156837ace4.png" class="absolute inset-0 w-full h-full object-contain object-left transition-opacity duration-300 group-hover:opacity-0" alt="Centro de Control Administrativo">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/c8916a0d6be8c4383e99c190cecf2afa43705ac1.gif" class="absolute inset-0 w-full h-full object-contain object-left opacity-0 transition-opacity duration-300 group-hover:opacity-100" alt="Centro de Control Administrativo Animated">
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#filosofia" data-i18n="nav-philosophy" class="text-sm font-semibold text-slate-300 hover:text-white transition">Filosofía</a>
+                    <a href="#modulos" data-i18n="nav-modules" class="text-sm font-semibold text-slate-300 hover:text-white transition">Módulos</a>
+                    <a href="#como-funciona" data-i18n="nav-how" class="text-sm font-semibold text-slate-300 hover:text-white transition">Cómo Funciona</a>
+                    <a href="#asistentes" data-i18n="nav-ai" class="text-sm font-semibold text-slate-300 hover:text-white transition">Asistencia IA</a>
+                    <a href="#faq" data-i18n="nav-faq" class="text-sm font-semibold text-slate-300 hover:text-white transition">Preguntas</a>
+                </nav>
+
+                <!-- Actions (Language & Login) -->
+                <div class="flex items-center space-x-3">
+                    <!-- Translate Switcher -->
+                    <button onclick="toggleLanguage()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md border border-slate-700 text-xs font-semibold hover:bg-slate-800 transition text-slate-300 bg-navy-900">
+                        <i class="fas fa-globe text-slate-400"></i>
+                        <span id="langIndicator">EN</span>
+                    </button>
+                    
+                 <!-- CTA Buttons - Portal Cliente con URL añadida -->
+<button onclick="window.open('https://ceo.elnegocio.digital/panel', '_blank')" 
+        class="hidden md:inline-flex items-center justify-center px-4 py-2 bg-corporate-gold rounded-md text-sm font-bold text-white hover:bg-corporate-gold-dark transition duration-200 shadow-md">
+    <i class="fas fa-user-tie mr-2"></i> <span data-i18n="btn-client-login">Portal Cliente</span>
+</button>
+                             
+             <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-white focus:outline-none ml-2">
+                        <i id="mobileMenuIcon" class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-navy-950 border-b border-navy-900 px-4 pt-2 pb-4 space-y-1">
+            <a href="#filosofia" data-i18n="nav-philosophy" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Filosofía</a>
+            <a href="#modulos" data-i18n="nav-modules" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Módulos</a>
+            <a href="#como-funciona" data-i18n="nav-how" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Cómo Funciona</a>
+            <a href="#asistentes" data-i18n="nav-ai" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Asistencia IA</a>
+            <a href="#faq" data-i18n="nav-faq" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Preguntas</a>
+            <div class="pt-4 border-t border-navy-900 flex flex-col space-y-2 px-2">
+                <button onclick="openLoginModal(); toggleMobileMenu();" class="w-full flex items-center justify-center py-2.5 bg-corporate-gold rounded-md text-sm font-bold text-white hover:bg-corporate-gold-dark transition">
+                    <i class="fas fa-user-tie mr-2"></i> <span data-i18n="btn-client-login">Portal Cliente</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="relative py-12 lg:py-14 overflow-hidden border-b border-navy-900">
+        <!-- Background Image with Dark Overlay -->
+        <div class="absolute inset-0 z-0 bg-navy-950">
+            <div class="absolute inset-0 bg-cover bg-center opacity-15" style="background-image: url('https://bucket.mlcdn.com/a/3336/3336910/images/706f560055164562e3722cc92904441fb042921b.jpeg');"></div>
+            <div class="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-r from-navy-950 via-navy-950/95 to-navy-900/80"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left Content -->
+                <div class="lg:col-span-5 text-center lg:text-left space-y-6">
+ <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-corporate-gold text-white border border-corporate-highlight backdrop-blur-sm">
+                    <i class="fas fa-shield-alt mr-2"></i> <span data-i18n="hero-badge">100% Control de Datos</span>
+                    </span>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        <span data-i18n="hero-title-1">Tu centro privado de</span>
+                        <span class="text-corporate-gold font-semibold" data-i18n="hero-title-2">operaciones empresariales.</span>
+                    </h1>
+                    <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed" data-i18n="hero-description">
+                        Administra tu negocio desde un solo lugar. Todo tu negocio organizado en un solo Dashboard. Controla contactos, documentos, proyectos y archivos desde tu nuevo Centro Estratégico Operativo CEO.
+                    </p>
+                    <div class="flex flex-col space-y-3 pt-2 w-full mx-auto lg:mx-0 max-w-sm">
+                        <!-- Añade tu URL manual aquí reemplazando el # -->
+                        <a href="#TU_URL_AQUI" class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center">
+                            <i class="fas fa-calendar-alt mr-2"></i> <span data-i18n="hero-cta-demo">Solicita una Demostración</span>
+                        </a>
+                    </div>
+                    <div class="mt-4 text-sm text-slate-400 font-medium tracking-wide flex items-center justify-center lg:justify-start">
+                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i> <span data-i18n="hero-sell">Organización operativa.</span>
+                    </div>
+                </div>
+
+                <!-- Right Interactive Dashboard Preview & Counters -->
+                <div class="lg:col-span-7">
+                    
+                    <!-- Dashboard container wrapper with group (Glow only affects dashboard) -->
+                    <div class="relative group">
+                        <!-- Outer Decorative Glow -->
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-corporate-gold to-navy-300 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
+                        
+                        <!-- Dashboard container mockup -->
+                        <div class="relative bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-10">
+                            
+                            <!-- Top Chrome Bar -->
+                            <div class="bg-navy-950 px-4 py-3 flex items-center justify-between border-b border-navy-900">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                                    <span class="text-xs text-slate-400 font-mono ml-3 truncate max-w-[200px] sm:max-w-xs">https://ceo.elnegocio.digital</span>
+                                </div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                    <i class="fas fa-lock mr-1"></i> SSL SECURE
+                                </span>
+                            </div>
+
+                            <!-- Mini Navigation Header in Dashboard -->
+                            <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 flex flex-wrap gap-2 items-center justify-between text-xs font-semibold text-slate-600">
+                                <div class="flex items-center space-x-1 sm:space-x-3 overflow-x-auto">
+                                    <button onclick="switchHeroMockup('resumen')" id="tab-resumen" class="px-3 py-1.5 rounded transition bg-navy-900 text-white font-bold"><i class="fas fa-chart-line mr-1"></i> <span data-i18n="m-resumen">Resumen</span></button>
+                                    <button onclick="switchHeroMockup('contactos')" id="tab-contactos" class="px-3 py-1.5 rounded transition hover:bg-slate-200"><i class="fas fa-users mr-1"></i> <span data-i18n="m-contactos">Contactos</span></button>
+                                    <button onclick="switchHeroMockup('documentos')" id="tab-documentos" class="px-3 py-1.5 rounded transition hover:bg-slate-200"><i class="fas fa-file-invoice mr-1"></i> <span data-i18n="m-docs">Documentos</span></button>
+                                    <button onclick="switchHeroMockup('boveda')" id="tab-boveda" class="px-3 py-1.5 rounded transition hover:bg-slate-200"><i class="fas fa-vault mr-1"></i> <span data-i18n="m-boveda">Bóveda</span></button>
+                                </div>
+                                <span class="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100 font-bold" data-i18n="byok-connected-tag">BYOK: ACTIVO</span>
+                            </div>
+
+                            <!-- Inner Content Area of Dashboard Mockup -->
+                            <div class="p-4 sm:p-6 min-h-[300px] bg-slate-50 transition-all duration-300">
+                                
+                                <!-- SCREEN: RESUMEN (Active by default) -->
+                                <div id="mock-resumen" class="space-y-4">
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block" data-i18n="m-tot-contactos">Total Contactos</span>
+                                            <span class="text-xl font-bold text-navy-950 mt-1 block animate-number" data-target="1248">0</span>
+                                            <span class="text-[9px] text-emerald-600 font-semibold"><i class="fas fa-arrow-up"></i> +12%</span>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block" data-i18n="m-orgs">Organizaciones</span>
+                                            <span class="text-xl font-bold text-navy-950 mt-1 block animate-number" data-target="184">0</span>
+                                            <span class="text-[9px] text-emerald-600 font-semibold"><i class="fas fa-arrow-up"></i> +4%</span>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block" data-i18n="m-sent-msg">Mensajes Enviados</span>
+                                            <span class="text-xl font-bold text-navy-950 mt-1 block animate-number" data-target="9852">0</span>
+                                            <span class="text-[9px] text-emerald-600 font-semibold"><i class="fas fa-arrow-up"></i> +28%</span>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block" data-i18n="m-completed-tasks">Tareas Completadas</span>
+                                            <span class="text-xl font-bold text-navy-950 mt-1 block animate-number" data-target="342">0</span>
+                                            <span class="text-[9px] text-emerald-600 font-semibold"><i class="fas fa-check"></i> 94% Rate</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h5 class="text-xs font-bold text-navy-900 uppercase tracking-wider" data-i18n="m-recent-crm-activity">Actividad CRM Reciente</h5>
+                                            <span class="text-[10px] text-slate-400" data-i18n="m-live-update">Actualizado hace instantes</span>
+                                        </div>
+                                        <div class="space-y-2 text-xs">
+                                            <div class="flex items-center justify-between p-2 hover:bg-slate-50 rounded border border-slate-100">
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                    <span class="font-medium">Carlos Mendoza (CEO - TechCorp)</span>
+                                                </div>
+                                                <span class="text-slate-400 text-[10px]" data-i18n="m-crm-c-1">Nuevo Contacto</span>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 hover:bg-slate-50 rounded border border-slate-100">
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                                    <span class="font-medium">Cotización #2026-88</span>
+                                                </div>
+                                                <span class="text-slate-400 text-[10px]" data-i18n="m-crm-c-2">Enviado por Email</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SCREEN: CONTACTS -->
+                                <div id="mock-contactos" class="hidden space-y-4">
+                                    <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200">
+                                        <div class="relative w-2/3">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                                <i class="fas fa-search text-xs"></i>
+                                            </span>
+                                            <input type="text" class="w-full text-xs pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none bg-slate-50" placeholder="Buscar contactos...">
+                                        </div>
+                                        <button class="bg-navy-900 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg hover:bg-navy-800 transition">
+                                            <i class="fas fa-plus mr-1"></i> <span data-i18n="m-add-contact">Contacto</span>
+                                        </button>
+                                    </div>
+                                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                                        <table class="w-full text-left border-collapse text-xs">
+                                            <thead>
+                                                <tr class="bg-slate-100 text-slate-500 font-bold border-b border-slate-200">
+                                                    <th class="p-3" data-i18n="m-col-name">Nombre</th>
+                                                    <th class="p-3" data-i18n="m-col-company">Organización</th>
+                                                    <th class="p-3" data-i18n="m-col-role">Rol</th>
+                                                    <th class="p-3" data-i18n="m-col-status">Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                                                    <td class="p-3 font-semibold text-slate-800">Mariana Ortega</td>
+                                                    <td class="p-3 text-slate-600">Apex Consulting</td>
+                                                    <td class="p-3 text-slate-500">Directora Comercial</td>
+                                                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 text-[9px] px-2 py-0.5 rounded-full font-bold">Cliente</span></td>
+                                                </tr>
+                                                <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                                                    <td class="p-3 font-semibold text-slate-800">Juan Carlos Díaz</td>
+                                                    <td class="p-3 text-slate-600">Nexo Logística</td>
+                                                    <td class="p-3 text-slate-500">Fundador</td>
+                                                    <td class="p-3"><span class="bg-amber-100 text-amber-800 text-[9px] px-2 py-0.5 rounded-full font-bold">Prospecto</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- SCREEN: DOCUMENTS -->
+                                <div id="mock-documentos" class="hidden space-y-4">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                                        <h5 class="text-xs font-bold text-navy-900 uppercase" data-i18n="m-invoice-gen-title">Generador Rápido de Cotizaciones & Facturas</h5>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-[10px] text-slate-500 font-bold mb-1" data-i18n="m-lbl-client">Cliente / Empresa</label>
+                                                <input type="text" id="mock-invoice-client" class="w-full text-xs p-2 rounded border border-slate-200 focus:ring-1 focus:ring-navy-300 focus:outline-none" value="Inversiones Caribe SRL">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] text-slate-500 font-bold mb-1" data-i18n="m-lbl-amount">Monto total (USD)</label>
+                                                <input type="number" id="mock-invoice-amount" class="w-full text-xs p-2 rounded border border-slate-200 focus:ring-1 focus:ring-navy-300 focus:outline-none" value="1500">
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between pt-2">
+                                            <span class="text-[10px] text-slate-400 italic" data-i18n="m-pdf-warning">Genera un PDF limpio listo para imprimir o enviar</span>
+                                            <button onclick="simulatePdfDownload()" class="bg-navy-900 text-white text-xs font-bold px-4 py-2 rounded hover:bg-navy-800 transition flex items-center space-x-2">
+                                                <i class="fas fa-file-pdf text-red-400"></i> <span data-i18n="m-btn-generate-doc">Generar PDF</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SCREEN: BOVEDA -->
+                                <div id="mock-boveda" class="hidden space-y-4">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                        <h5 class="text-xs font-bold text-navy-900 uppercase mb-3" data-i18n="m-vault-title">Bóveda de Credenciales & Links Rápidos</h5>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                                                <div>
+                                                    <span class="text-[10px] text-slate-400 font-bold block">STRIPE PAYMENT LINK</span>
+                                                    <span class="text-xs font-mono text-navy-950 font-semibold">stripe.com/pay/consulting-23</span>
+                                                </div>
+                                                <button onclick="copyMockText('stripe.com/pay/consulting-23')" class="p-1.5 hover:bg-slate-200 text-navy-800 rounded transition" title="Copiar URL">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                                                <div>
+                                                    <span class="text-[10px] text-slate-400 font-bold block">MICROSOFT TEAM DISCORD</span>
+                                                    <span class="text-xs font-mono text-navy-950 font-semibold">discord.gg/secureserv-cca</span>
+                                                </div>
+                                                <button onclick="copyMockText('discord.gg/secureserv-cca')" class="p-1.5 hover:bg-slate-200 text-navy-800 rounded transition" title="Copiar URL">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Counters moved beneath dashboard, strictly outside the glow wrapper -->
+                    <div class="mt-8 grid grid-cols-3 gap-4 pt-6 border-t border-white/25 max-w-lg mx-auto text-center relative z-10">
+                        <div>
+                            <span class="block text-xl sm:text-2xl font-bold text-white">+<span class="animate-number" data-target="9">0</span></span>
+                            <span class="text-xs text-slate-400" data-i18n="hero-stat-1">Módulos</span>
+                        </div>
+                        <div>
+                            <span class="block text-xl sm:text-2xl font-bold text-white"><span class="animate-number" data-target="100">0</span>%</span>
+                            <span class="text-xs text-slate-400" data-i18n="hero-stat-2">Privado (BYOK)</span>
+                        </div>
+                        <div>
+                            <span class="block text-xl sm:text-2xl font-bold text-white">Google</span>
+                            <span class="text-xs text-slate-400" data-i18n="hero-stat-3">Apps Script Integration</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUSTED BY SECTION -->
+    <section class="bg-navy-950 py-8 border-b border-navy-900 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 text-center">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500" data-i18n="trusted-title">Confiado por marcas alrededor del mundo</p>
+        </div>
+        
+        <!-- Infinite Slider -->
+        <div class="relative w-full overflow-hidden flex items-center">
+            <!-- Gradient fades -->
+            <div class="absolute left-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-r from-navy-950 to-transparent"></div>
+            
+            <div class="absolute right-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-l from-navy-950 to-transparent"></div>
+            
+            <div class="flex w-[200%] animate-scroll">
+                <!-- First Set -->
+                <div class="flex-1 flex justify-around items-center space-x-8 px-4">
+                    <i class="fab fa-aws text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-google text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-microsoft text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-stripe text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-hubspot text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-slack text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                </div>
+                
+                <!-- Duplicate Set for seamless scroll -->
+                <div class="flex-1 flex justify-around items-center space-x-8 px-4">
+                    <i class="fab fa-aws text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-google text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-microsoft text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-stripe text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-hubspot text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-slack text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                </div>
+
+
+                <!-- Duplicate Set for seamless scroll -->
+                <div class="flex-1 flex justify-around items-center space-x-8 px-4">
+                    <i class="fab fa-aws text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-google text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-microsoft text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-stripe text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-hubspot text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-slack text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                </div>
+
+
+                                <!-- Duplicate Set for seamless scroll -->
+                <div class="flex-1 flex justify-around items-center space-x-8 px-4">
+                    <i class="fab fa-aws text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-google text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-microsoft text-3xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-stripe text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-hubspot text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                    <i class="fab fa-slack text-4xl text-slate-700 hover:text-slate-500 transition"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- FULL WIDTH BANNER -->
+<section class="w-full bg-white pt-16">
+<div class="max-w-4xl mx-auto px-4 sm:px-4 lg:px-4">
+    <img 
+        id="hoverBanner"
+        src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/Zylvie_Product_Thumbnails.gif?v=1779655212"
+        data-default="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/Zylvie_Product_Thumbnails.gif?v=1779655212"
+        data-hover="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/background-hover-banner-image.gif?v=1779656432"
+        class="w-full h-auto object-cover transition duration-500 ease-out cursor-pointer"
+        alt="Banner Demo"
+    >
+</div>
+</section>
+
+<script>
+const banner = document.getElementById("hoverBanner");
+
+banner.addEventListener("mouseenter", () => {
+    banner.src = banner.dataset.hover;
+});
+
+banner.addEventListener("mouseleave", () => {
+    banner.src = banner.dataset.default;
+});
+</script>
+
+    <!-- PHILOSOPHY / THE BYOK DIFFERENCE -->
+    <section id="filosofia" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <span class="text-xs uppercase font-extrabold tracking-widest text-corporate-gold" data-i18n="phil-tag">Seguridad y Privacidad Radical</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-950" data-i18n="phil-title">La diferencia de operar con tu propia nube</h2>
+                <p class="text-lg text-slate-600" data-i18n="phil-desc">
+                    La mayoría de las herramientas SaaS recopilan, analizan y almacenan tus datos comerciales en servidores ajenos. El Centro de Control Administrativo se construyó bajo un paradigma totalmente diferente.
+                </p>
+            </div>
+
+
+            <!-- Comparison Matrix -->
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                
+                <!-- Box 1: Traditional SaaS -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-8 relative overflow-hidden transition hover:shadow-md">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full -mr-10 -mt-10"></div>
+                    <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center text-red-600 mb-6">
+                        <i class="fas fa-server text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy-950 mb-3" data-i18n="phil-trad-title">SaaS Tradicionales Centralizados</h3>
+                    <ul class="space-y-4 text-sm text-slate-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span data-i18n="phil-trad-p1">Tus datos de ventas, contactos y documentos se guardan en servidores de terceros.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span data-i18n="phil-trad-p2">Suscripciones mensuales obligatorias. Si dejas de pagar, pierdes el acceso a tu información.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span data-i18n="phil-trad-p3">Vulnerabilidades de hackeos masivos que exponen credenciales y listas de clientes.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Box 2: CCA Nube Privada BYOK -->
+                <div class="bg-navy-50 border-2 border-navy-900 rounded-2xl p-8 relative overflow-hidden transition hover:shadow-lg">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-corporate-gold/5 rounded-full -mr-12 -mt-12 animate-pulse-slow"></div>
+                    <span class="absolute top-4 right-4 bg-corporate-gold text-white font-extrabold text-[10px] tracking-wider uppercase px-3 py-1 rounded-full shadow" data-i18n="phil-recomended-badge">Recomendado</span>
+                    <div class="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center text-corporate-highlight mb-6 shadow-md">
+                        <i class="fas fa-user-shield text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy-950 mb-3" data-i18n="phil-cca-title">Centro de Control Privado (BYOK)</h3>
+                    <ul class="space-y-4 text-sm text-navy-950">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-emerald-600 mt-1 mr-3 flex-shrink-0"></i>
+                            <strong data-i18n="phil-cca-p1">Toda tu base de datos permanece conectada directamente a tus hojas de cálculo en Google Sheets.</strong>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-emerald-600 mt-1 mr-3 flex-shrink-0"></i>
+                            <strong data-i18n="phil-cca-p2">Propiedad absoluta de tus datos. Puedes exportar, modificar, migrar y controlar la seguridad en cualquier momento.</strong>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-emerald-600 mt-1 mr-3 flex-shrink-0"></i>
+                            <strong data-i18n="phil-cca-p3">Sin dependencias complejas. La plataforma utiliza tu propio Google Apps Script para gestionar transacciones en tiempo real.</strong>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- DOUBLE CTA SECTION AFTER PHILOSOPHY -->
+    <section class="pb-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-3xl mx-auto">
+                <!-- Añade tu URL de calendario aquí -->
+                <a href="#TU_URL_AQUI_DEMO" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center">
+                    <i class="fas fa-calendar-alt mr-3"></i> <span data-i18n="cta-mid-demo">Agendar una Demostración</span>
+                </a>
+                <!-- Añade tu URL de Checkout/Pago aquí -->
+                <a href="#TU_URL_AQUI_PAGO" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center border border-corporate-highlight">
+                    <i class="fas fa-rocket mr-3"></i> <span data-i18n="cta-mid-start">Iniciar Proceso de Registro</span>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+<!-- MODULES SECTION -->
+    <section id="modulos" class="py-20 bg-slate-50 border-t border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <span class="text-xs uppercase font-extrabold tracking-widest text-corporate-gold" data-i18n="mod-tag">Todo en un Solo Lugar</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-950" data-i18n="mod-title">Módulos Administrativos Incorporados</h2>
+                <p class="text-lg text-slate-600" data-i18n="mod-desc">
+                    Olvídate de pagar por múltiples suscripciones. Tu panel unifica todas las áreas vitales de tu operación diaria.
+                </p>
+            </div>
+
+            <!-- Modules Grid -->
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- CARD: Resumen -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-chart-pie text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-res-title">Resumen General & CRM</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-res-desc">
+                        Dashboard estadístico que muestra contactos, tareas, crecimiento operativo, proyectos y estados generales de rendimiento corporativo.
+                    </p>
+                </div>
+
+                <!-- CARD: Mensajería -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-envelope-open-text text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-msg-title">Mensajería Profesional</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-msg-desc">
+                        Redacta y envía correos corporativos utilizando plantillas profesionales preestablecidas y firmas corporativas integradas de manera directa.
+                    </p>
+                </div>
+
+                <!-- CARD: Documentación -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-file-invoice-dollar text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-doc-title">Documentación Rápida</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-doc-desc">
+                        Genera cotizaciones, facturas y recibos de forma ágil y descárgalos al instante en un formato PDF limpio e impecable para tus clientes.
+                    </p>
+                </div>
+
+                <!-- CARD: Proyectos CRM -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-tasks text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-pro-title">Gestión de Proyectos</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-pro-desc">
+                        Controla fechas límite, niveles de prioridad, alarmas de urgencia, progresos del equipo y flujos operativos para evitar cuellos de botella.
+                    </p>
+                </div>
+
+                <!-- CARD: Contactos y Orgs -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-users-cog text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-con-title">Contactos & Organizaciones</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-con-desc">
+                        Administra perfiles de clientes, prospectos, proveedores y socios comerciales, vinculando personas a empresas de forma relacional.
+                    </p>
+                </div>
+
+                <!-- CARD: Catálogo -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-store text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-cat-title">Catálogo Digital</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-cat-desc">
+                        Registra tu oferta de servicios y productos, organiza precios base, actualiza promociones y genera un catálogo visible para compartir.
+                    </p>
+                </div>
+
+                <!-- CARD: Bóveda de Datos -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-vault text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-vau-title">Bóveda de Datos Segura</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-vau-desc">
+                        Espacio privado para consolidar contraseñas de referencia, enlaces de pasarelas de pago rápidos, accesos API y recursos internos críticos.
+                    </p>
+                </div>
+
+                <!-- CARD: Guía de Marca -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fas fa-palette text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-mar-title">Guía de Marca Identitaria</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-mar-desc">
+                        Consolida colores hexadecimales primarios, tipografías corporativas, enlaces de logotipos oficiales y lineamientos visuales del negocio.
+                    </p>
+                </div>
+
+                <!-- CARD: Archivos Digitales -->
+                <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition duration-300 group hover:-translate-y-1">
+                    <div class="w-10 h-10 bg-navy-50 text-navy-900 rounded-lg flex items-center justify-center mb-5 transition group-hover:bg-navy-900 group-hover:text-corporate-highlight">
+                        <i class="fab fa-google-drive text-lg"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-navy-950 mb-2" data-i18n="mod-dri-title">Google Drive Integrado</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed" data-i18n="mod-dri-desc">
+                        Accede, organiza y supervisa la carga de archivos corporativos enlazados de forma nativa a tu propio sistema de almacenamiento en la nube.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION (Interactive Step Guide) -->
+    <section id="como-funciona" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <span class="text-xs uppercase font-extrabold tracking-widest text-corporate-gold" data-i18n="how-tag">Implementación Sin Servidores</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-950" data-i18n="how-title">Configuración Simple en 4 Pasos</h2>
+                <p class="text-lg text-slate-600" data-i18n="how-desc">
+                    El sistema está estructurado bajo tecnología Serverless. No requieres conocimientos de programación ni contratación de bases de datos.
+                </p>
+            </div>
+
+            <div class="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Steps Timeline Navigation -->
+                <div class="lg:col-span-5 space-y-4">
+                    <button onclick="switchStep(1)" id="step-btn-1" class="w-full text-left p-4 rounded-xl border-2 border-navy-900 bg-navy-50/50 flex space-x-4 items-center transition">
+                        <span class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-corporate-gold shadow-md opacity-100 transition">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/6e7635247d57444c3596d77769188bfe747d0cb4.png" class="w-full h-full object-cover" alt="Paso 1">
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-navy-950 text-sm" data-i18n="step1-title">Obtén el Script Maestro</h4>
+                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="step1-subtitle">Disponible en tu panel de configuración</p>
+                        </div>
+                    </button>
+
+                    <button onclick="switchStep(2)" id="step-btn-2" class="w-full text-left p-4 rounded-xl border border-slate-200 hover:bg-slate-50 flex space-x-4 items-center transition">
+                        <span class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-transparent opacity-50 transition">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/29e78f163f810ced21e78afeb45b178e9e5db0f5.png" class="w-full h-full object-cover" alt="Paso 2">
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-navy-950 text-sm" data-i18n="step2-title">Crea tu propia URL de Apps Script</h4>
+                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="step2-subtitle">Despliégalo en tu cuenta de Google</p>
+                        </div>
+                    </button>
+
+                    <button onclick="switchStep(3)" id="step-btn-3" class="w-full text-left p-4 rounded-xl border border-slate-200 hover:bg-slate-50 flex space-x-4 items-center transition">
+                        <span class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-transparent opacity-50 transition">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/47aa1880781999b54e998ee26ece72cbb433f1af.png" class="w-full h-full object-cover" alt="Paso 3">
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-navy-950 text-sm" data-i18n="step3-title">Pega el Enlace</h4>
+                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="step3-subtitle">Vincula la URL con un clic</p>
+                        </div>
+                    </button>
+
+                    <button onclick="switchStep(4)" id="step-btn-4" class="w-full text-left p-4 rounded-xl border border-slate-200 hover:bg-slate-50 flex space-x-4 items-center transition">
+                        <span class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-transparent opacity-50 transition">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/10dc655a1d8cf97a7a0f9c0a90fab67368c54d19.png" class="w-full h-full object-cover" alt="Paso 4">
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-navy-950 text-sm" data-i18n="step4-title">Conexión Automática</h4>
+                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="step4-subtitle">Tu portal privado queda activo</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Step Interactive Visual Mockup -->
+                <div class="lg:col-span-7 bg-slate-900 rounded-2xl p-6 text-white custom-shadow-lg relative overflow-hidden min-h-[360px] flex flex-col justify-between">
+                    <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-corporate-gold/5 rounded-full blur-xl"></div>
+                    
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-terminal text-corporate-gold text-sm"></i>
+                            <span class="text-xs font-mono text-slate-400" data-i18n="step-terminal-title">Consola de Conexión del Sistema</span>
+                        </div>
+                        <span id="step-index-badge" class="bg-slate-800 text-slate-300 text-[10px] uppercase font-bold px-2 py-0.5 rounded">PASO 1 / 4</span>
+                    </div>
+
+                    <!-- STEP 1 CONTENT -->
+                    <div id="step-content-1" class="space-y-4 flex-1">
+                        <p class="text-sm text-slate-300" data-i18n="step1-body">
+                            Dentro de la sección de Configuración del Dashboard, tendrás acceso directo al <strong class="text-white">Script Maestro</strong> de Google Apps Script. Este código seguro permite las comunicaciones HTTPS encriptadas entre la interfaz del portal y tus hojas de cálculo.
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800 font-mono text-xs text-corporate-gold relative">
+                            <pre class="overflow-x-auto">function doGet(e) { <br>  return ContentService.createTextOutput(<br>    JSON.stringify(handleRequest(e))<br>  );<br>}</pre>
+                            <button onclick="copyMockScript()" class="absolute top-2 right-2 bg-slate-900 text-slate-300 px-2 py-1 rounded text-[10px] hover:bg-slate-800 transition">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2 CONTENT -->
+                    <div id="step-content-2" class="hidden space-y-4 flex-1">
+                        <p class="text-sm text-slate-300" data-i18n="step2-body">
+                            Abre una hoja de cálculo en tu Google Drive, ve a <strong class="text-white">Extensiones > Apps Script</strong>, pega el código copiado y haz clic en "Implementar como Aplicación Web". Otorga permisos exclusivos para que solo tú puedas gestionar tus datos de forma segura.
+                        </p>
+                        <div class="bg-slate-950 p-4 rounded border border-slate-800 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                                <i class="fab fa-google text-lg"></i>
+                            </div>
+                            <div class="flex-1 text-xs">
+                                <span class="block text-slate-400 font-bold">Google Deployment URL</span>
+                                <span class="block text-corporate-gold font-mono break-all">https://script.google.com/macros/s/AKfycbx_YOUR_MASTER_KEY/exec</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3 CONTENT -->
+                    <div id="step-content-3" class="hidden space-y-4 flex-1">
+                        <p class="text-sm text-slate-300" data-i18n="step3-body">
+                            Una vez obtenida la URL de implementación segura provista por Google, pégala directamente en la barra de entrada de conexión del Dashboard de Control Administrativo. Sin servidores intermedios de terceros.
+                        </p>
+                        <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+                            <label class="block text-[10px] uppercase font-bold text-slate-400" data-i18n="step3-lbl">Conectar URL Web App</label>
+                            <div class="flex">
+                                <input type="text" id="demo-script-url" class="flex-1 text-xs bg-slate-900 border border-slate-700 rounded-l p-2 font-mono text-slate-300 focus:outline-none focus:border-corporate-gold" value="https://script.google.com/macros/s/AKfycb_DemoKey/exec">
+                                <button onclick="triggerStep3Connect()" class="bg-corporate-gold text-white font-bold px-4 rounded-r text-xs hover:bg-corporate-gold-dark transition" data-i18n="step3-btn-test">Probar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4 CONTENT -->
+                    <div id="step-content-4" class="hidden space-y-4 flex-1 text-center py-6">
+                        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 animate-bounce">
+                            <i class="fas fa-check-double text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white" data-i18n="step4-success-title">¡Espacio de Trabajo Conectado!</h4>
+                        <p class="text-sm text-slate-400 max-w-md mx-auto" data-i18n="step4-success-desc">
+                            El sistema ha validado la conexión. Ahora tus contactos, tareas, catálogos y finanzas se guardan directamente en tu propio ecosistema corporativo privado.
+                        </p>
+                    </div>
+
+                    <div class="flex justify-between border-t border-slate-800 pt-4 mt-4">
+                        <button onclick="navigateSteps(-1)" class="text-xs text-slate-400 hover:text-white transition">
+                            <i class="fas fa-arrow-left mr-1"></i> <span data-i18n="step-btn-prev">Anterior</span>
+                        </button>
+                        <button onclick="navigateSteps(1)" class="text-xs text-corporate-gold font-bold hover:text-corporate-gold-dark transition">
+                            <span data-i18n="step-btn-next">Siguiente</span> <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- AI ASSISTANTS WORKSPACE (Chat Simulator) -->
+    <section id="asistentes" class="py-20 bg-slate-50 border-t border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left AI Information -->
+                <div class="lg:col-span-5 space-y-6">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-navy-100 text-navy-800 border border-navy-200">
+                        <i class="fas fa-robot text-corporate-gold mr-2"></i> <span data-i18n="ai-tag">Asistencia Corporativa 24/7</span>
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-950 leading-tight" data-i18n="ai-title">
+                        Asistentes Inteligentes para Potenciar tu Gestión
+                    </h2>
+                    <p class="text-base text-slate-600 leading-relaxed" data-i18n="ai-desc">
+                        El Dashboard incluye dos asesores dedicados entrenados para agilizar el trabajo operativo, resolver dudas normativas y estructurar las responsabilidades de tu negocio al instante.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-navy-900 border border-corporate-gold overflow-hidden flex-shrink-0">
+                                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/cccf1ceec7f2c100348267502b0287c2de5edbbe.png" class="w-full h-full object-cover" alt="Ejecutiva">
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-navy-950 text-sm" data-i18n="ai-exec-name">Asistente Ejecutiva IA</h4>
+                                <p class="text-xs text-slate-500" data-i18n="ai-exec-desc">Automatiza agendas, sugiere formatos comerciales de correspondencia, asiste en la redacción de plantillas de correo y simplifica la toma de decisiones.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-navy-900 border border-corporate-gold overflow-hidden flex-shrink-0">
+                                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/23bac40366db7be50cdfb6981ae341deef774cc9.png" class="w-full h-full object-cover" alt="Consultor Legal">
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-navy-950 text-sm" data-i18n="ai-legal-name">Consultor Legal (República Dominicana)</h4>
+                                <p class="text-xs text-slate-500" data-i18n="ai-legal-desc">Entrenado con la Constitución, Código de Trabajo y leyes dominicanas vigentes. Ideal para referencias normativas ágiles de tus contratos locales.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Live Sandbox Chat -->
+                <div class="lg:col-span-7 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden flex flex-col h-[460px]">
+                    <!-- Header -->
+                    <div class="bg-navy-950 p-4 border-b border-navy-900 flex items-center justify-between text-white">
+                        <div class="flex items-center space-x-3">
+                            <div class="relative w-10 h-10 flex-shrink-0">
+                                <img id="ai-chat-avatar-img" src="https://bucket.mlcdn.com/a/3336/3336910/images/cccf1ceec7f2c100348267502b0287c2de5edbbe.png" class="w-full h-full object-cover rounded-full border-2 border-corporate-gold" alt="Avatar">
+                                <span class="w-3 h-3 bg-emerald-500 rounded-full absolute bottom-0 -right-0.5 border-2 border-navy-950 z-10"></span>
+                            </div>
+                            <div>
+                                <h4 id="ai-chat-title" class="text-sm font-bold">Asistente Ejecutiva</h4>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase tracking-wider">AI AGENT ACTIVE</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="setAiBot('exec')" id="bot-tab-exec" class="text-xs font-bold px-3 py-1 rounded bg-corporate-gold text-white transition">Ejecutiva</button>
+                            <button onclick="setAiBot('legal')" id="bot-tab-legal" class="text-xs font-bold px-3 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition">Legal RD</button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages Log -->
+                    <div id="ai-chat-log" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50 text-xs">
+                        <div class="flex items-start space-x-2.5">
+                            <div class="w-8 h-8 rounded-full border border-corporate-gold overflow-hidden flex-shrink-0">
+                                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/cccf1ceec7f2c100348267502b0287c2de5edbbe.png" class="w-full h-full object-cover ai-chat-msg-avatar" alt="Avatar">
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm max-w-[85%]">
+                                <p id="ai-welcome-msg" data-i18n="ai-welcome-text">¡Hola! Soy tu Asistente Ejecutiva de Inteligencia Artificial. ¿Cómo puedo ayudarte hoy con la organización administrativa de tu negocio?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clickable Template Queries -->
+                    <div class="p-2 bg-slate-100 border-t border-slate-200 flex space-x-2 overflow-x-auto whitespace-nowrap text-[11px]">
+                        <button onclick="sendPredefinedAiQuery(1)" id="ai-temp-btn-1" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full hover:bg-slate-50 text-navy-950 font-semibold transition shrink-0">¿Cómo redacto una carta de cotización?</button>
+                        <button onclick="sendPredefinedAiQuery(2)" id="ai-temp-btn-2" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full hover:bg-slate-50 text-navy-950 font-semibold transition shrink-0">Crear plantilla para cobrar factura</button>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
+                        <input type="text" id="ai-chat-input" class="flex-1 text-xs px-3 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-navy-300" placeholder="Escribe tu consulta aquí...">
+                        <button onclick="sendCustomAiQuery()" class="w-10 h-10 bg-navy-900 hover:bg-navy-800 text-white rounded-lg flex items-center justify-center transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING / ACCESS -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <span class="text-xs uppercase font-extrabold tracking-widest text-corporate-gold" data-i18n="price-tag">Acceso Premium</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-950" data-i18n="price-title">Planes Flexibles para tu Negocio</h2>
+                <p class="text-lg text-slate-600" data-i18n="price-desc">
+                    Elige el plan que mejor se adapte al volumen y necesidades operativas de tu empresa. Instálalo sobre tus propias hojas de cálculo de Google Drive.
+                </p>
+            </div>
+
+            <!-- Pricing Grid -->
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                
+                <!-- Standard Plan -->
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200 flex flex-col hover:-translate-y-1 transition duration-300">
+                    <div class="p-8 space-y-6 flex-1">
+                        <div>
+                            <h4 class="text-xl font-bold text-navy-950 uppercase tracking-wider" data-i18n="price-t1-name">Plan Estándar</h4>
+                            <p class="text-xs text-slate-500 mt-1" data-i18n="price-t1-sub">Ideal para profesionales y pequeños negocios</p>
+                        </div>
+
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-4xl sm:text-5xl font-extrabold text-navy-950">$78</span>
+                            <span class="text-xs text-slate-500 font-mono" data-i18n="price-mo">USD / mes</span>
+                        </div>
+
+                        <hr class="border-slate-100">
+
+                        <ul class="space-y-3.5 text-xs text-slate-600">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f1">Configuración personalizada</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f2">Onboarding asistido</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f3">Ayuda de migración de datos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f4">Plantillas personalizadas</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f5">Soporte privado</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-6 bg-slate-50 mt-auto border-t border-slate-100">
+                        <!-- Añade tu URL manual aquí reemplazando el # -->
+                        <a href="#TU_URL_AQUI" class="w-full block text-center py-3.5 bg-corporate-gold text-white font-bold rounded-lg hover:bg-corporate-gold-dark transition duration-300 text-xs tracking-wide uppercase shadow-md">
+                            <span data-i18n="price-btn-start">Solicita una demostración</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="bg-navy-950 rounded-2xl overflow-hidden shadow-2xl relative border-2 border-corporate-gold flex flex-col hover:-translate-y-1 transition duration-300">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/4c1263b4d7ad73dbdf82f0ec2a277f1349f936ac.png" class="absolute top-6 right-6 w-[70px] h-[70px] object-contain opacity-90 z-0" alt="CCA Icon">
+                    
+                    <div class="p-8 text-white space-y-6 flex-1 relative z-10">
+                        <div>
+                            <span class="inline-block bg-corporate-gold text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1 rounded-full mb-4 shadow-sm" data-i18n="phil-recomended-badge">Recomendado</span>
+                            <h4 class="text-xl font-bold text-white uppercase tracking-wider pr-16" data-i18n="price-t2-name">Plan Corporativo</h4>
+                            <p class="text-xs text-slate-400 mt-1 max-w-[200px]" data-i18n="price-t2-sub">Solución completa con IA para agencias y empresas</p>
+                        </div>
+
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-4xl sm:text-5xl font-extrabold text-corporate-highlight">$149</span>
+                            <span class="text-xs text-slate-400 font-mono" data-i18n="price-mo">USD / mes</span>
+                        </div>
+
+                        <hr class="border-slate-800">
+
+                        <ul class="space-y-3.5 text-xs text-slate-300">
+                            
+                            
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f1">Hasta 2 Usuarios</span>
+                            </li>
+                            
+                            
+                            
+                            
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f1">Configuración personalizada</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p1">Uso sin restricciones de todos los 11 módulos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p2">Soporte Técnico Privado Dedicado</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p3">Asistente IA Ejecutiva Ilimitada</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p4">Consultor Legal IA (República Dominicana)</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-6 bg-navy-900 mt-auto border-t border-navy-800">
+                        <!-- Añade tu URL manual aquí reemplazando el # -->
+                        <a href="#TU_URL_AQUI" class="w-full block text-center py-3.5 bg-corporate-gold text-white font-extrabold rounded-lg hover:bg-corporate-gold-dark hover:shadow-lg transition duration-300 text-xs tracking-wide uppercase">
+                            <span data-i18n="price-btn-pro">Solicita una demostración</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq" class="pt-20 pb-10 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center space-y-4 mb-16">
+                <span class="text-xs uppercase font-extrabold tracking-widest text-corporate-gold" data-i18n="faq-tag">Preguntas Frecuentes</span>
+                <h2 class="text-3xl font-extrabold text-navy-950" data-i18n="faq-title">Dudas y Respuestas sobre el Sistema</h2>
+            </div>
+
+            <!-- Accordions -->
+            <div class="space-y-4">
+                
+                <!-- FAQ 1 -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(1)" class="w-full p-5 text-left font-bold text-navy-950 flex justify-between items-center text-sm sm:text-base focus:outline-none">
+                        <span data-i18n="faq1-q">¿Qué significa exactamente "BYOK" (Bring Your Own Key)?</span>
+                        <i id="faq-icon-1" class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div id="faq-ans-1" class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50/50">
+                        <p class="p-5 text-xs sm:text-sm text-slate-600 leading-relaxed" data-i18n="faq1-a">
+                            Significa que tú proporcionas la infraestructura de tu base de datos utilizando tus propios recursos en la nube. Al usar la plataforma, conectas tu cuenta personal de Google Workspace mediante Google Apps Script. Ningún dato de tus operaciones se transfiere a nuestros servidores externos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(2)" class="w-full p-5 text-left font-bold text-navy-950 flex justify-between items-center text-sm sm:text-base focus:outline-none">
+                        <span data-i18n="faq2-q">¿Requiere conocimientos de programación o administración de servidores?</span>
+                        <i id="faq-icon-2" class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div id="faq-ans-2" class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50/50">
+                        <p class="p-5 text-xs sm:text-sm text-slate-600 leading-relaxed" data-i18n="faq2-a">
+                            No. El proceso es guiado en su totalidad. Solo necesitas realizar tres clics: copiar el Script Maestro suministrado en la interfaz, pegarlo en la sección de Google Sheets de tu cuenta y pegar el enlace de ejecución resultante en tu portal administrativo. El sistema se sincroniza de forma automática en un segundo.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(3)" class="w-full p-5 text-left font-bold text-navy-950 flex justify-between items-center text-sm sm:text-base focus:outline-none">
+                        <span data-i18n="faq3-q">¿Existe algún límite en la cantidad de contactos, tareas o facturas?</span>
+                        <i id="faq-icon-3" class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div id="faq-ans-3" class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50/50">
+                        <p class="p-5 text-xs sm:text-sm text-slate-600 leading-relaxed" data-i18n="faq3-a">
+                            No, los límites los establece Google de acuerdo a las capacidades de almacenamiento que posea tu cuenta. Las hojas de cálculo de Google Sheets admiten millones de filas de datos, lo que brinda espacio de almacenamiento de sobra para toda la vida comercial de una PYME o agencia digital sin incurrir en costes extras.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(4)" class="w-full p-5 text-left font-bold text-navy-950 flex justify-between items-center text-sm sm:text-base focus:outline-none">
+                        <span data-i18n="faq4-q">¿Los asistentes de Inteligencia Artificial tienen costo adicional?</span>
+                        <i id="faq-icon-4" class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div id="faq-ans-4" class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50/50">
+                        <p class="p-5 text-xs sm:text-sm text-slate-600 leading-relaxed" data-i18n="faq4-a">
+                            No. Las consultas básicas de los asesores inteligentes Ejecutiva y Consultor Legal dominicano están integradas y pre-configuradas bajo la licencia maestra sin tarifas mensuales adicionales. Operan con modelos optimizados de alta velocidad para resolver tus peticiones administrativas sin contratiempos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ 5 (Payments) -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(5)" class="w-full p-5 text-left font-bold text-navy-950 flex justify-between items-center text-sm sm:text-base focus:outline-none">
+                        <span data-i18n="faq5-q">¿Cuáles son las condiciones y métodos de pago?</span>
+                        <i id="faq-icon-5" class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                    </button>
+                    <div id="faq-ans-5" class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50/50">
+                        <p class="p-5 text-xs sm:text-sm text-slate-600 leading-relaxed" data-i18n="faq5-a">
+                            Utilizamos Secure PayPal para procesar todos nuestros pagos y suscripciones. Esto garantiza que tu información financiera esté encriptada y protegida bajo los más altos estándares de seguridad y antifraude a nivel global.
+                        </p>
+                    </div>
+                </div>
+             
+            </div>     
+       </div> 
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- CTA FOOTER BANNER -->
+    <section class="py-14 bg-slate-50  mb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative w-full rounded-3xl overflow-hidden shadow-2xl bg-navy-900">
+                
+                <!-- Background Image & Dark Overlay Matching Hero -->
+                <div class="absolute inset-0">
+                    <img id="footerBanner" src="https://bucket.mlcdn.com/a/3336/3336910/images/4e243feaebd59f53d27f3430609790ca68232c4d.png" class="w-full h-full object-cover opacity-100 mix-blend-multiply" alt="Banner footer">
+                     <!-- Lighter blue overlay - subtle gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-r from-navy-500/30 via-navy-700/25 to-navy-600/25"></div>
+                </div>
+
+                <!-- Left Aligned CTA Content -->
+                <div class="relative z-10 px-8 py-16 sm:px-16 sm:py-20 md:p-20 lg:p-24 flex flex-col items-start text-left w-full md:w-2/3 lg:w-[60%]">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight" data-i18n="cta-banner-title">
+                        Toma el control de tu negocio hoy mismo
+                    </h2>
+                    <p class="text-base sm:text-lg text-slate-300 mb-10 leading-relaxed max-w-xl" data-i18n="cta-banner-subtitle">
+                        Únete a los cientos de profesionales que ya operan con máxima privacidad y eficiencia. Implementación segura en menos de 5 minutos.
+                    </p>
+                    <!-- Añade tu URL manual aquí reemplazando el # -->
+                    <a href="#TU_URL_AQUI" class="inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white border border-corporate-highlight rounded-md text-base font-extrabold hover:bg-corporate-gold-dark transition duration-300 shadow-xl hover:-translate-y-1 transform">
+                        <i class="fas fa-rocket text-white mr-3"></i> <span data-i18n="cta-banner-btn">Comienza Ahora</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-950 text-white py-16 border-t border-navy-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+                
+                <!-- Col 1: Brand & Desc -->
+                <div class="md:col-span-1 space-y-4">
+                    <div class="flex items-center">
+                        <img src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/ceo-logo-animation.gif?v=1779692498" class="h-10 w-auto" alt="CCA Icon">
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed" data-i18n="foot-desc">
+                        Plataforma de control integral privada para la administración unificada de contactos, facturas, proyectos y asistencia de Inteligencia Artificial mediante infraestructura BYOK.
+                    </p>
+                    
+                    <div class="pt-4 flex flex-col items-start">
+                        <p class="text-[10px] text-slate-500 mb-2 uppercase tracking-widest font-bold" data-i18n="foot-payment-title">Pagos Procesados Seguros</p>
+                        <!-- Replace src with your exact payment banner image -->
+                        <img 
+                            src="https://bucket.mlcdn.com/a/3336/3336910/images/ba7caa40fbb46e4528aaae8b0128896c5e8ff915.png" 
+                            class="self-start block h-4 w-auto opacity-70 hover:opacity-70 transition filter grayscale hover:grayscale-0"
+                            alt="Secure PayPal Payments">
+                
+                    </div>
+                </div>
+
+                <!-- Col 2: Platform Links -->
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c2-title">Plataforma</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="#filosofia" class="hover:text-white transition">Filosofía BYOK</a></li>
+                        <li><a href="#modulos" class="hover:text-white transition">Exploración de Módulos</a></li>
+                        <li><a href="#como-funciona" class="hover:text-white transition">Configuración Técnica</a></li>
+                        <li><a href="#asistentes" class="hover:text-white transition">Asistentes de Inteligencia Artificial</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Resources -->
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c3-title">Recursos</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="#" onclick="showSimpleToast('Script Maestro Copiado', 'Script Maestro cargado en el portapapeles con éxito'); return false;" class="hover:text-white transition" data-i18n="foot-r1">Script Maestro API</a></li>
+                        <li><a href="#faq" class="hover:text-white transition" data-i18n="foot-r2">Guía de Solución de Problemas</a></li>
+                        <li><a href="#como-funciona" class="hover:text-white transition" data-i18n="foot-r3">Manual de Integración en Drive</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Status Indicator -->
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c4-title">Seguridad</h5>
+                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 text-[11px] space-y-2 text-slate-400">
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-status-label">Servidor Central:</span>
+                            <span class="text-emerald-400 font-bold uppercase">ONLINE</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-enc-label">Encriptación HTTPS:</span>
+                            <span class="text-slate-200">256-Bit SSL</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-db-label">Almacenamiento BD:</span>
+                            <span class="text-corporate-gold uppercase font-bold">Local Google Drive</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="border-slate-800 my-8">
+
+            <div class="flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[10px] space-y-3 sm:space-y-0">
+                <p>&copy; 2026 Centro de Control Administrativo. Todos los derechos reservados.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-white transition" data-i18n="foot-p1">Políticas de Privacidad</a>
+                    <a href="#" class="hover:text-white transition" data-i18n="foot-p2">Términos del Servicio de Código</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- Back to Top Button -->
+    <button id="backToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 bg-corporate-gold text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 z-50 hover:bg-corporate-gold-dark hover:-translate-y-1">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    
+    
+    
+    
+    
+    
+
+    <script>
+        /* MULTILINGUAL DATA DICTIONARY 
+           Enables seamless toggle between Spanish (ES) and English (EN) for all components.
+        */
+        const translations = {
+            en: {
+                // Nav
+                "nav-philosophy": "Philosophy",
+                "nav-modules": "Modules",
+                "nav-how": "How it Works",
+                "nav-ai": "AI Assistance",
+                "nav-faq": "FAQ",
+                "btn-client-login": "Client Portal",
+                "btn-get-started": "Get Started",
+                
+                // Hero
+                "hero-badge": "100% Data Control",
+                "hero-title-1": "Your private business",
+                "hero-title-2": "operations center.",
+                "hero-description": "Manage your business from a single place. Your entire business organized in one Dashboard. Control contacts, documents, projects, and files from one single powerful system: CEO.",
+                "hero-cta-demo": "Request a Demo",
+                "hero-sell": "Operational organization.",
+                "hero-stat-1": "Featured Modules",
+                "hero-stat-2": "Private Data (BYOK)",
+                "hero-stat-3": "Google Integration",
+
+                // Mockup Interactive Tabs
+                "m-resumen": "Overview",
+                "m-contactos": "Contacts",
+                "m-docs": "Documents",
+                "m-boveda": "Vault",
+                "byok-connected-tag": "BYOK: ACTIVE",
+
+                // Mockup Screen - Overview
+                "m-tot-contactos": "Total Contacts",
+                "m-orgs": "Organizations",
+                "m-sent-msg": "Messages Sent",
+                "m-completed-tasks": "Completed Tasks",
+                "m-recent-crm-activity": "Recent CRM Activity",
+                "m-live-update": "Updated just now",
+                "m-crm-c-1": "New Contact Created",
+                "m-crm-c-2": "Sent via Email Link",
+
+                // Mockup Screen - Contacts
+                "m-add-contact": "Contact",
+                "m-col-name": "Name",
+                "m-col-company": "Organization",
+                "m-col-role": "Role",
+                "m-col-status": "Status",
+
+                // Mockup Screen - Documents
+                "m-invoice-gen-title": "Quick Invoice & Quote Generator",
+                "m-lbl-client": "Client / Company",
+                "m-lbl-amount": "Total Amount (USD)",
+                "m-pdf-warning": "Generates a clean PDF ready for invoice receipt or sharing",
+                "m-btn-generate-doc": "Generate PDF",
+
+                // Mockup Screen - Vault
+                "m-vault-title": "Credential Vault & Fast Operations Links",
+
+                // Philosophy
+                "phil-tag": "Radical Security & Privacy",
+                "phil-title": "The Difference of Powering Your Own Cloud Database",
+                "phil-desc": "Most cloud SaaS companies parse, gather, and store commercial records on external data clusters. Our Administrative Dashboard was architected under a completely distinct framework.",
+                "phil-trad-title": "Traditional Centralized SaaS",
+                "phil-trad-p1": "Your pipelines, client tables, and invoices live on external servers that you do not own.",
+                "phil-trad-p2": "Recurring paywalls. If you stop the monthly premium subscription, access to your workspace is denied.",
+                "phil-trad-p3": "Risk exposure. Large-scale database hacks routinely target common servers revealing client records.",
+                "phil-cca-title": "Private Admin Center (BYOK)",
+                "phil-cca-p1": "Your database remains safely hosted directly inside your own personal Google Sheets spreadsheet files.",
+                "phil-cca-p2": "Absolute data ownership. You can easily view, export, adjust, and deploy encryption at any given moment.",
+                "phil-cca-p3": "Zero complex hostings. Uses your local Google Apps Script to securely process API actions in real-time.",
+                "phil-recomended-badge": "Recommended",
+
+                // Modules
+                "mod-tag": "All in one Central Hub",
+                "mod-title": "Powerhouse Modules Built Inside Your Panel",
+                "mod-desc": "Stop paying for individual software packages. Your terminal brings together all core administrative systems.",
+                "mod-res-title": "CRM & Live Statistics Overview",
+                "mod-res-desc": "Interactive summary charts illustrating contact groups, active tasks, team updates, and overarching company milestones.",
+                "mod-msg-title": "Corporate Email Senders",
+                "mod-msg-desc": "Build and distribute tailored, sleek corporate communication logs utilizing saved style templates and automatic business signatures.",
+                "mod-doc-title": "Document Generator",
+                "mod-doc-desc": "Easily prepare quotes, invoices, and payment confirmations to dispatch to your pipeline with immediate PDF exports.",
+                "mod-pro-title": "Task & Project Management",
+                "mod-pro-desc": "Assign due dates, set severity triggers, and coordinate deadlines to prevent workflow roadblocks.",
+                "mod-con-title": "Contact Relations Directory",
+                "mod-con-desc": "Store prospects, stakeholders, clients, and internal teams, linking people to organizations in a structured profile system.",
+                "mod-cat-title": "Service & Product Catalogs",
+                "mod-cat-desc": "Update and distribute your listings, structure service pricing, modify active sales, and generate shares.",
+                "mod-vau-title": "Information Safe-deposit Vault",
+                "mod-vau-desc": "A secure tab inside your browser to consolidate vital credentials, direct wire links, and crucial links.",
+                "mod-mar-title": "Brand Guideline Depository",
+                "mod-mar-desc": "Align Hex colors, default brand fonts, logotype storage paths, and design principles in a shared system.",
+                "mod-dri-title": "Google Drive Cloud Sinc",
+                "mod-dri-desc": "Access, restructure, and manage directories in Google Drive, directly integrated via secure Apps Script queries.",
+
+                // How it works
+                "how-tag": "Serverless Deployment",
+                "how-title": "Quick Integration in 4 Steps",
+                "how-desc": "Our dashboard runs on a pure Serverless structure. No database deployment servers, coding skills, or hostings required.",
+                "step1-title": "Get the Master Script",
+                "step1-subtitle": "Available in your dashboard configs",
+                "step1-body": "Inside the setup block of your Administrative Control panel, you'll find the Master Google Apps Script. This highly secure, audited script manages the connection protocol between the dashboard frontend and your spreadsheet file.",
+                "step2-title": "Create Private Web App URL",
+                "step2-subtitle": "Deploy inside your own Google Drive",
+                "step2-body": "Create a spreadsheet in Google Drive, click Extensions > Apps Script, paste the master code, and hit Deploy as Web App. Make it private to ensure you are the sole person accessing your records.",
+                "step3-title": "Paste Script Link",
+                "step3-subtitle": "Paste inside configuration input",
+                "step3-body": "Take the generated web app deployment URL provided by Google, paste it directly into your local Control Center settings, and validate the connection.",
+                "step3-lbl": "Connect Web App URL",
+                "step3-btn-test": "Test",
+                "step4-title": "Automatic Connection",
+                "step4-subtitle": "Private Admin Room Ready",
+                "step4-body": "The system validates the connection keys. All operations, tasks, directory lists, and files are officially synchronized directly within your personal spreadsheet database.",
+                "step4-success-title": "Workspace Sinc Verified!",
+                "step4-success-desc": "Connection keys are fully established. Your data is officially routing straight into your own Google Drive cloud.",
+                "step-terminal-title": "Integration Pipeline Console",
+                "step-btn-prev": "Back",
+                "step-btn-next": "Next",
+
+                // AI Assistants
+                "ai-tag": "Smart Agent Assistance 24/7",
+                "ai-title": "Integrated Intelligent Assistants",
+                "ai-desc": "Your control station holds two specialized, trained AI helpers ready to organize work blocks, suggest emails, or parse statutory regulations in real time.",
+                "ai-exec-name": "Executive Assistant",
+                "ai-exec-desc": "Draft business templates, outline strategic email notes, and accelerate general company schedules.",
+                "ai-legal-name": "Dominican Legal Consultant",
+                "ai-legal-desc": "Trained on Dominican Republic employment regulations and Constitutional Codes to offer fast, localized compliance advice.",
+                "ai-welcome-text": "Hello! I am your AI Executive Assistant. How can I assist you with scheduling, document drafting, or operational planning today?",
+
+                // Trusted By
+                "trusted-title": "Trusted by brands around the world",
+
+                // Pricing
+                "price-tag": "Premium Access",
+                "price-title": "Flexible Plans for Your Business",
+                "price-desc": "Choose the plan that best fits your company's operational volume and needs. Deploy it on your own Google Drive spreadsheets.",
+                "price-t1-name": "Standard Plan",
+                "price-t1-sub": "Ideal for professionals and small businesses",
+                "price-t2-name": "Corporate Plan",
+                "price-t2-sub": "Complete AI solution for agencies and companies",
+                "price-mo": "USD / month",
+                "price-f1": "Personalized setup",
+                "price-f2": "Assisted onboarding",
+                "price-f3": "Data migration help",
+                "price-f4": "Custom templates",
+                "price-f5": "Private support",
+                "price-p1": "Unrestricted use of all 11 modules",
+                "price-p2": "VIP Priority Technical Support",
+                "price-p3": "Unlimited AI Executive Assistant",
+                "price-p4": "Legal AI Consultant (Dominican Republic)",
+                "price-btn-start": "Request a Demo",
+                "price-btn-pro": "Request a Demo",
+
+                // FAQ
+                "faq-tag": "Common Queries",
+                "faq-title": "Frequently Asked Questions",
+                "faq1-q": "What exactly does 'BYOK' (Bring Your Own Key) mean?",
+                "faq1-a": "BYOK means you retain full ownership of the data infrastructure. By using our dashboard, you plug in your personal Google Apps Script deployment URL. None of your business data, client profiles, or pipelines ever pass through our servers.",
+                "faq2-q": "Is coding knowledge required to get started?",
+                "faq2-a": "No coding required. The deployment consists of three guided steps: copying the Master Script block from your dashboard, pasting it into your Google Spreadsheet Apps Script console, and pasting the web app URL back into your login gate.",
+                "faq3-q": "Are there limits on contact lists, documents, or catalogs?",
+                "faq3-a": "No. All parameters are defined by Google Sheets' storage capacities, which support millions of rows of clean text data. This is more than sufficient for small-to-mid businesses, startups, and agencies.",
+                "faq4-q": "Do the AI agents require additional monthly fees?",
+                "faq4-a": "No. The AI models (Executive Assistant and Dominican Republic Legal Advisor) are included within the payment structure. Queries are processed dynamically without extra overhead.",
+                "faq5-q": "What are the payment conditions and methods?",
+                "faq5-a": "We use Secure PayPal to process all our payments and subscriptions. This guarantees that your financial information is encrypted and protected under the highest global anti-fraud and security standards.",
+
+                // Extra Mid CTA
+                "cta-mid-demo": "Book a Demo",
+                "cta-mid-start": "Start Process",
+
+                // Login Modal
+                "modal-login-title": "Private Security Gate",
+                "modal-login-desc": "Log into your Administrative Command Center by providing your local profile password and your private Google Apps Script connection key.",
+                "modal-lbl-user": "User Profile",
+                "modal-lbl-pass": "Master Security Password",
+                "modal-lbl-script": "Apps Script Deployment (BYOK Key)",
+                "modal-remember": "Save profile local configurations",
+                "modal-btn-connect": "Initialize Workspace",
+                "modal-warning": "All validation sequences occur locally in your browser cache. No databases or API keys are held remotely on third-party computers.",
+
+                // Footer
+                "foot-desc": "Secure, private Administrative Hub enabling startups, freelancers, and businesses to fully organize documents, tasks, and schedules through individual Google Drive structures.",
+                "foot-c2-title": "Platform",
+                "foot-c3-title": "Resources",
+                "foot-c4-title": "Security Log",
+                "foot-r1": "Master Script Source",
+                "foot-r2": "Troubleshooting Guides",
+                "foot-r3": "Drive Integration Walkthroughs",
+                "foot-payment-title": "Secure Payments By",
+                "foot-status-label": "System Server:",
+                "foot-enc-label": "Data Encryption:",
+                "foot-db-label": "Database Storage:",
+                "foot-p1": "Privacy Policy",
+                "foot-p2": "Software Terms of Service"
+            },
+            
+            es: {
+                // Nav
+                "nav-philosophy": "Filosofía",
+                "nav-modules": "Módulos",
+                "nav-how": "Cómo Funciona",
+                "nav-ai": "Asistentcia IA",
+                "nav-faq": "Preguntas",
+                "btn-client-login": "Portal Cliente",
+                "btn-get-started": "Comenzar",
+
+                // Hero
+                "hero-badge": "100% Control de Datos",
+                "hero-title-1": "Tu centro privado de",
+                "hero-title-2": "operaciones empresariales.",
+                "hero-description": "Administra tu negocio desde un solo lugar. Todo tu negocio organizado en un solo Dashboard. Controla contactos, documentos, proyectos y archivos desde tu nuevo Centro Estratégico Operativo CEO.",
+                "hero-cta-demo": "Solicita una Demostración",
+                "hero-sell": "Organización operativa.",
+                "hero-stat-1": "Módulos Destacados",
+                "hero-stat-2": "Datos Privados (BYOK)",
+                "hero-stat-3": "Google Integration",
+
+                // Mockup Interactive Tabs
+                "m-resumen": "Resumen",
+                "m-contactos": "Contactos",
+                "m-docs": "Documentos",
+                "m-boveda": "Bóveda",
+                "byok-connected-tag": "BYOK: ACTIVO",
+
+                // Mockup Screen - Resumen
+                "m-tot-contactos": "Total Contactos",
+                "m-orgs": "Organizaciones",
+                "m-sent-msg": "Mensajes Enviados",
+                "m-completed-tasks": "Tareas Completadas",
+                "m-recent-crm-activity": "Actividad CRM Reciente",
+                "m-live-update": "Actualizado hace instantes",
+                "m-crm-c-1": "Nuevo Contacto",
+                "m-crm-c-2": "Enviado por Email",
+
+                // Mockup Screen - Contactos
+                "m-add-contact": "Contacto",
+                "m-col-name": "Nombre",
+                "m-col-company": "Organización",
+                "m-col-role": "Rol",
+                "m-col-status": "Estado",
+
+                // Mockup Screen - Documentos
+                "m-invoice-gen-title": "Generador Rápido de Cotizaciones & Facturas",
+                "m-lbl-client": "Cliente / Empresa",
+                "m-lbl-amount": "Monto total (USD)",
+                "m-pdf-warning": "Genera un PDF limpio listo para imprimir o enviar",
+                "m-btn-generate-doc": "Generar PDF",
+
+                // Mockup Screen - Bóveda
+                "m-vault-title": "Bóveda de Credenciales & Links Rápidos",
+
+                // Filosofía
+                "phil-tag": "Seguridad y Privacidad Radical",
+                "phil-title": "La diferencia de operar con tu propia nube",
+                "phil-desc": "La mayoría de las herramientas SaaS recopilan, analizan y almacenan tus datos comerciales en servidores ajenos. El Centro de Control Administrativo se construyó bajo un paradigma totalmente diferente.",
+                "phil-trad-title": "SaaS Tradicionales Centralizados",
+                "phil-trad-p1": "Tus datos de ventas, contactos y documentos se guardan en servidores de terceros.",
+                "phil-trad-p2": "Suscripciones mensuales obligatorias. Si dejas de pagar, pierdes el acceso a tu información.",
+                "phil-trad-p3": "Vulnerabilidades de hackeos masivos que exponen credenciales y listas de clientes.",
+                "phil-cca-title": "Centro de Control Privado (BYOK)",
+                "phil-cca-p1": "Toda tu base de datos permanece conectada directamente a tus hojas de cálculo en Google Sheets.",
+                "phil-cca-p2": "Propiedad absoluta de tus datos. Puedes exportar, modificar, migrar y controlar la seguridad en cualquier momento.",
+                "phil-cca-p3": "Sin dependencias complejas. La plataforma utiliza tu propio Google Apps Script para gestionar transacciones en tiempo real.",
+                "phil-recomended-badge": "Recomendado",
+
+                // Módulos
+                "mod-tag": "Todo en un Solo Lugar",
+                "mod-title": "Módulos Administrativos Incorporados",
+                "mod-desc": "Olvídate de pagar por múltiples suscripciones. Tu panel unifica todas las áreas vitales de tu operación diario.",
+                "mod-res-title": "Resumen General & CRM",
+                "mod-res-desc": "Dashboard estadístico que muestra contactos, tareas, crecimiento operativo, proyectos y estados generales de rendimiento corporativo.",
+                "mod-msg-title": "Mensajería Profesional",
+                "mod-msg-desc": "Redacta y envía correos corporativos utilizando plantillas profesionales preestablecidas y firmas corporativas integradas de manera directa.",
+                "mod-doc-title": "Documentación Rápida",
+                "mod-doc-desc": "Genera cotizaciones, facturas y recibos de forma ágil y descárgalos al instante en un formato PDF limpio e impecable para tus clientes.",
+                "mod-pro-title": "Gestión de Proyectos",
+                "mod-pro-desc": "Controla fechas límite, niveles de prioridad, alarmas de urgencia, progresos del equipo y flujos operativos para evitar cuellos de botella.",
+                "mod-con-title": "Contactos & Organizaciones",
+                "mod-con-desc": "Administra perfiles de clientes, prospectos, proveedores y socios comerciales, vinculando personas a empresas de forma relacional.",
+                "mod-cat-title": "Catálogo Digital",
+                "mod-cat-desc": "Registra tu oferta de servicios y productos, organiza precios base, actualiza promociones y genera un catálogo visible para compartir.",
+                "mod-vau-title": "Bóveda de Datos Segura",
+                "mod-vau-desc": "Espacio privado para consolidar contraseñas de referencia, enlaces de pasarelas de pago rápidos, accesos API y recursos internos críticos.",
+                "mod-mar-title": "Guía de Marca Identitaria",
+                "mod-mar-desc": "Consolida colores hexadecimales primarios, tipografías corporativas, enlaces de logotipos oficiales y lineamientos visuales del negocio.",
+                "mod-dri-title": "Google Drive Integrado",
+                "mod-dri-desc": "Accede, organiza y supervisa la carga de archivos corporativos enlazados de forma nativa a tu propio sistema de almacenamiento en la nube.",
+
+                // Cómo Funciona
+                "how-tag": "Implementación Sin Servidores",
+                "how-title": "Configuración Simple en 4 Pasos",
+                "how-desc": "El sistema está estructurado bajo tecnología Serverless. No requieres conocimientos de programación ni contratación de bases de datos.",
+                "step1-title": "Obtén el Script Maestro",
+                "step1-subtitle": "Disponible en tu panel de configuración",
+                "step1-body": "Dentro de la sección de Configuración del Dashboard, tendrás acceso directo al Script Maestro de Google Apps Script. Este código seguro permite las comunicaciones HTTPS encriptadas entre la interfaz del portal y tus hojas de cálculo.",
+                "step2-title": "Crea tu propia URL de Apps Script",
+                "step2-subtitle": "Despliégalo en tu cuenta de Google",
+                "step2-body": "Abre una hoja de cálculo en tu Google Drive, ve a Extensiones > Apps Script, pega el código copiado y haz clic en 'Implementar como Aplicación Web'. Otorga permisos exclusivos para que solo tú puedas gestionar tus datos de forma segura.",
+                "step3-title": "Pega el Enlace",
+                "step3-subtitle": "Vincula la URL con un clic",
+                "step3-body": "Una vez obtenida la URL de implementación segura provista por Google, pégala directamente en la barra de entrada de conexión del Dashboard de Control Administrativo. Sin servidores intermedios de terceros.",
+                "step3-lbl": "Conectar URL Web App",
+                "step3-btn-test": "Probar",
+                "step4-title": "Conexión Automática",
+                "step4-subtitle": "Tu portal privado queda activo",
+                "step4-body": "El sistema ha validado la conexión. Ahora tus contactos, tareas, catálogos y finanzas se guardan directamente en tu propio ecosistema corporativo privado.",
+                "step4-success-title": "¡Espacio de Trabajo Conectado!",
+                "step4-success-desc": "El sistema ha validado la conexión. Ahora tus contactos, tareas, catálogos y finanzas se guardan directamente en tu propio ecosistema corporativo privado.",
+                "step-terminal-title": "Consola de Conexión del Sistema",
+                "step-btn-prev": "Anterior",
+                "step-btn-next": "Siguiente",
+
+                // Asistentes IA
+                "ai-tag": "Asistencia Corporativa 24/7",
+                "ai-title": "Asistentes Inteligentes para Potenciar tu Gestión",
+                "ai-desc": "El Dashboard incluye dos asesores dedicados entrenados para agilizar el trabajo operativo, resolver dudas normativas y estructurar las responsabilidades de tu negocio al instante.",
+                "ai-exec-name": "Asistente Ejecutiva IA",
+                "ai-exec-desc": "Automatiza agendas, sugiere formatos comerciales de correspondencia, asiste en la redacción de plantillas de correo y simplifica la toma de decisiones.",
+                "ai-legal-name": "Consultor Legal (República Dominicana)",
+                "ai-legal-desc": "Entrenado con la Constitución, Código de Trabajo y leyes dominicanas vigentes. Ideal para referencias normativas ágiles de tus contratos locales.",
+                "ai-welcome-text": "¡Hola! Soy tu Asistente Ejecutiva de Inteligencia Artificial. ¿Cómo puedo ayudarte hoy con la organización administrativa de tu negocio?",
+
+                // Trusted By
+                "trusted-title": "Confiado por marcas alrededor del mundo",
+
+                // Precios
+                "price-tag": "Acceso Premium",
+                "price-title": "Planes Flexibles para tu Negocio",
+                "price-desc": "Elige el plan que mejor se adapte al volumen y necesidades operativas de tu empresa. Instálalo sobre tus propias hojas de cálculo de Google Drive.",
+                "price-t1-name": "Plan Estándar",
+                "price-t1-sub": "Ideal para profesionales y pequeños negocios",
+                "price-t2-name": "Plan Corporativo",
+                "price-t2-sub": "Solución completa con IA para agencias y empresas",
+                "price-mo": "USD / mes",
+                "price-f1": "Configuración personalizada",
+                "price-f2": "Onboarding asistido",
+                "price-f3": "Ayuda de migración de datos",
+                "price-f4": "Plantillas personalizadas",
+                "price-f5": "Soporte privado",
+                "price-p1": "Uso sin restricciones de todos los 11 módulos",
+                "price-p2": "Soporte Técnico Privado Dedicado",
+                "price-p3": "Asistente IA Ejecutiva Ilimitada",
+                "price-p4": "Consultor Legal IA (República Dominicana)",
+                "price-btn-start": "Solicita una demostración",
+                "price-btn-pro": "Solicita una demostración",
+
+                // FAQ
+                "faq-tag": "Preguntas Frecuentes",
+                "faq-title": "Dudas y Respuestas sobre el Sistema",
+                "faq1-q": "¿Qué significa exactamente 'BYOK' (Bring Your Own Key)?",
+                "faq1-a": "Significa que tú proporcionas la infraestructura de tu base de datos utilizando tus propios recursos en la nube. Al usar la plataforma, conectas tu cuenta personal de Google Workspace mediante Google Apps Script. Ningún dato de tus operaciones se transfiere a nuestros servidores externos.",
+                "faq2-q": "¿Requiere conocimientos de programación o administración de servidores?",
+                "faq2-a": "No. El proceso es guiado en su totalidad. Solo necesitas realizar tres clics: copiar el Script Maestro suministrado en la interfaz, pegarlo en la sección de Google Sheets de tu cuenta y pegar el enlace de ejecución resultante en tu portal administrativo. El sistema se sincroniza de forma automática en un segundo.",
+                "faq3-q": "¿Existe algún límite en la cantidad de contactos, tareas o facturas?",
+                "faq3-a": "No, los límites los establece Google de acuerdo a las capacidades de almacenamiento que posea tu cuenta. Las hojas de cálculo de Google Sheets admiten millones de filas de datos, lo que brinda espacio de almacenamiento de sobra para toda la vida comercial de una PYME o agencia digital sin incurrir en costes extras.",
+                "faq4-q": "¿Los asistentes de Inteligencia Artificial tienen costo adicional?",
+                "faq4-a": "No. Las consultas básicas de los asesores inteligentes Ejecutiva y Consultor Legal dominicano están integradas y pre-configuradas bajo la licencia maestra sin tarifas mensuales adicionales. Operan con modelos optimizados de alta velocidad para resolver tus peticiones administrativas sin contratiempos.",
+                "faq5-q": "¿Cuáles son las condiciones y métodos de pago?",
+                "faq5-a": "Utilizamos Secure PayPal para procesar todos nuestros pagos y suscripciones. Esto garantiza que tu información financiera esté encriptada y protegida bajo los más altos estándares de seguridad y antifraude a nivel global.",
+
+                // Extra Mid CTA
+                "cta-mid-demo": "Agendar una demostración",
+                "cta-mid-start": "Iniciar Proceso de Registro",
+
+                // Login Modal
+                "modal-login-title": "Portal de Acceso Privado",
+                "modal-login-desc": "Inicia sesión en tu Centro de Control conectando tu clave local y tu URL de ejecución de Apps Script privada de Google.",
+                "modal-lbl-user": "Identificador / Usuario",
+                "modal-lbl-pass": "Contraseña Local",
+                "modal-lbl-script": "URL de Apps Script (Google BYOK)",
+                "modal-remember": "Recordar configuración",
+                "modal-btn-connect": "Inicializar Centro de Control",
+                "modal-warning": "Tus claves se procesan localmente de manera segura en tu navegador. Ninguna contraseña o dirección de script se almacena en el exterior.",
+
+                // Footer
+                "foot-desc": "Plataforma de control integral privada para la administración unificada de contactos, facturas, proyectos y asistencia de Inteligencia Artificial mediante infraestructura BYOK.",
+                "foot-c2-title": "Plataforma",
+                "foot-c3-title": "Recursos",
+                "foot-c4-title": "Seguridad",
+                "foot-r1": "Script Maestro API",
+                "foot-r2": "Guía de Solución de Problemas",
+                "foot-r3": "Manual de Integración en Drive",
+                "foot-payment-title": "Pagos Procesados Seguros",
+                "foot-status-label": "Servidor Central:",
+                "foot-enc-label": "Encriptación HTTPS:",
+                "foot-db-label": "Almacenamiento BD:",
+                "foot-p1": "Políticas de Privacidad",
+                "foot-p2": "Términos del Servicio de Código"
+            }
+        };
+
+        let currentLang = 'es'; // Default Language: Spanish
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            document.getElementById('langIndicator').innerText = currentLang === 'es' ? 'EN' : 'ES';
+            updatePageLanguage();
+            showSimpleToast(
+                currentLang === 'es' ? 'Idioma Cambiado' : 'Language Changed',
+                currentLang === 'es' ? 'La página ahora se muestra en Español' : 'The landing page is now translated to English'
+            );
+        }
+
+        function updatePageLanguage() {
+            const pack = translations[currentLang];
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(elem => {
+                const key = elem.getAttribute('data-i18n');
+                if (pack[key]) {
+                    elem.innerHTML = pack[key];
+                }
+            });
+
+            // Update placeholder inputs if necessary
+            const searchInput = document.querySelector('input[placeholder*="Buscar"]');
+            if (searchInput) {
+                searchInput.placeholder = currentLang === 'es' ? 'Buscar contactos...' : 'Search contacts...';
+            }
+            
+            const aiChatInput = document.getElementById('ai-chat-input');
+            if (aiChatInput) {
+                aiChatInput.placeholder = currentLang === 'es' ? 'Escribe tu consulta aquí...' : 'Type your query here...';
+            }
+
+            // Update Predefined Queries Buttons in AI Sandbox
+            const tempBtn1 = document.getElementById('ai-temp-btn-1');
+            const tempBtn2 = document.getElementById('ai-temp-btn-2');
+            if (currentLang === 'es') {
+                tempBtn1.innerText = "¿Cómo redacto una carta de cotización?";
+                tempBtn2.innerText = "Crear plantilla para cobrar factura";
+            } else {
+                tempBtn1.innerText = "How do I draft a quote letter?";
+                tempBtn2.innerText = "Create invoice collection template";
+            }
+        }
+
+        /* CUSTOM NOTIFICATION PANEL SYSTEM */
+        let toastTimeout;
+        function showSimpleToast(title, msg, iconClass = "fa-info-circle") {
+            const toast = document.getElementById('toastNotification');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastTitle.innerText = title;
+            toastMessage.innerText = msg;
+            toastIcon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+
+            toast.classList.remove('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                dismissToast();
+            }, 5000);
+        }
+
+        function dismissToast() {
+            const toast = document.getElementById('toastNotification');
+            toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+            toast.classList.add('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+        }
+
+        /* INTERACTIVE HERO DASHBOARD PANEL SWITCHER */
+        function switchHeroMockup(screenName) {
+            // Hide all mock screen contents
+            const screens = ['mock-resumen', 'mock-contactos', 'mock-documentos', 'mock-boveda'];
+            screens.forEach(s => {
+                document.getElementById(s).classList.add('hidden');
+            });
+
+            // Remove active style from tabs
+            const tabs = ['tab-resumen', 'tab-contactos', 'tab-documentos', 'tab-boveda'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(t);
+                btn.className = "px-3 py-1.5 rounded transition hover:bg-slate-200";
+            });
+
+            // Show current active screen & assign active style
+            document.getElementById(`mock-${screenName}`).classList.remove('hidden');
+            document.getElementById(`tab-${screenName}`).className = "px-3 py-1.5 rounded transition bg-navy-900 text-white font-bold";
+        }
+
+        function simulatePdfDownload() {
+            const client = document.getElementById('mock-invoice-client').value || 'Cliente';
+            const amount = document.getElementById('mock-invoice-amount').value || '0.00';
+            
+            showSimpleToast(
+                currentLang === 'es' ? "Documento Generado" : "Document Rendered",
+                currentLang === 'es' ? `Se descargará cotización por $${amount} USD para ${client}` : `Downloading quote for $${amount} USD to ${client}`,
+                "fa-file-pdf"
+            );
+        }
+
+        function copyMockText(text) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showSimpleToast(
+                currentLang === 'es' ? "Enlace Copiado" : "Link Copied",
+                currentLang === 'es' ? "Guardado en el portapapeles con éxito" : "Successfully saved in your clipboard",
+                "fa-copy"
+            );
+        }
+
+        /* INTERACTIVE SETUP TIMELINE STEPS CONTROLLERS */
+        let currentActiveStep = 1;
+        function switchStep(stepIndex) {
+            currentActiveStep = stepIndex;
+            updateStepView();
+        }
+
+        function navigateSteps(direction) {
+            currentActiveStep += direction;
+            if (currentActiveStep < 1) currentActiveStep = 4;
+            if (currentActiveStep > 4) currentActiveStep = 1;
+            updateStepView();
+        }
+
+        function updateStepView() {
+            // Hide all step sections
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step-content-${i}`).classList.add('hidden');
+                
+                // Adjust Navigation Buttons styling
+                const btn = document.getElementById(`step-btn-${i}`);
+                btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:bg-slate-50 flex space-x-4 items-center transition";
+                
+                const badge = btn.querySelector('span');
+                badge.className = "w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-transparent opacity-50 transition";
+            }
+
+            // Show Selected Active Step
+            document.getElementById(`step-content-${currentActiveStep}`).classList.remove('hidden');
+            
+            const activeBtn = document.getElementById(`step-btn-${currentActiveStep}`);
+            activeBtn.className = "w-full text-left p-4 rounded-xl border-2 border-navy-900 bg-navy-50/50 flex space-x-4 items-center transition";
+            
+            const activeBadge = activeBtn.querySelector('span');
+            activeBadge.className = "w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-corporate-gold shadow-md opacity-100 transition";
+
+            // Update Step Title Indicator
+            document.getElementById('step-index-badge').innerText = currentLang === 'es' ? `PASO ${currentActiveStep} / 4` : `STEP ${currentActiveStep} / 4`;
+        }
+
+        function copyMockScript() {
+            const scriptText = `function doGet(e) { \n  return ContentService.createTextOutput(JSON.stringify(handleRequest(e)));\n}`;
+            const tempInput = document.createElement("textarea");
+            tempInput.value = scriptText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showSimpleToast(
+                currentLang === 'es' ? "Código Copiado" : "Script Copied",
+                currentLang === 'es' ? "Script Maestro de Control listo en el portapapeles" : "Master Script ready in your clipboard",
+                "fa-code"
+            );
+        }
+
+        function triggerStep3Connect() {
+            const val = document.getElementById('demo-script-url').value;
+            if (!val.startsWith('https://script.google.com')) {
+                showSimpleToast(
+                    currentLang === 'es' ? "URL Inválida" : "Invalid URL",
+                    currentLang === 'es' ? "Asegúrate de copiar tu dirección de Google Web App completa" : "Ensure you copy the exact Google Web App connection endpoint",
+                    "fa-exclamation-triangle"
+                );
+            } else {
+                showSimpleToast(
+                    currentLang === 'es' ? "Conexión Exitosa" : "Connection Succeeded",
+                    currentLang === 'es' ? "El sistema simuló una comunicación HTTPS perfecta" : "The platform validated secure HTTPS handshakes",
+                    "fa-check-circle"
+                );
+                // Advance to step 4 automatically
+                setTimeout(() => {
+                    switchStep(4);
+                }, 1000);
+            }
+        }
+
+        /* AI ASSISTANTS SANDBOX MECHANICS */
+        let activeBot = 'exec'; // 'exec' (Executive) or 'legal' (Dominican Legal Advisor)
+
+        const botData = {
+            exec: {
+                title: "Asistente Ejecutiva IA",
+                titleEn: "Executive AI Assistant",
+                img: "https://bucket.mlcdn.com/a/3336/3336910/images/cccf1ceec7f2c100348267502b0287c2de5edbbe.png",
+                welcome: "¡Hola! Soy tu Asistente Ejecutiva de Inteligencia Artificial. ¿Cómo puedo ayudarte hoy con la organización administrativa de tu negocio?",
+                welcomeEn: "Hello! I am your AI Executive Assistant. How can I assist you with scheduling, document drafting, or operational planning today?",
+                queries: {
+                    es: [
+                        { q: "¿Cómo redacto una carta de cotización?", a: "Para redactar una cotización comercial profesional, debes incluir:\n1. Membrete de tu negocio (Logotipo, RNC, datos de contacto).\n2. Información del cliente (Nombre, Empresa, Dirección).\n3. Desglose claro de servicios/productos con precios unitarios.\n4. Términos de pago, tiempo de entrega y validez de la oferta.\n\nEjemplo: 'Estimado [Cliente], Nos complace presentar la propuesta de servicios para...' \n¿Quieres que redacte la plantilla completa?" },
+                        { q: "Crear plantilla para cobrar factura", a: "Aquí tienes una plantilla cordial para seguimiento de cobranza:\n\n'Asunto: Recordatorio Amistoso de Factura Pendiente - [Su Empresa]\n\nEstimado/a [Nombre del Cliente],\n\nEsperamos que se encuentre bien. Le escribimos para recordarle amistosamente sobre la factura pendiente #[Número] con vencimiento el [Fecha de Vencimiento] por un total de [Monto].\n\nAgradecemos de antemano su apoyo para procesar el pago. Quedamos a su entera disposición para cualquier aclaración o detalle adicional.'" }
+                    ],
+                    en: [
+                        { q: "How do I draft a quote letter?", a: "To draft a professional business quote, you should include:\n1. Your brand header (Logo, Contact, Credentials).\n2. Client metadata (Name, Enterprise, Address).\n3. Granular break-down of products/services with unit metrics.\n4. Term lengths, delivery estimates, and quote expiration.\n\nExample: 'Dear [Client], We are thrilled to offer this quote for...'\nWould you like me to output the complete block?" },
+                        { q: "Create invoice collection template", a: "Here is a courteous follow-up invoice reminder template:\n\n'Subject: Friendly Invoice Reminder - [Your Company Name]\n\nDear [Client Name],\n\nI hope you are having a productive week. This is a friendly reminder that invoice #[Invoice Number] for [Total Amount] has a scheduled maturity date of [Due Date].\n\nWe kindly request you process payment at your earliest convenience. Thank you for your partnership!'" }
+                    ]
+                }
+            },
+            legal: {
+                title: "Consultor Legal RD",
+                titleEn: "Dominican Legal AI",
+                img: "https://bucket.mlcdn.com/a/3336/3336910/images/23bac40366db7be50cdfb6981ae341deef774cc9.png",
+                welcome: "Saludos de orden. Soy tu Consultor Legal IA, especializado en el marco normativo de la República Dominicana. ¿Qué consulta o duda laboral/contractual deseas plantear?",
+                welcomeEn: "Greetings. I am your DR Legal AI advisor, trained in Dominican Republic statutory codes and corporate structures. How can I assist with localized labor guidelines today?",
+                queries: {
+                    es: [
+                        { q: "¿Cuáles son las causas de despido justificado en RD?", a: "Bajo el Artículo 88 del Código de Trabajo de la República Dominicana, el empleador puede dar por terminado el contrato de trabajo de forma justificada por causas como:\n1. Revelar secretos comerciales o de propiedad intelectual.\n2. Inasistencias injustificadas repetidas (más de dos días consecutivos o tres veces en un mes).\n3. Incumplimiento grave de las obligaciones laborales pactadas.\n4. Conducta inmoral, difamaciones o agresiones en el espacio de trabajo.\n\nRecuerda que debes comunicar el despido al Ministerio de Trabajo en un plazo máximo de 48 horas." },
+                        { q: "¿Cómo se calcula el preaviso y cesantía?", a: "El cálculo del auxilio de cesantía en República Dominicana depende del tiempo acumulado de labor ininterrumpida:\n- De 3 a 6 meses: 6 días de salario diario ordinario.\n- De 6 meses a 1 año: 13 días de salario.\n- De 1 a 5 años: 21 días de salario por cada año laborado.\n- Más de 5 años: 23 días de salario por año.\n\nEl preaviso se otorga según los Artículos 76 y 77 del Código, variando de 7 a 28 días de aviso previo según la antigüedad." }
+                    ],
+                    en: [
+                        { q: "What are the causes for justified termination in DR?", a: "Under Article 88 of the Dominican Republic Labor Code, an employer may dissolve employment with cause under these conditions:\n1. Divulging trade secrets or company intellectual properties.\n2. Unjustified consecutive absences (more than two consecutive days, or three times a month).\n3. Extreme compliance failure regarding agreed responsibilities.\n4. Direct harassment or violence inside workspace premises.\n\nRemember, you must register the termination with the Ministry of Labor within 48 hours." },
+                        { q: "How is severance calculated in DR?", a: "In the Dominican Republic, severance pay (Auxilio de Cesantía) scales based on years of service:\n- 3 to 6 months: 6 days of regular daily salary.\n- 6 months to 1 year: 13 days of salary.\n- 1 to 5 years: 21 days of salary per active year.\n- Over 5 years: 23 days of salary per year.\n\nAdvance notice (Preaviso) under Articles 76 & 77 ranges from 7 to 28 days of advance notification based on total tenure." }
+                    ]
+                }
+            }
+        };
+
+        function setAiBot(botType) {
+            activeBot = botType;
+            
+            // Toggle visual tabs in chat
+            const execTab = document.getElementById('bot-tab-exec');
+            const legalTab = document.getElementById('bot-tab-legal');
+            const avatarImg = document.getElementById('ai-chat-avatar-img');
+            
+            const bot = botData[activeBot];
+
+            if (botType === 'exec') {
+                execTab.className = "text-xs font-bold px-3 py-1 rounded bg-corporate-gold text-white transition";
+                legalTab.className = "text-xs font-bold px-3 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition";
+            } else {
+                legalTab.className = "text-xs font-bold px-3 py-1 rounded bg-corporate-gold text-white transition";
+                execTab.className = "text-xs font-bold px-3 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition";
+            }
+
+            avatarImg.src = bot.img;
+
+            // Update chat header and welcome message
+            document.getElementById('ai-chat-title').innerText = currentLang === 'es' ? bot.title : bot.titleEn;
+            
+            // Reset chat log with new welcome message
+            const chatLog = document.getElementById('ai-chat-log');
+            chatLog.innerHTML = `
+                <div class="flex items-start space-x-2.5">
+                    <div class="w-8 h-8 rounded-full border border-corporate-gold overflow-hidden flex-shrink-0">
+                        <img src="${bot.img}" class="w-full h-full object-cover ai-chat-msg-avatar" alt="Avatar">
+                    </div>
+                    <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm max-w-[85%]">
+                        <p>${currentLang === 'es' ? bot.welcome : bot.welcomeEn}</p>
+                    </div>
+                </div>
+            `;
+
+            // Update pre-defined query chips label text
+            const qSet = bot.queries[currentLang];
+            document.getElementById('ai-temp-btn-1').innerText = qSet[0].q;
+            document.getElementById('ai-temp-btn-2').innerText = qSet[1].q;
+        }
+
+        function sendPredefinedAiQuery(queryIndex) {
+            const bot = botData[activeBot];
+            const qSet = bot.queries[currentLang];
+            const selectedPair = qSet[queryIndex - 1];
+
+            appendUserMessage(selectedPair.q);
+            
+            // Simulating AI thinking delay
+            setTimeout(() => {
+                appendBotMessage(selectedPair.a);
+            }, 600);
+        }
+
+        function sendCustomAiQuery() {
+            const input = document.getElementById('ai-chat-input');
+            const txt = input.value.trim();
+            if (!txt) return;
+
+            appendUserMessage(txt);
+            input.value = '';
+
+            // Generate custom response
+            setTimeout(() => {
+                let reply = "";
+                if (currentLang === 'es') {
+                    reply = `He recibido tu consulta: "${txt}". Al estar operando en modo Demostración, te sugiero utilizar nuestros botones rápidos superiores para simular interacciones reales del centro de asistencia. ¡Prueba haciendo clic en uno de ellos!`;
+                } else {
+                    reply = `I've received your inquiry: "${txt}". Since this landing page is running in Demo Mode, I suggest utilizing our top rapid query chips above to simulate real assistant responses. Give them a click!`;
+                }
+                appendBotMessage(reply);
+            }, 800);
+        }
+
+        function appendUserMessage(text) {
+            const chatLog = document.getElementById('ai-chat-log');
+            const msg = document.createElement('div');
+            msg.className = "flex items-start space-x-2.5 justify-end";
+            msg.innerHTML = `
+                <div class="bg-navy-900 text-white p-3 rounded-lg shadow-sm max-w-[85%]">
+                    <p>${text}</p>
+                </div>
+                <div class="w-7 h-7 bg-corporate-gold text-white rounded-full flex items-center justify-center font-bold flex-shrink-0"><i class="fas fa-user text-xs"></i></div>
+            `;
+            chatLog.appendChild(msg);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function appendBotMessage(text) {
+            const chatLog = document.getElementById('ai-chat-log');
+            const bot = botData[activeBot];
+            const msg = document.createElement('div');
+            msg.className = "flex items-start space-x-2.5";
+            msg.innerHTML = `
+                <div class="w-8 h-8 rounded-full border border-corporate-gold overflow-hidden flex-shrink-0">
+                    <img src="${bot.img}" class="w-full h-full object-cover ai-chat-msg-avatar" alt="Avatar">
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm max-w-[85%] whitespace-pre-line">
+                    <p>${text}</p>
+                </div>
+            `;
+            chatLog.appendChild(msg);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        /* NUMBER COUNTER ANIMATION */
+        function initCounters() {
+            const counters = document.querySelectorAll('.animate-number');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = +entry.target.getAttribute('data-target');
+                        const duration = 2000;
+                        const stepTime = 20; 
+                        const steps = duration / stepTime;
+                        const increment = target / steps;
+                        let current = 0;
+                        
+                        const timer = setInterval(() => {
+                            current += increment;
+                            if (current >= target) {
+                                entry.target.innerText = target.toLocaleString();
+                                clearInterval(timer);
+                            } else {
+                                entry.target.innerText = Math.ceil(current).toLocaleString();
+                            }
+                        }, stepTime);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            counters.forEach(c => observer.observe(c));
+        }
+
+        /* CLIENT LOGIN PORTAL MODAL ACTIONS */
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Lock background scroll
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Unlock background scroll
+        }
+
+        function triggerLoginValidation() {
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const script = document.getElementById('login-script').value.trim();
+
+            if (!user || !pass || !script) {
+                showSimpleToast(
+                    currentLang === 'es' ? "Campos Incompletos" : "Incomplete Fields",
+                    currentLang === 'es' ? "Por favor completa el usuario, contraseña y la URL de Google Sheets." : "Please fill out user, password and the Google Sheets deployment URL.",
+                    "fa-exclamation-triangle"
+                );
+                return;
+            }
+
+            if (!script.startsWith('https://script.google.com')) {
+                showSimpleToast(
+                    currentLang === 'es' ? "Llave BYOK Errónea" : "Invalid BYOK Key",
+                    currentLang === 'es' ? "La URL de Apps Script provista no parece ser un endpoint válido de Google." : "The provided Apps Script deployment URL does not appear to be a valid Google target.",
+                    "fa-exclamation-triangle"
+                );
+                return;
+            }
+
+            // Simulate successful authentication handshakes
+            showSimpleToast(
+                currentLang === 'es' ? "Verificando Credenciales" : "Authenticating Profile",
+                currentLang === 'es' ? "Estableciendo túnel HTTPS seguro directo..." : "Opening secure HTTPS communication tunnel...",
+                "fa-sync-alt animate-spin"
+            );
+
+            setTimeout(() => {
+                showSimpleToast(
+                    currentLang === 'es' ? "¡Acceso Autorizado!" : "Access Authorized!",
+                    currentLang === 'es' ? `Bienvenido. Tu base de datos personal fue cargada sin intermediarios.` : `Welcome back! Your secure personal database is fully synchronized.`,
+                    "fa-shield-halved"
+                );
+                closeLoginModal();
+            }, 1500);
+        }
+
+        function triggerPurchaseDemo() {
+            showSimpleToast(
+                currentLang === 'es' ? "Pasarela de Pago Segura" : "Secure Payment Gateway",
+                currentLang === 'es' ? "Simulando pasarela SSL. ¡Gracias por confiar en el Centro de Control Administrativo!" : "Simulating payment protocol. Thanks for your interest in Administrative Control Center!",
+                "fa-credit-card"
+            );
+        }
+
+        /* ACCORDION ACCESSIBILITY */
+        function toggleFaq(index) {
+            const answer = document.getElementById(`faq-ans-${index}`);
+            const icon = document.getElementById(`faq-icon-${index}`);
+
+            if (answer.style.maxHeight === '0px' || !answer.style.maxHeight) {
+                // Open Accordion
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                // Close Accordion
+                answer.style.maxHeight = '0px';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
+        /* MOBILE MENU TOGGLE */
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const icon = document.getElementById('mobileMenuIcon');
+
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.className = "fas fa-times text-xl";
+            } else {
+                menu.classList.add('hidden');
+                icon.className = "fas fa-bars text-xl";
+            }
+        }
+
+        /* INITIAL PRE-FLIGHTS FOR LOADING PROCEDURES */
+        window.onload = function() {
+            updatePageLanguage();
+            initCounters();
+            // Preset FAQ heights to prevent animation jerks
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`faq-ans-${i}`).style.maxHeight = '0px';
+            }
+        }
+
+        /* BACK TO TOP VISIBILITY LISTENER */
+        window.addEventListener('scroll', function() {
+            const btn = document.getElementById('backToTopBtn');
+            if (window.scrollY > 400) {
+                btn.classList.remove('opacity-0', 'pointer-events-none');
+                btn.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                btn.classList.add('opacity-0', 'pointer-events-none');
+                btn.classList.remove('opacity-100', 'pointer-events-auto');
+            }
+        });
+    </script>
+</body>
+</html>
