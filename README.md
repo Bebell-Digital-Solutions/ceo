@@ -2,6 +2,7 @@
 
 # CEO
 ## Centro Estratégico Operativo
+<br>
 
 <img src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/Zylvie_Product_Thumbnails.gif?v=1779655212" alt="CEO Dashboard Banner" width="100%">
 
