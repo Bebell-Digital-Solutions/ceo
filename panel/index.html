@@ -24,12 +24,54 @@
 
 
 
+ <!-- ICONS CODE -->
+    <script> 
+        function removeFromLinks(rel) {
+            for (let link of document.head.getElementsByTagName("link")) {
+                if (link.rel == rel) {
+                    document.head.removeChild(link);
+                }
+            };
+        }
+        function createNewFavicon(rel, img) {
+            var newFavicon = document.createElement("link");
+            newFavicon.type = "image/png";
+            newFavicon.rel = rel;
+            newFavicon.href = img;
+            var firstHeadElement = document.head.firstChild;
+            document.head.insertBefore(newFavicon, firstHeadElement);
+        }
+        removeFromLinks("icon");
+        removeFromLinks("shortcut icon");
+        removeFromLinks("apple-touch-icon");
+        createNewFavicon("icon", "https://bucket.mlcdn.com/a/3336/3336910/images/4c1263b4d7ad73dbdf82f0ec2a277f1349f936ac.png");
+        createNewFavicon("shortcut icon", "https://bucket.mlcdn.com/a/3336/3336910/images/dd06b8e2ca4f2efc5bdac565dbcde3db5a37d3a5.png");
+        createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/images/dd06b8e2ca4f2efc5bdac565dbcde3db5a37d3a5.png"); 
+    </script>
 
 
 
 
 
-
+   <!-- ========== OPEN GRAPH / FACEBOOK META TAGS ========== -->
+    <meta property="og:title" content="Copernica | Tu Centro Privado de Operaciones Empresariales" />
+    <meta property="og:description" content="Administra tu negocio desde un solo lugar. Controla contactos, documentos, proyectos y archivos con total privacidad y control de datos BYOK." />
+    <meta property="og:image" content="https://bucket.mlcdn.com/a/3336/3336910/images/3af2a50c762348f9cc6128b5b5db5acd58fba09a.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Copernica Dashboard Preview - Centro de operaciones empresariales" />
+    <meta property="og:url" content="https://ceo.elnegocio.digital/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Copernica" />
+    <meta property="og:locale" content="es_ES" />
+    
+    <!-- ========== TWITTER CARD META TAGS ========== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@copernica" />
+    <meta name="twitter:title" content="Copernica | Tu Centro Privado de Operaciones Empresariales" />
+    <meta name="twitter:description" content="Administra tu negocio desde un solo lugar. Todo tu negocio organizado en un solo Dashboard. Controla contactos, documentos, proyectos y archivos." />
+    <meta name="twitter:image" content="https://bucket.mlcdn.com/a/3336/3336910/images/3af2a50c762348f9cc6128b5b5db5acd58fba09a.png" />
+    <meta name="twitter:image:alt" content="Copernica Dashboard Preview" />
 
 
 
