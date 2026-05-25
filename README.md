@@ -6,6 +6,7 @@
 <img src="https://cdn.shopify.com/s/files/1/0242/0175/6777/files/Zylvie_Product_Thumbnails.gif?v=1779655212" alt="CEO Dashboard Banner" width="100%">
 
 <br>
+<br>
 
 [![Status](https://img.shields.io/badge/STATUS-ACTIVE-1f2937?style=for-the-badge)](https://ceo.elnegocio.digital)
 [![Version](https://img.shields.io/badge/VERSION-1.0.0-966d1d?style=for-the-badge)](https://ceo.elnegocio.digital)
