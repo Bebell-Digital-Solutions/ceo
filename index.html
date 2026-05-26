@@ -294,7 +294,7 @@
                     </p>
                     <div class="flex flex-col space-y-3 pt-2 w-full mx-auto lg:mx-0 max-w-sm">
                         <!-- Añade tu URL manual aquí reemplazando el # -->
-                        <a href="#TU_URL_AQUI" class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center">
+                        <a href="/booking" class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center">
                             <i class="fas fa-calendar-alt mr-2"></i> <span data-i18n="hero-cta-demo">Solicita una Demostración</span>
                         </a>
                     </div>
@@ -663,11 +663,11 @@ banner.addEventListener("mouseleave", () => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-3xl mx-auto">
                 <!-- Añade tu URL de calendario aquí -->
-                <a href="#TU_URL_AQUI_DEMO" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center">
+                <a href="/booking" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center">
                     <i class="fas fa-calendar-alt mr-3"></i> <span data-i18n="cta-mid-demo">Agendar una Demostración</span>
                 </a>
                 <!-- Añade tu URL de Checkout/Pago aquí -->
-                <a href="#TU_URL_AQUI_PAGO" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center border border-corporate-highlight">
+                <a href="#pricing" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white rounded-md text-base font-bold hover:bg-corporate-gold-dark transition shadow-lg hover:-translate-y-0.5 transform text-center border border-corporate-highlight">
                     <i class="fas fa-rocket mr-3"></i> <span data-i18n="cta-mid-start">Iniciar Proceso de Registro</span>
                 </a>
             </div>
@@ -1019,7 +1019,7 @@ banner.addEventListener("mouseleave", () => {
     </section>
 
     <!-- PRICING / ACCESS -->
-    <section class="py-20 bg-white">
+    <section id="pricing" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto space-y-4">
                 <span class="text-xs uppercase font-extrabold tracking-widest text-corporate-gold" data-i18n="price-tag">Acceso Premium</span>
@@ -1048,26 +1048,30 @@ banner.addEventListener("mouseleave", () => {
                         <hr class="border-slate-100">
 
                         <ul class="space-y-3.5 text-xs text-slate-600">
+                             <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f1">Hasta 1 Usuario</span>
+                            </li>
+                            
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f1">Configuración personalizada</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f2">Configuración personalizada</span>
                             </li>
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f2">Onboarding asistido</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f3">Onboarding asistido</span>
                             </li>
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f3">Ayuda de migración de datos</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f4">Ayuda de migración de datos</span>
                             </li>
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f4">Plantillas personalizadas</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f5">Plantillas personalizadas</span>
                             </li>
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f5">Soporte privado</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f6">Soporte privado</span>
                             </li>
                         </ul>
                     </div>
                     <div class="p-6 bg-slate-50 mt-auto border-t border-slate-100">
                         <!-- Añade tu URL manual aquí reemplazando el # -->
-                        <a href="#TU_URL_AQUI" class="w-full block text-center py-3.5 bg-corporate-gold text-white font-bold rounded-lg hover:bg-corporate-gold-dark transition duration-300 text-xs tracking-wide uppercase shadow-md">
+                        <a href="/booking" class="w-full block text-center py-3.5 bg-corporate-gold text-white font-bold rounded-lg hover:bg-corporate-gold-dark transition duration-300 text-xs tracking-wide uppercase shadow-md">
                             <span data-i18n="price-btn-start">Solicita una demostración</span>
                         </a>
                     </div>
@@ -1095,32 +1099,57 @@ banner.addEventListener("mouseleave", () => {
                             
                             
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f1">Hasta 2 Usuarios</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p1">Hasta 2 Usuarios</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p2">Configuración personalizada</span>
                             </li>
                             
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p3">Onboarding Asistido</span>
+                            </li>
                             
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p4">Uso sin restricciones de todos los 11 módulos</span>
+                            </li>
                             
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p5">Soporte Técnico Privado Dedicado</span>
+                            </li>
                             
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-f1">Configuración personalizada</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p6">Asistente IA Ejecutiva Ilimitada</span>
                             </li>
+                            
                             <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p1">Uso sin restricciones de todos los 11 módulos</span>
+                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p7">Consultor Legal IA (República Dominicana)</span>
                             </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p2">Soporte Técnico Privado Dedicado</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p3">Asistente IA Ejecutiva Ilimitada</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-corporate-gold mr-3"></i> <span data-i18n="price-p4">Consultor Legal IA (República Dominicana)</span>
-                            </li>
+                  
                         </ul>
+
+
+
+
+
+
+
+Hasta 2 Usuarios",
+                "price-p2": "Configuración Personalizada",
+                "price-p3": "Onboarding Asistido",
+                "price-p4": "Uso sin restricciones de todos los 11 módulos",
+                "price-p5": "Soporte Técnico Privado Dedicado",
+                "price-p6": "Asistente IA Ejecutiva Ilimitada
+                "price-p7": "Consultor Legal IA (República Dominicana)",
+                "price-btn-start": "Solicita una demostración",
+                "price-btn-pro": "Solicita una demostración",
+
+
+
+                        
                     </div>
                     <div class="p-6 bg-navy-900 mt-auto border-t border-navy-800">
                         <!-- Añade tu URL manual aquí reemplazando el # -->
-                        <a href="#TU_URL_AQUI" class="w-full block text-center py-3.5 bg-corporate-gold text-white font-extrabold rounded-lg hover:bg-corporate-gold-dark hover:shadow-lg transition duration-300 text-xs tracking-wide uppercase">
+                        <a href="/booking" class="w-full block text-center py-3.5 bg-corporate-gold text-white font-extrabold rounded-lg hover:bg-corporate-gold-dark hover:shadow-lg transition duration-300 text-xs tracking-wide uppercase">
                             <span data-i18n="price-btn-pro">Solicita una demostración</span>
                         </a>
                     </div>
@@ -1243,7 +1272,7 @@ banner.addEventListener("mouseleave", () => {
                         Únete a los cientos de profesionales que ya operan con máxima privacidad y eficiencia. Implementación segura en menos de 5 minutos.
                     </p>
                     <!-- Añade tu URL manual aquí reemplazando el # -->
-                    <a href="#TU_URL_AQUI" class="inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white border border-corporate-highlight rounded-md text-base font-extrabold hover:bg-corporate-gold-dark transition duration-300 shadow-xl hover:-translate-y-1 transform">
+                    <a href="https://checkout.bebelldigitalsolutions.com/p/ceo" class="inline-flex items-center justify-center px-8 py-4 bg-corporate-gold text-white border border-corporate-highlight rounded-md text-base font-extrabold hover:bg-corporate-gold-dark transition duration-300 shadow-xl hover:-translate-y-1 transform">
                         <i class="fas fa-rocket text-white mr-3"></i> <span data-i18n="cta-banner-btn">Comienza Ahora</span>
                     </a>
                 </div>
@@ -1507,15 +1536,22 @@ banner.addEventListener("mouseleave", () => {
                 "price-t2-name": "Corporate Plan",
                 "price-t2-sub": "Complete AI solution for agencies and companies",
                 "price-mo": "USD / month",
-                "price-f1": "Personalized setup",
-                "price-f2": "Assisted onboarding",
-                "price-f3": "Data migration help",
-                "price-f4": "Custom templates",
-                "price-f5": "Private support",
-                "price-p1": "Unrestricted use of all 11 modules",
-                "price-p2": "VIP Priority Technical Support",
-                "price-p3": "Unlimited AI Executive Assistant",
-                "price-p4": "Legal AI Consultant (Dominican Republic)",
+                "price-f1": "Up to 1 User",
+                "price-f2": "Personalized setup",
+                "price-f3": "Assisted onboarding",
+                "price-f4": "Data migration help",
+                "price-f5": "Custom templates",
+                "price-f6": "Private support",
+                "price-p1": "Up to 2 Users",
+                "price-p2": "Personalized Setup",
+                "price-p3": "Assisted Onboarding",
+                "price-p4": "Unrestricted use of all 11 modules",
+                "price-p5": "VIP Priority Technical Support",
+                "price-p6": "Unlimited AI Executive Assistant",
+                "price-p7": "Legal AI Consultant (Dominican Republic)", 
+
+                Private support
+                
                 "price-btn-start": "Request a Demo",
                 "price-btn-pro": "Request a Demo",
 
@@ -1701,15 +1737,19 @@ banner.addEventListener("mouseleave", () => {
                 "price-t2-name": "Plan Corporativo",
                 "price-t2-sub": "Solución completa con IA para agencias y empresas",
                 "price-mo": "USD / mes",
-                "price-f1": "Configuración personalizada",
-                "price-f2": "Onboarding asistido",
-                "price-f3": "Ayuda de migración de datos",
-                "price-f4": "Plantillas personalizadas",
-                "price-f5": "Soporte privado",
-                "price-p1": "Uso sin restricciones de todos los 11 módulos",
-                "price-p2": "Soporte Técnico Privado Dedicado",
-                "price-p3": "Asistente IA Ejecutiva Ilimitada",
-                "price-p4": "Consultor Legal IA (República Dominicana)",
+                "price-f1": "Hasta 1 Usuario",
+                "price-f2": "Configuración personalizada",
+                "price-f3": "Onboarding asistido",
+                "price-f4": "Ayuda de migración de datos",
+                "price-f5": "Plantillas personalizadas",
+                "price-f6": "Soporte privado",                
+                "price-p1": "Hasta 2 Usuarios",
+                "price-p2": "Configuración Personalizada",
+                "price-p3": "Onboarding Asistido",
+                "price-p4": "Uso sin restricciones de todos los 11 módulos",
+                "price-p5": "Soporte Técnico Privado Dedicado",
+                "price-p6": "Asistente IA Ejecutiva Ilimitada
+                "price-p7": "Consultor Legal IA (República Dominicana)",
                 "price-btn-start": "Solicita una demostración",
                 "price-btn-pro": "Solicita una demostración",
 
