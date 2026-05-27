@@ -1,1 +1,481 @@
 
+<!-- ==========================================
+     INICIO DEL BLOQUE DE PRODUCTO (PRE-ORDER)
+     ========================================== -->
+<div class="product-block-wrapper">
+    
+    <!-- Google Fonts Import for Open Sans -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+        .product-block-wrapper {
+            /* Variables globales del bloque - MODIFICADAS: fondo blanco, selector rojo marca, botón #1f1f1f */
+            --pb-bg-color: #ffffff;
+            --pb-text-main: #1f1f1f;
+            --pb-text-muted: #4a4a4a;
+            --pb-text-extra: #6c6c6c;
+            --pb-border: #e0e0e0;
+            --pb-border-active: #d32f2f;     /* ROJO MARCA para selector activo */
+            --pb-accent-red: #d32f2f;
+            
+            /* Fonts */
+            --pb-font-title: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --pb-font-body: 'Open Sans', sans-serif;
+            
+            /* Scroll safety */
+            overflow: visible;
+            display: block;
+            width: 100%;
+        }
+
+        .product-block-wrapper *, .product-block-wrapper *::before, .product-block-wrapper *::after {
+            box-sizing: border-box;
+        }
+
+        .pb-container {
+            background-color: var(--pb-bg-color);
+            color: var(--pb-text-main);
+            font-family: var(--pb-font-body); /* Open Sans by default */
+            padding: 4rem 2rem;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+            touch-action: pan-y; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .pb-grid {
+            max-width: 1100px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        /* --- Columna Izquierda: Imágenes --- */
+        .pb-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .pb-main-img-container {
+            width: 100%;
+            aspect-ratio: 5/5;
+            min-height: 400px; 
+            border-radius: 0; /* REMOVED RADIUS */
+            overflow: hidden;
+            background-color: #f8f8f8;
+        }
+
+        .pb-main-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .pb-thumbnails {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .pb-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 0; /* REMOVED RADIUS */
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .pb-thumb:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            border-color: #ccc;
+        }
+
+        .pb-thumb.active {
+            opacity: 1;
+            border-color: var(--pb-border-active);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+        }
+
+        /* --- Columna Derecha: Contenido --- */
+        .pb-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pb-badge {
+            align-self: flex-start;
+            background-color: #fef2f2;
+            color: var(--pb-border-active);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0.4rem 1rem;
+            border-radius: 0; /* REMOVED RADIUS */
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(211, 47, 47, 0.2);
+        }
+
+        .pb-title {
+            font-family: var(--pb-font-title);
+            font-size: 72px;
+            font-weight: 800;
+            margin: 0 0 1rem 0;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            color: var(--pb-text-main);
+        }
+
+        .pb-desc {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin: 0 0 2.5rem 0;
+            color: var(--pb-text-muted);
+            font-weight: 400;
+        }
+
+        /* --- Opciones de Precios --- */
+        .pb-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .pb-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--pb-border);
+            border-radius: 0; /* REMOVED RADIUS */
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #ffffff;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .pb-option:hover {
+            background-color: #fafafa;
+            border-color: #c0c0c0;
+        }
+
+        /* Selector activo con borde rojo marca y texto en rojo */
+        .pb-option.active {
+            border-color: var(--pb-border-active);
+            background-color: #ffffff;
+            color: var(--pb-border-active);
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.12);
+        }
+        
+        .pb-option.active .pb-option-title,
+        .pb-option.active .pb-option-price {
+            color: var(--pb-border-active);
+            font-weight: 700;
+        }
+
+        /* Floating Brand Icon for the Active Option */
+        .pb-option.active::before {
+            content: "";
+            position: absolute;
+            top: -37.5px;
+            left: -37.5px;
+            width: 75px;
+            height: 75px;
+            background-image: url('https://bucket.mlcdn.com/a/3336/3336910/images/07e5fd06c75fa5d629273eb48a30d587e5574b24.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+            pointer-events: none;
+            border-radius: 0;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .pb-option-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--pb-text-main);
+            transition: color 0.2s;
+        }
+
+        .pb-option-price {
+            font-weight: 800;
+            font-size: 1.125rem;
+            color: var(--pb-text-main);
+            transition: color 0.2s;
+        }
+
+        /* --- Botón CTA: fondo #1f1f1f, texto blanco --- */
+        .pb-cta {
+            display: inline-block;
+            width: 100%;
+            background-color: #1f1f1f;
+            color: #ffffff;
+            text-align: center;
+            padding: 1.25rem 2rem;
+            border-radius: 0; /* REMOVED RADIUS */
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-decoration: none;
+            box-sizing: border-box;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.3px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .pb-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+            background-color: #2c2c2c;
+            color: #ffffff;
+        }
+
+        /* --- Confianza y Extra --- */
+        .pb-payment-methods {
+            width: 400px;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .pb-trust {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: var(--pb-text-muted);
+            font-weight: 500;
+        }
+
+        .pb-trust svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .pb-trust svg rect, .pb-trust svg path {
+            stroke: var(--pb-border-active);
+        }
+
+        .pb-extra {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--pb-text-extra);
+            background: #f9f9f9;
+            display: inline-block;
+            width: auto;
+            margin: 0 auto;
+            padding: 0.5rem 1rem;
+            border-radius: 0;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 850px) {
+            .pb-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+            .pb-title {
+                font-size: 2.75rem;
+            }
+            .pb-container {
+                padding: 3rem 1.5rem;
+            }
+            .pb-main-img-container {
+                min-height: auto;
+            }
+            /* Adjust icon size for mobile so it's not overwhelming */
+            .pb-option.active::before {
+                width: 50px;
+                height: 50px;
+                top: -25px;
+                left: -25px;
+            }
+        }
+        
+        @media (max-width: 550px) {
+            .pb-option {
+                padding: 1rem 1.25rem;
+            }
+            .pb-option-title, .pb-option-price {
+                font-size: 1rem;
+            }
+            .pb-title {
+                font-size: 2.25rem;
+            }
+        }
+    </style>
+
+    <div class="pb-container">
+        <div class="pb-grid">
+            
+            <!-- Izquierda: Galería de Imágenes -->
+            <div class="pb-gallery">
+                <div class="pb-main-img-container">
+                    <img id="pb-main-image" class="pb-main-img" src="https://bucket.mlcdn.com/a/3336/3336910/images/3432c95223a8ce7ef3c54c2ca032fcbda7a999ef.png" alt="Libro Portada Principal">
+                </div>
+                
+                <div class="pb-thumbnails">
+                    <!-- Imagen 1 (Activa por defecto) -->
+                    <img class="pb-thumb active" 
+                         src="https://bucket.mlcdn.com/a/3336/3336910/images/3432c95223a8ce7ef3c54c2ca032fcbda7a999ef.png" 
+                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/8c4273b2b420771d4298c08fda4685837648119e.jpeg')" 
+                         alt="Vista 1">
+                    
+                    <!-- Imagen 2 -->
+                    <img class="pb-thumb" 
+                         src="https://bucket.mlcdn.com/a/3336/3336910/images/78cb30d79b774698523528296c08bc4e4f45d564.jpeg" 
+                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/78cb30d79b774698523528296c08bc4e4f45d564.jpeg')"                          
+                         alt="Vista 2">
+                         
+                    <!-- Imagen 3 -->
+                    <img class="pb-thumb" 
+                         src="https://bucket.mlcdn.com/a/3336/3336910/images/c4357157185396dcabf7dae27d03986ea8c125f3.jpeg" 
+                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/c4357157185396dcabf7dae27d03986ea8c125f3.jpeg')"                          
+                         alt="Vista 3">
+                         
+                    <!-- Imagen 4 -->
+                    <img class="pb-thumb" 
+                         src="https://bucket.mlcdn.com/a/3336/3336910/images/3a3f15cda3a2307d4dbf2e0a942a33d8bd026f6e.jpeg" 
+                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/3a3f15cda3a2307d4dbf2e0a942a33d8bd026f6e.jpeg')"                          
+                         alt="Vista 4">
+                </div>
+            </div>
+
+            <!-- Derecha: Detalles del Producto -->
+            <div class="pb-info">
+                <span class="pb-badge">PREVENTA</span>
+                
+                <h2 class="pb-title">PREORDENA TU COPIA</h2>
+                <p class="pb-desc">Asegura tu ejemplar de la primera edición y recíbelo directamente durante el evento o en tu casa.</p>
+                
+                <div class="pb-options">
+                    <!-- Opción 1 (Tapa Suave) - ACTIVA POR DEFECTO -->
+                    <div class="pb-option active" id="pb-opt-tapa-suave" onclick="selectPbOption('tapa-suave')">
+                        <span class="pb-option-title">Tapa suave</span>
+                        <span class="pb-option-price">RD$1,500</span>
+                    </div>
+                   
+                    <!-- Opción 2 (Tapa Dura) -->
+                    <div class="pb-option" id="pb-opt-tapa-dura" onclick="selectPbOption('tapa-dura')">
+                        <span class="pb-option-title">Tapa dura</span>
+                        <span class="pb-option-price">RD$1,900</span>
+                    </div>
+                </div>
+
+                <!-- Botón de Compra: fondo #1f1f1f - enlace inicial a tapa suave -->
+                <a href="https://hacerse-oir.probusinesspage.com/tapa-suave" id="pb-cta-button" class="pb-cta">Comprar ahora</a>
+
+                <!-- Banner de Métodos de Pago -->
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/e7e9685b05f9804bc6bdd2f96244af9d7900f625.png" class="pb-payment-methods" alt="Métodos de pago">
+
+                <!-- Sección de Confianza / Trust Badges -->
+                <div class="pb-trust">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="11" width="18" height="11" rx="1"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span>Pago seguro con tarjeta o PayPal</span>
+                </div>
+                
+                <!-- Extra -->
+                <div class="pb-extra">
+                    Entrega en el evento el 13/04/2026
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Configuración de enlaces personalizados para cada opción
+        const pbPaymentLinks = {
+            'tapa-dura': 'https://hacerse-oir.probusinesspage.com/tapa-dura',
+            'tapa-suave': 'https://hacerse-oir.probusinesspage.com/tapa-suave'
+        };
+
+        function changePbImage(thumbElement, newSrc) {
+            const mainImg = document.getElementById('pb-main-image');
+            if (!mainImg) return;
+            mainImg.style.opacity = '0.4';
+            setTimeout(() => {
+                mainImg.src = newSrc;
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            const thumbs = document.querySelectorAll('.pb-thumb');
+            thumbs.forEach(el => el.classList.remove('active'));
+            thumbElement.classList.add('active');
+        }
+
+        function selectPbOption(optionType) {
+            const options = document.querySelectorAll('.pb-option');
+            options.forEach(el => el.classList.remove('active'));
+            
+            const selectedOption = document.getElementById('pb-opt-' + optionType);
+            if(selectedOption) selectedOption.classList.add('active');
+            
+            const ctaButton = document.getElementById('pb-cta-button');
+            if (pbPaymentLinks[optionType] && ctaButton) {
+                ctaButton.href = pbPaymentLinks[optionType];
+            }
+        }
+        
+        // Sincronizar la opción activa inicial (Tapa Suave por defecto) y el enlace del botón
+        function syncInitialActiveOption() {
+            const activeOption = document.querySelector('.pb-option.active');
+            if (activeOption) {
+                let optionId = activeOption.id;
+                if (optionId === 'pb-opt-tapa-dura') {
+                    const cta = document.getElementById('pb-cta-button');
+                    if (cta && pbPaymentLinks['tapa-dura']) cta.href = pbPaymentLinks['tapa-dura'];
+                } else if (optionId === 'pb-opt-tapa-suave') {
+                    const cta = document.getElementById('pb-cta-button');
+                    if (cta && pbPaymentLinks['tapa-suave']) cta.href = pbPaymentLinks['tapa-suave'];
+                }
+            } else {
+                // Fallback: activar tapa suave si no hay ningún active
+                const suaveOption = document.getElementById('pb-opt-tapa-suave');
+                if (suaveOption) {
+                    suaveOption.classList.add('active');
+                    const cta = document.getElementById('pb-cta-button');
+                    if (cta && pbPaymentLinks['tapa-suave']) cta.href = pbPaymentLinks['tapa-suave'];
+                }
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', syncInitialActiveOption);
+        } else {
+            syncInitialActiveOption();
+        }
+    </script>
+</div>
+<!-- ==========================================
+     FIN DEL BLOQUE DE PRODUCTO
+     ========================================== -->
