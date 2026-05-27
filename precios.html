@@ -1,481 +1,857 @@
-
-<!-- ==========================================
-     INICIO DEL BLOQUE DE PRODUCTO (PRE-ORDER)
-     ========================================== -->
-<div class="product-block-wrapper">
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Agenda una Consulta | Centro Estratégico Operativo</title>
     
-    <!-- Google Fonts Import for Open Sans -->
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/4c1263b4d7ad73dbdf82f0ec2a277f1349f936ac.png" type="image/png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-
-        .product-block-wrapper {
-            /* Variables globales del bloque - MODIFICADAS: fondo blanco, selector rojo marca, botón #1f1f1f */
-            --pb-bg-color: #ffffff;
-            --pb-text-main: #1f1f1f;
-            --pb-text-muted: #4a4a4a;
-            --pb-text-extra: #6c6c6c;
-            --pb-border: #e0e0e0;
-            --pb-border-active: #d32f2f;     /* ROJO MARCA para selector activo */
-            --pb-accent-red: #d32f2f;
-            
-            /* Fonts */
-            --pb-font-title: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --pb-font-body: 'Open Sans', sans-serif;
-            
-            /* Scroll safety */
-            overflow: visible;
-            display: block;
-            width: 100%;
-        }
-
-        .product-block-wrapper *, .product-block-wrapper *::before, .product-block-wrapper *::after {
-            box-sizing: border-box;
-        }
-
-        .pb-container {
-            background-color: var(--pb-bg-color);
-            color: var(--pb-text-main);
-            font-family: var(--pb-font-body); /* Open Sans by default */
-            padding: 4rem 2rem;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            position: relative;
-            touch-action: pan-y; 
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .pb-grid {
-            max-width: 1100px;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: start;
-        }
-
-        /* --- Columna Izquierda: Imágenes --- */
-        .pb-gallery {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .pb-main-img-container {
-            width: 100%;
-            aspect-ratio: 5/5;
-            min-height: 400px; 
-            border-radius: 0; /* REMOVED RADIUS */
-            overflow: hidden;
-            background-color: #f8f8f8;
-        }
-
-        .pb-main-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: opacity 0.2s ease-in-out;
-        }
-
-        .pb-thumbnails {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-start;
-            flex-wrap: wrap;
-        }
-
-        .pb-thumb {
-            width: 70px;
-            height: 70px;
-            border-radius: 0; /* REMOVED RADIUS */
-            object-fit: cover;
-            cursor: pointer;
-            border: 2px solid transparent;
-            opacity: 0.6;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
-
-        .pb-thumb:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            border-color: #ccc;
-        }
-
-        .pb-thumb.active {
-            opacity: 1;
-            border-color: var(--pb-border-active);
-            box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-        }
-
-        /* --- Columna Derecha: Contenido --- */
-        .pb-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .pb-badge {
-            align-self: flex-start;
-            background-color: #fef2f2;
-            color: var(--pb-border-active);
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            padding: 0.4rem 1rem;
-            border-radius: 0; /* REMOVED RADIUS */
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(211, 47, 47, 0.2);
-        }
-
-        .pb-title {
-            font-family: var(--pb-font-title);
-            font-size: 72px;
-            font-weight: 800;
-            margin: 0 0 1rem 0;
-            line-height: 1.1;
-            letter-spacing: -1.5px;
-            color: var(--pb-text-main);
-        }
-
-        .pb-desc {
-            font-size: 1.125rem;
-            line-height: 1.6;
-            margin: 0 0 2.5rem 0;
-            color: var(--pb-text-muted);
-            font-weight: 400;
-        }
-
-        /* --- Opciones de Precios --- */
-        .pb-options {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .pb-option {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 2px solid var(--pb-border);
-            border-radius: 0; /* REMOVED RADIUS */
-            padding: 1.25rem 1.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background-color: #ffffff;
-            position: relative;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-
-        .pb-option:hover {
-            background-color: #fafafa;
-            border-color: #c0c0c0;
-        }
-
-        /* Selector activo con borde rojo marca y texto en rojo */
-        .pb-option.active {
-            border-color: var(--pb-border-active);
-            background-color: #ffffff;
-            color: var(--pb-border-active);
-            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.12);
-        }
-        
-        .pb-option.active .pb-option-title,
-        .pb-option.active .pb-option-price {
-            color: var(--pb-border-active);
-            font-weight: 700;
-        }
-
-        /* Floating Brand Icon for the Active Option */
-        .pb-option.active::before {
-            content: "";
-            position: absolute;
-            top: -37.5px;
-            left: -37.5px;
-            width: 75px;
-            height: 75px;
-            background-image: url('https://bucket.mlcdn.com/a/3336/3336910/images/07e5fd06c75fa5d629273eb48a30d587e5574b24.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            z-index: 10;
-            pointer-events: none;
-            border-radius: 0;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-
-        .pb-option-title {
-            font-weight: 600;
-            font-size: 1.125rem;
-            color: var(--pb-text-main);
-            transition: color 0.2s;
-        }
-
-        .pb-option-price {
-            font-weight: 800;
-            font-size: 1.125rem;
-            color: var(--pb-text-main);
-            transition: color 0.2s;
-        }
-
-        /* --- Botón CTA: fondo #1f1f1f, texto blanco --- */
-        .pb-cta {
-            display: inline-block;
-            width: 100%;
-            background-color: #1f1f1f;
-            color: #ffffff;
-            text-align: center;
-            padding: 1.25rem 2rem;
-            border-radius: 0; /* REMOVED RADIUS */
-            font-size: 1.25rem;
-            font-weight: 800;
-            text-decoration: none;
-            box-sizing: border-box;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
-            margin-bottom: 1.5rem;
-            letter-spacing: 0.3px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .pb-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.2);
-            background-color: #2c2c2c;
-            color: #ffffff;
-        }
-
-        /* --- Confianza y Extra --- */
-        .pb-payment-methods {
-            width: 400px;
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto 1.5rem auto;
-        }
-
-        .pb-trust {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
-            color: var(--pb-text-muted);
-            font-weight: 500;
-        }
-
-        .pb-trust svg {
-            width: 18px;
-            height: 18px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .pb-trust svg rect, .pb-trust svg path {
-            stroke: var(--pb-border-active);
-        }
-
-        .pb-extra {
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--pb-text-extra);
-            background: #f9f9f9;
-            display: inline-block;
-            width: auto;
-            margin: 0 auto;
-            padding: 0.5rem 1rem;
-            border-radius: 0;
-        }
-
-        /* --- Responsive Design --- */
-        @media (max-width: 850px) {
-            .pb-grid {
-                grid-template-columns: 1fr;
-                gap: 2.5rem;
-            }
-            .pb-title {
-                font-size: 2.75rem;
-            }
-            .pb-container {
-                padding: 3rem 1.5rem;
-            }
-            .pb-main-img-container {
-                min-height: auto;
-            }
-            /* Adjust icon size for mobile so it's not overwhelming */
-            .pb-option.active::before {
-                width: 50px;
-                height: 50px;
-                top: -25px;
-                left: -25px;
-            }
-        }
-        
-        @media (max-width: 550px) {
-            .pb-option {
-                padding: 1rem 1.25rem;
-            }
-            .pb-option-title, .pb-option-price {
-                font-size: 1rem;
-            }
-            .pb-title {
-                font-size: 2.25rem;
-            }
+        /* CSS Variables for Global Color Control */
+        :root {
+            --color-navy-50: #f4f6f9;
+            --color-navy-100: #e7ecf3;
+            --color-navy-200: #c8d6e4;
+            --color-navy-300: #99b3cc;
+            --color-navy-400: #618cb0;
+            --color-navy-500: #3d6d96;
+            --color-navy-600: #2d5378;
+            --color-navy-700: #254462;
+            --color-navy-800: #1a2f45;
+            --color-navy-900: #111d2c;
+            --color-navy-950: #0a121c;
+            --highlight-gold: #ab8843;
+            --color-corporate-gold: #966d1d;
+            --color-corporate-gold-dark: #7a5817;
+            --color-corporate-teal: #14b8a6;
         }
     </style>
 
-    <div class="pb-container">
-        <div class="pb-grid">
-            
-            <!-- Izquierda: Galería de Imágenes -->
-            <div class="pb-gallery">
-                <div class="pb-main-img-container">
-                    <img id="pb-main-image" class="pb-main-img" src="https://bucket.mlcdn.com/a/3336/3336910/images/3432c95223a8ce7ef3c54c2ca032fcbda7a999ef.png" alt="Libro Portada Principal">
-                </div>
-                
-                <div class="pb-thumbnails">
-                    <!-- Imagen 1 (Activa por defecto) -->
-                    <img class="pb-thumb active" 
-                         src="https://bucket.mlcdn.com/a/3336/3336910/images/3432c95223a8ce7ef3c54c2ca032fcbda7a999ef.png" 
-                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/8c4273b2b420771d4298c08fda4685837648119e.jpeg')" 
-                         alt="Vista 1">
-                    
-                    <!-- Imagen 2 -->
-                    <img class="pb-thumb" 
-                         src="https://bucket.mlcdn.com/a/3336/3336910/images/78cb30d79b774698523528296c08bc4e4f45d564.jpeg" 
-                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/78cb30d79b774698523528296c08bc4e4f45d564.jpeg')"                          
-                         alt="Vista 2">
-                         
-                    <!-- Imagen 3 -->
-                    <img class="pb-thumb" 
-                         src="https://bucket.mlcdn.com/a/3336/3336910/images/c4357157185396dcabf7dae27d03986ea8c125f3.jpeg" 
-                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/c4357157185396dcabf7dae27d03986ea8c125f3.jpeg')"                          
-                         alt="Vista 3">
-                         
-                    <!-- Imagen 4 -->
-                    <img class="pb-thumb" 
-                         src="https://bucket.mlcdn.com/a/3336/3336910/images/3a3f15cda3a2307d4dbf2e0a942a33d8bd026f6e.jpeg" 
-                         onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/3a3f15cda3a2307d4dbf2e0a942a33d8bd026f6e.jpeg')"                          
-                         alt="Vista 4">
-                </div>
-            </div>
-
-            <!-- Derecha: Detalles del Producto -->
-            <div class="pb-info">
-                <span class="pb-badge">PREVENTA</span>
-                
-                <h2 class="pb-title">PREORDENA TU COPIA</h2>
-                <p class="pb-desc">Asegura tu ejemplar de la primera edición y recíbelo directamente durante el evento o en tu casa.</p>
-                
-                <div class="pb-options">
-                    <!-- Opción 1 (Tapa Suave) - ACTIVA POR DEFECTO -->
-                    <div class="pb-option active" id="pb-opt-tapa-suave" onclick="selectPbOption('tapa-suave')">
-                        <span class="pb-option-title">Tapa suave</span>
-                        <span class="pb-option-price">RD$1,500</span>
-                    </div>
-                   
-                    <!-- Opción 2 (Tapa Dura) -->
-                    <div class="pb-option" id="pb-opt-tapa-dura" onclick="selectPbOption('tapa-dura')">
-                        <span class="pb-option-title">Tapa dura</span>
-                        <span class="pb-option-price">RD$1,900</span>
-                    </div>
-                </div>
-
-                <!-- Botón de Compra: fondo #1f1f1f - enlace inicial a tapa suave -->
-                <a href="https://hacerse-oir.probusinesspage.com/tapa-suave" id="pb-cta-button" class="pb-cta">Comprar ahora</a>
-
-                <!-- Banner de Métodos de Pago -->
-                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/e7e9685b05f9804bc6bdd2f96244af9d7900f625.png" class="pb-payment-methods" alt="Métodos de pago">
-
-                <!-- Sección de Confianza / Trust Badges -->
-                <div class="pb-trust">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="11" width="18" height="11" rx="1"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <span>Pago seguro con tarjeta o PayPal</span>
-                </div>
-                
-                <!-- Extra -->
-                <div class="pb-extra">
-                    Entrega en el evento el 13/04/2026
-                </div>
-            </div>
-
-        </div>
-    </div>
-
     <script>
-        // Configuración de enlaces personalizados para cada opción
-        const pbPaymentLinks = {
-            'tapa-dura': 'https://hacerse-oir.probusinesspage.com/tapa-dura',
-            'tapa-suave': 'https://hacerse-oir.probusinesspage.com/tapa-suave'
-        };
-
-        function changePbImage(thumbElement, newSrc) {
-            const mainImg = document.getElementById('pb-main-image');
-            if (!mainImg) return;
-            mainImg.style.opacity = '0.4';
-            setTimeout(() => {
-                mainImg.src = newSrc;
-                mainImg.style.opacity = '1';
-            }, 150);
-
-            const thumbs = document.querySelectorAll('.pb-thumb');
-            thumbs.forEach(el => el.classList.remove('active'));
-            thumbElement.classList.add('active');
-        }
-
-        function selectPbOption(optionType) {
-            const options = document.querySelectorAll('.pb-option');
-            options.forEach(el => el.classList.remove('active'));
-            
-            const selectedOption = document.getElementById('pb-opt-' + optionType);
-            if(selectedOption) selectedOption.classList.add('active');
-            
-            const ctaButton = document.getElementById('pb-cta-button');
-            if (pbPaymentLinks[optionType] && ctaButton) {
-                ctaButton.href = pbPaymentLinks[optionType];
-            }
-        }
-        
-        // Sincronizar la opción activa inicial (Tapa Suave por defecto) y el enlace del botón
-        function syncInitialActiveOption() {
-            const activeOption = document.querySelector('.pb-option.active');
-            if (activeOption) {
-                let optionId = activeOption.id;
-                if (optionId === 'pb-opt-tapa-dura') {
-                    const cta = document.getElementById('pb-cta-button');
-                    if (cta && pbPaymentLinks['tapa-dura']) cta.href = pbPaymentLinks['tapa-dura'];
-                } else if (optionId === 'pb-opt-tapa-suave') {
-                    const cta = document.getElementById('pb-cta-button');
-                    if (cta && pbPaymentLinks['tapa-suave']) cta.href = pbPaymentLinks['tapa-suave'];
-                }
-            } else {
-                // Fallback: activar tapa suave si no hay ningún active
-                const suaveOption = document.getElementById('pb-opt-tapa-suave');
-                if (suaveOption) {
-                    suaveOption.classList.add('active');
-                    const cta = document.getElementById('pb-cta-button');
-                    if (cta && pbPaymentLinks['tapa-suave']) cta.href = pbPaymentLinks['tapa-suave'];
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        navy: {
+                            50: 'var(--color-navy-50)',
+                            100: 'var(--color-navy-100)',
+                            200: 'var(--color-navy-200)',
+                            300: 'var(--color-navy-300)',
+                            400: 'var(--color-navy-400)',
+                            500: 'var(--color-navy-500)',
+                            600: 'var(--color-navy-600)',
+                            700: 'var(--color-navy-700)',
+                            800: 'var(--color-navy-800)',
+                            900: 'var(--color-navy-900)',
+                            950: 'var(--color-navy-950)',
+                        },
+                        corporate: {
+                            gold: 'var(--color-corporate-gold)',
+                            goldDark: 'var(--color-corporate-gold-dark)',
+                            teal: 'var(--color-corporate-teal)',
+                        }
+                    }
                 }
             }
-        }
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', syncInitialActiveOption);
-        } else {
-            syncInitialActiveOption();
         }
     </script>
-</div>
-<!-- ==========================================
-     FIN DEL BLOQUE DE PRODUCTO
-     ========================================== -->
+    <style>
+        /* Wordsearch Cell Selected State */
+        .ws-cell {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ws-cell.selected {
+            background-color: var(--color-corporate-gold) !important;
+            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(150, 109, 29, 0.3);
+            transform: scale(1.05);
+            z-index: 10;
+            font-weight: 800;
+        }
+        /* Custom Scrollbar for search results */
+        #searchResults::-webkit-scrollbar {
+            width: 6px;
+        }
+        #searchResults::-webkit-scrollbar-track {
+            background: var(--color-navy-50);
+        }
+        #searchResults::-webkit-scrollbar-thumb {
+            background: var(--color-navy-200);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 overflow-x-hidden w-full m-0 p-0 antialiased flex flex-col min-h-screen">
+
+    <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-x-[150%] opacity-0 pointer-events-none transition-all duration-300 max-w-md bg-navy-900 text-white rounded-lg shadow-2xl p-4 border-l-4 border-corporate-gold flex items-start space-x-3">
+        <div id="toastIcon" class="text-xl text-corporate-gold mt-0.5">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="flex-1">
+            <h4 id="toastTitle" class="font-bold text-sm" data-i18n="toast-title-default">Notificación</h4>
+            <p id="toastMessage" class="text-xs text-slate-300 mt-1"></p>
+        </div>
+        <button onclick="dismissToast()" class="text-slate-400 hover:text-white transition">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <header class="sticky top-0 z-40 w-full bg-navy-950 backdrop-blur-md border-b border-navy-900 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="/" class="relative flex items-center w-48 h-12 group">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/84f526cf7f0f03f747a2e76295cc52156837ace4.png" class="absolute inset-0 w-full h-full object-contain object-left transition-opacity duration-300 group-hover:opacity-0" alt="Centro Estratégico Operativo">
+                    <img src="https://bucket.mlcdn.com/a/3336/3336910/images/c8916a0d6be8c4383e99c190cecf2afa43705ac1.gif" class="absolute inset-0 w-full h-full object-contain object-left opacity-0 transition-opacity duration-300 group-hover:opacity-100" alt="Centro Estratégico Operativo Animated">
+                </a>
+
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="/app/#philosophy" data-i18n="nav-philosophy" class="text-sm font-semibold text-slate-300 hover:text-white transition">Filosofía</a>
+                    <a href="/app/#modules" data-i18n="nav-modules" class="text-sm font-semibold text-slate-300 hover:text-white transition">Módulos</a>
+                    <a href="/app/#how" data-i18n="nav-how" class="text-sm font-semibold text-slate-300 hover:text-white transition">Cómo Funciona</a>
+                    <a href="/app/#ai" data-i18n="nav-ai" class="text-sm font-semibold text-slate-300 hover:text-white transition">Asistencia IA</a>
+                    <a href="/app/#faq" data-i18n="nav-faq" class="text-sm font-semibold text-slate-300 hover:text-white transition">Preguntas</a>
+                </nav>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleLanguage()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md border border-slate-700 text-xs font-semibold hover:bg-slate-800 transition text-slate-300 bg-navy-900">
+                        <i class="fas fa-globe text-slate-400"></i>
+                        <span id="langIndicator">ES</span>
+                    </button>
+                    
+                    <button onclick="triggerLoginAction()" class="hidden md:inline-flex items-center justify-center px-4 py-2 bg-corporate-gold rounded-md text-sm font-bold text-white hover:bg-corporate-gold-dark transition duration-200 shadow-md">
+                        <i class="fas fa-user-tie mr-2"></i> <span data-i18n="btn-client-login">Portal Cliente</span>
+                    </button>
+                              
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-white focus:outline-none ml-2">
+                        <i id="mobileMenuIcon" class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden bg-navy-950 border-b border-navy-900 px-4 pt-2 pb-4 space-y-1 absolute w-full left-0 top-full shadow-2xl">
+            <a href="/app/#philosophy" data-i18n="nav-philosophy" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Filosofía</a>
+            <a href="/app/#modules" data-i18n="nav-modules" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Módulos</a>
+            <a href="/app/#how" data-i18n="nav-how" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Cómo Funciona</a>
+            <a href="/app/#ai" data-i18n="nav-ai" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Asistencia IA</a>
+            <a href="/app/#faq" data-i18n="nav-faq" class="block py-2 text-sm font-semibold text-slate-300 hover:bg-navy-900 px-2 rounded">Preguntas</a>
+            <div class="pt-4 border-t border-navy-900 flex flex-col space-y-2 px-2">
+                <button onclick="triggerLoginAction(); toggleMobileMenu();" class="w-full flex items-center justify-center py-2.5 bg-corporate-gold rounded-md text-sm font-bold text-white hover:bg-corporate-gold-dark transition">
+                    <i class="fas fa-user-tie mr-2"></i> <span data-i18n="btn-client-login">Portal Cliente</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="flex-grow flex items-center relative overflow-hidden bg-slate-50">
+
+        <div class="product-block-wrapper">
+            
+            <style>
+                .product-block-wrapper {
+                    --pb-bg-color: #ffffff;
+                    --pb-text-main: #1f1f1f;
+                    --pb-text-muted: #4a4a4a;
+                    --pb-text-extra: #6c6c6c;
+                    --pb-border: #e0e0e0;
+                    --pb-border-active: #967e2d; 
+                    --pb-accent-red: #967e2d;
+                    
+                    --pb-font-title: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    --pb-font-body: 'Open Sans', sans-serif;
+                    
+                    overflow: visible;
+                    display: block;
+                    width: 100%;
+                }
+
+                .product-block-wrapper *, .product-block-wrapper *::before, .product-block-wrapper *::after {
+                    box-sizing: border-box;
+                }
+
+                .pb-container {
+                    background-color: var(--pb-bg-color);
+                    color: var(--pb-text-main);
+                    font-family: var(--pb-font-body);
+                    padding: 4rem 2rem;
+                    display: flex;
+                    justify-content: center;
+                    width: 100%;
+                    position: relative;
+                    touch-action: pan-y; 
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+
+                .pb-grid {
+                    max-width: 1100px;
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 4rem;
+                    align-items: start;
+                }
+
+                /* --- Columna Izquierda: Imágenes --- */
+                .pb-gallery {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1.5rem;
+                }
+
+                .pb-main-img-container {
+                    width: 100%;
+                    aspect-ratio: 5/5;
+                    min-height: 400px; 
+                    border-radius: 0;
+                    overflow: hidden;
+                    background-color: #f8f8f8;
+                }
+
+                .pb-main-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                    transition: opacity 0.2s ease-in-out;
+                }
+
+                .pb-thumbnails {
+                    display: flex;
+                    gap: 0.75rem;
+                    justify-content: flex-start;
+                    flex-wrap: wrap;
+                }
+
+                .pb-thumb {
+                    width: 70px;
+                    height: 70px;
+                    border-radius: 0;
+                    object-fit: cover;
+                    cursor: pointer;
+                    border: 2px solid transparent;
+                    opacity: 0.6;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+                }
+
+                .pb-thumb:hover {
+                    opacity: 0.9;
+                    transform: translateY(-2px);
+                    border-color: #ccc;
+                }
+
+                .pb-thumb.active {
+                    opacity: 1;
+                    border-color: var(--pb-border-active);
+                    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+                }
+
+                /* --- Columna Derecha: Contenido --- */
+                .pb-info {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .pb-badge {
+                    align-self: flex-start;
+                    background-color: #fffbf3;
+                    color: var(--pb-border-active);
+                    font-size: 0.75rem;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 1.5px;
+                    padding: 0.4rem 1rem;
+                    border-radius: 50px;
+                    margin-bottom: 1.5rem;
+                    border: 1px solid;
+                }
+
+                .pb-title {
+                    font-family: var(--pb-font-title);
+                    font-size: 72px;
+                    font-weight: 800;
+                    margin: 0 0 1rem 0;
+                    line-height: 1.1;
+                    letter-spacing: -1.5px;
+                    color: var(--pb-text-main);
+                }
+
+                .pb-desc {
+                    font-size: 1.125rem;
+                    line-height: 1.6;
+                    margin: 0 0 2.5rem 0;
+                    color: var(--pb-text-muted);
+                    font-weight: 400;
+                }
+
+                /* --- Opciones de Precios --- */
+                .pb-options {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1.25rem;
+                    margin-bottom: 2.5rem;
+                }
+
+                .pb-option {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border: 2px solid var(--pb-border);
+                    border-radius: 0;
+                    padding: 1.25rem 1.5rem;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background-color: #ffffff;
+                    position: relative;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+                }
+
+                .pb-option:hover {
+                    background-color: #fafafa;
+                    border-color: #c0c0c0;
+                }
+
+                .pb-option.active {
+                    border-color: var(--pb-border-active);
+                    background-color: #ffffff;
+                    color: var(--pb-border-active);
+                    box-shadow: 0 0px 0px rgba(211, 47, 47, 0.12);
+                }
+                
+                .pb-option.active .pb-option-title,
+                .pb-option.active .pb-option-price {
+                    color: var(--pb-border-active);
+                    font-weight: 700;
+                }
+
+                .pb-option.active::before {
+                    content: "";
+                    position: absolute;
+                    top: -28.5px;
+                    left: -24.5px;
+                    width: 50px;
+                    height: 50px;
+                    background-image: url('https://cdn.shopify.com/s/files/1/0242/0175/6777/files/ceo-logo-animation.gif?v=1779692498');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    z-index: 10;
+                    pointer-events: none;
+                    border-radius: 0;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+                }
+
+                .pb-option-title {
+                    font-weight: 600;
+                    font-size: 1.125rem;
+                    color: var(--pb-text-main);
+                    transition: color 0.2s;
+                }
+
+                .pb-option-price {
+                    font-weight: 800;
+                    font-size: 1.125rem;
+                    color: var(--pb-text-main);
+                    transition: color 0.2s;
+                }
+
+                /* --- Botón CTA --- */
+                .pb-cta {
+                    display: inline-block;
+                    width: 100%;
+                    background-color: #1f1f1f;
+                    color: #ffffff;
+                    text-align: center;
+                    padding: 1.25rem 2rem;
+                    border-radius: 7px;
+                    font-size: 1.25rem;
+                    font-weight: 800;
+                    text-decoration: none;
+                    box-sizing: border-box;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+                    margin-bottom: 1.5rem;
+                    letter-spacing: 0.3px;
+                    border: none;
+                    cursor: pointer;
+                }
+
+                .pb-cta:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+                    background-color: #2c2c2c;
+                    color: #ffffff;
+                }
+
+                /* --- Confianza y Extra --- */
+                .pb-payment-methods {
+                    width: 250px;
+                    max-width: 100%;
+                    height: auto;
+                    display: block;
+                    margin: 0 auto 1.5rem auto;
+                }
+
+                .pb-trust {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.75rem;
+                    color: var(--pb-text-muted);
+                    font-weight: 500;
+                }
+
+                .pb-trust svg {
+                    width: 18px;
+                    height: 18px;
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-width: 2.5;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
+
+                .pb-trust svg rect, .pb-trust svg path {
+                    stroke: var(--pb-border-active);
+                }
+
+                .pb-extra {
+                    text-align: center;
+                    font-size: 0.8rem;
+                    color: var(--pb-text-extra);
+                    background: #f9f9f9;
+                    display: inline-block;
+                    width: auto;
+                    margin: 0 auto;
+                    padding: 0.5rem 1rem;
+                    border-radius: 0;
+                }
+
+                /* --- Responsive Design --- */
+                @media (max-width: 850px) {
+                    .pb-grid {
+                        grid-template-columns: 1fr;
+                        gap: 2.5rem;
+                    }
+                    .pb-title {
+                        font-size: 2.75rem;
+                    }
+                    .pb-container {
+                        padding: 3rem 1.5rem;
+                    }
+                    .pb-main-img-container {
+                        min-height: auto;
+                    }
+                    .pb-option.active::before {
+                        width: 50px;
+                        height: 50px;
+                        top: -25px;
+                        left: -25px;
+                    }
+                }
+                
+                @media (max-width: 550px) {
+                    .pb-option {
+                        padding: 1rem 1.25rem;
+                    }
+                    .pb-option-title, .pb-option-price {
+                        font-size: 1rem;
+                    }
+                    .pb-title {
+                        font-size: 2.25rem;
+                    }
+                }
+            </style>
+
+            <div class="pb-container">
+                <div class="pb-grid">
+                    
+                    <div class="pb-gallery">
+                        <div class="pb-main-img-container">
+                            <img id="pb-main-image" class="pb-main-img" src="https://bucket.mlcdn.com/a/3336/3336910/images/75b967cfe9cc699c63460d34fddd5062089e9de7.png" alt="CEO Core Master">
+                        </div>
+                        
+                        <div class="pb-thumbnails">
+                            <img class="pb-thumb active" 
+                                 src="https://bucket.mlcdn.com/a/3336/3336910/images/75b967cfe9cc699c63460d34fddd5062089e9de7.png" 
+                                 onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/75b967cfe9cc699c63460d34fddd5062089e9de7.png')" 
+                                 alt="Vista 1">
+                            
+                            <img class="pb-thumb" 
+                                 src="https://bucket.mlcdn.com/a/3336/3336910/images/78cb30d79b774698523528296c08bc4e4f45d564.jpeg" 
+                                 onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/78cb30d79b774698523528296c08bc4e4f45d564.jpeg')"                   
+                                 alt="Vista 2">
+                                 
+                            <img class="pb-thumb" 
+                                 src="https://bucket.mlcdn.com/a/3336/3336910/images/c4357157185396dcabf7dae27d03986ea8c125f3.jpeg" 
+                                 onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/c4357157185396dcabf7dae27d03986ea8c125f3.jpeg')"                   
+                                 alt="Vista 3">
+                                 
+                            <img class="pb-thumb" 
+                                 src="https://bucket.mlcdn.com/a/3336/3336910/images/3a3f15cda3a2307d4dbf2e0a942a33d8bd026f6e.jpeg" 
+                                 onclick="changePbImage(this, 'https://bucket.mlcdn.com/a/3336/3336910/images/3a3f15cda3a2307d4dbf2e0a942a33d8bd026f6e.jpeg')"                   
+                                 alt="Vista 4">
+                        </div>
+                    </div>
+
+                    <div class="pb-info">
+                        <span class="pb-badge" data-i18n="product-badge">PREMIUM</span>
+                        
+                        <h2 class="pb-title" data-i18n="product-title">CEO</h2>
+                        <p class="pb-desc" data-i18n="product-desc">Asegura tu acceso inmediato a la infraestructura del Centro Estratégico Operativo y toma el control total de tu negocio.</p>
+                        
+                        <div class="pb-options">
+                            <div class="pb-option active" id="pb-opt-tapa-suave" onclick="selectPbOption('tapa-suave')">
+                                <span class="pb-option-title" data-i18n="opt-standard-title">Plan Estándar</span>
+                                <span class="pb-option-price" data-i18n="opt-standard-price">USD$ 78 / Mes</span>
+                            </div>
+                           
+                            <div class="pb-option" id="pb-opt-tapa-dura" onclick="selectPbOption('tapa-dura')">
+                                <span class="pb-option-title" data-i18n="opt-corporate-title">Plan Corporativo</span>
+                                <span class="pb-option-price" data-i18n="opt-corporate-price">USD$ 149 / Mes</span>
+                            </div>
+                        </div>
+
+                        <a href="https://hacerse-oir.probusinesspage.com/tapa-suave" id="pb-cta-button" class="pb-cta" data-i18n="product-cta">Completar Registro</a>
+                        
+                        <img src="https://bucket.mlcdn.com/a/3336/3336910/images/a55a916fae27396be180e733423f570f40afb57a.png" class="pb-payment-methods" alt="Métodos de pago">
+
+                        <div class="pb-trust">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="11" width="18" height="11" rx="1"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <span data-i18n="product-trust-label">Pago seguro con tarjeta o PayPal</span>
+                        </div>
+                        
+                        <div class="pb-extra" data-i18n="product-extra-label">
+                            Entrega e infraestructura activa en 48-72 horas
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <script>
+                // Configuración de enlaces personalizados para cada opción
+                const pbPaymentLinks = {
+                    'tapa-dura': 'https://hacerse-oir.probusinesspage.com/tapa-dura',
+                    'tapa-suave': 'https://hacerse-oir.probusinesspage.com/tapa-suave'
+                };
+
+                function changePbImage(thumbElement, newSrc) {
+                    const mainImg = document.getElementById('pb-main-image');
+                    if (!mainImg) return;
+                    mainImg.style.opacity = '0.4';
+                    setTimeout(() => {
+                        mainImg.src = newSrc;
+                        mainImg.style.opacity = '1';
+                    }, 150);
+
+                    const thumbs = document.querySelectorAll('.pb-thumb');
+                    thumbs.forEach(el => el.classList.remove('active'));
+                    thumbElement.classList.add('active');
+                }
+
+                function selectPbOption(optionType) {
+                    const options = document.querySelectorAll('.pb-option');
+                    options.forEach(el => el.classList.remove('active'));
+                    
+                    const selectedOption = document.getElementById('pb-opt-' + optionType);
+                    if(selectedOption) selectedOption.classList.add('active');
+                    
+                    const ctaButton = document.getElementById('pb-cta-button');
+                    if (pbPaymentLinks[optionType] && ctaButton) {
+                        ctaButton.href = pbPaymentLinks[optionType];
+                    }
+                }
+                
+                function syncInitialActiveOption() {
+                    const activeOption = document.querySelector('.pb-option.active');
+                    if (activeOption) {
+                        let optionId = activeOption.id;
+                        if (optionId === 'pb-opt-tapa-dura') {
+                            const cta = document.getElementById('pb-cta-button');
+                            if (cta && pbPaymentLinks['tapa-dura']) cta.href = pbPaymentLinks['tapa-dura'];
+                        } else if (optionId === 'pb-opt-tapa-suave') {
+                            const cta = document.getElementById('pb-cta-button');
+                            if (cta && pbPaymentLinks['tapa-suave']) cta.href = pbPaymentLinks['tapa-suave'];
+                        }
+                    } else {
+                        const suaveOption = document.getElementById('pb-opt-tapa-suave');
+                        if (suaveOption) {
+                            suaveOption.classList.add('active');
+                            const cta = document.getElementById('pb-cta-button');
+                            if (cta && pbPaymentLinks['tapa-suave']) cta.href = pbPaymentLinks['tapa-suave'];
+                        }
+                    }
+                }
+                
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', syncInitialActiveOption);
+                } else {
+                    syncInitialActiveOption();
+                }
+            </script>
+        </div>
+        <div id="my-cal-inline-30min" class="w-full max-w-4xl mx-auto hidden"></div>
+          
+    </main>
+
+    <footer class="bg-navy-950 text-white py-16 border-t border-navy-900 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+                <div class="md:col-span-1 space-y-4">
+                    <div class="flex items-center">
+                        <img src="https://bucket.mlcdn.com/a/3336/3336910/images/4c1263b4d7ad73dbdf82f0ec2a277f1349f936ac.png" class="h-10 w-auto" alt="CCA Icon">
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed" data-i18n="foot-desc">
+                        Plataforma de control integral privada para la administración unificada de contactos, facturas, proyectos y asistencia de Inteligencia Artificial mediante infraestructura BYOK.
+                    </p>
+                    <div class="pt-4 flex flex-col items-start">
+                        <p class="text-[10px] text-slate-500 mb-2 uppercase tracking-widest font-bold" data-i18n="foot-payment-title">Pagos Procesados Seguros</p>
+                        <img src="https://bucket.mlcdn.com/a/3336/3336910/images/ba7caa40fbb46e4528aaae8b0128896c5e8ff915.png" class="self-start block h-4 w-auto opacity-70 hover:opacity-70 transition filter grayscale hover:grayscale-0" alt="Secure PayPal Payments">
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c2-title">Plataforma</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="/app/#philosophy" class="hover:text-white transition" data-i18n="nav-philosophy">Filosofía BYOK</a></li>
+                        <li><a href="/app/#modules" class="hover:text-white transition" data-i18n="nav-modules">Exploración de Módulos</a></li>
+                        <li><a href="/app/#how" class="hover:text-white transition" data-i18n="nav-how">Configuración Técnica</a></li>
+                        <li><a href="/app/#ai" class="hover:text-white transition" data-i18n="nav-ai">Asistentes de Inteligencia Artificial</a></li>
+                    </ul>
+                </div>
+
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c3-title">Recursos</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="#" onclick="showSimpleToast('Acción no disponible', currentLang === 'es' ? 'Sección no disponible temporalmente.' : 'Section temporarily unavailable.'); return false;" class="hover:text-white transition" data-i18n="foot-r1">Script Maestro API</a></li>
+                        <li><a href="/app/#troubleshooting" class="hover:text-white transition" data-i18n="foot-r2">Guía de Solución de Problemas</a></li>
+                        <li><a href="/app/#integration" class="hover:text-white transition" data-i18n="foot-r3">Manual de Integración en Drive</a></li>
+                    </ul>
+                </div>
+
+                <div class="space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-corporate-gold" data-i18n="foot-c4-title">Seguridad</h5>
+                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 text-[11px] space-y-2 text-slate-400">
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-status-label">Servidor Central:</span>
+                            <span class="text-emerald-400 font-bold uppercase">ONLINE</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-enc-label">Encriptación HTTPS:</span>
+                            <span class="text-slate-200">256-Bit SSL</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span data-i18n="foot-db-label">Almacenamiento BD:</span>
+                            <span class="text-corporate-gold uppercase font-bold">Local Google Drive</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-slate-800 my-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[10px] space-y-3 sm:space-y-0">
+                <p>&copy; 2026 Centro Estratégico Operativo. Todos los derechos reservados.</p>
+                <div class="flex space-x-4">
+                    <a href="/app/#privacy" class="hover:text-white transition" data-i18n="foot-p1">Políticas de Privacidad</a>
+                    <a href="/app/#terms" class="hover:text-white transition" data-i18n="foot-p2">Términos del Servicio de Código</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* -------------------- MULTILINGUAL SYSTEM -------------------- */
+        const translations = {
+            en: {
+                "toast-title-default": "Notification",
+                "nav-philosophy": "Philosophy",
+                "nav-modules": "Modules",
+                "nav-how": "How it Works",
+                "nav-ai": "AI Assistance",
+                "nav-faq": "FAQ",
+                "btn-client-login": "Client Portal",
+                
+                "foot-desc": "Secure, private Strategic Operational Hub enabling startups, freelancers, and businesses to fully organize documents, tasks, and schedules through individual Google Drive structures.",
+                "foot-payment-title": "Secure Payments By",
+                "foot-c2-title": "Platform",
+                "foot-c3-title": "Resources",
+                "foot-c4-title": "Security Log",
+                "foot-r1": "Master Script Source",
+                "foot-r2": "Troubleshooting Guides",
+                "foot-r3": "Drive Integration Walkthroughs",
+                "foot-status-label": "System Server:",
+                "foot-enc-label": "Data Encryption:",
+                "foot-db-label": "Database Storage:",
+                "foot-p1": "Privacy Policy",
+                "foot-p2": "Software Terms of Service",
+
+                // Product Block English translation keys
+                "product-badge": "PREMIUM",
+                "product-title": "CEO",
+                "product-desc": "Secure your immediate access to the Strategic Operational Center infrastructure and take full control of your business data securely.",
+                "opt-standard-title": "Standard Plan",
+                "opt-standard-price": "USD$ 78 / Month",
+                "opt-corporate-title": "Corporate Plan",
+                "opt-corporate-price": "USD$ 149 / Month",
+                "product-cta": "Complete Registration",
+                "product-trust-label": "Secure payment with card or PayPal",
+                "product-extra-label": "Delivery and infrastructure active in 48-72 hours"
+            },
+            es: {
+                "toast-title-default": "Notificación",
+                "nav-philosophy": "Filosofía",
+                "nav-modules": "Módulos",
+                "nav-how": "Cómo Funciona",
+                "nav-ai": "Asistencia IA",
+                "nav-faq": "Preguntas",
+                "btn-client-login": "Portal Cliente",
+
+                "foot-desc": "Plataforma de control integral privada para la administración unificada de contactos, facturas, proyectos y asistencia de Inteligencia Artificial mediante infraestructura BYOK.",
+                "foot-payment-title": "Pagos Procesados Seguros",
+                "foot-c2-title": "Plataforma",
+                "foot-c3-title": "Recursos",
+                "foot-c4-title": "Seguridad",
+                "foot-r1": "Script Maestro API",
+                "foot-r2": "Guía de Solución de Problemas",
+                "foot-r3": "Manual de Integración en Drive",
+                "foot-status-label": "Servidor Central:",
+                "foot-enc-label": "Encriptación HTTPS:",
+                "foot-db-label": "Almacenamiento BD:",
+                "foot-p1": "Políticas de Privacidad",
+                "foot-p2": "Términos del Servicio de Código",
+
+                // Product Block Spanish translation keys
+                "product-badge": "PREMIUM",
+                "product-title": "CEO",
+                "product-desc": "Asegura tu acceso inmediato a la infraestructura del Centro Estratégico Operativo y toma el control total de tu negocio.",
+                "opt-standard-title": "Plan Estándar",
+                "opt-standard-price": "USD$ 78 / Mes",
+                "opt-corporate-title": "Plan Corporativo",
+                "opt-corporate-price": "USD$ 149 / Mes",
+                "product-cta": "Completar Registro",
+                "product-trust-label": "Pago seguro con tarjeta o PayPal",
+                "product-extra-label": "Entrega e infraestructura activa en 48-72 horas"
+            }
+        };
+
+        let currentLang = 'es'; // Default Language
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            
+            // Visual update for the language indicator
+            document.getElementById('langIndicator').innerText = currentLang === 'es' ? 'ES' : 'EN';
+
+            updatePageLanguage();
+            showSimpleToast(
+                currentLang === 'es' ? 'Idioma Cambiado' : 'Language Changed',
+                currentLang === 'es' ? 'La página ahora se muestra en Español' : 'The page is now translated to English'
+            );
+        }
+
+        function updatePageLanguage() {
+            const pack = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(elem => {
+                const key = elem.getAttribute('data-i18n');
+                if (pack[key]) {
+                    elem.innerHTML = pack[key];
+                }
+            });
+        }
+
+        /* -------------------- TOAST ALERTS -------------------- */
+        let toastTimeout;
+        function showSimpleToast(title, msg, iconClass = "fa-info-circle") {
+            const toast = document.getElementById('toastNotification');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastTitle.innerText = title;
+            toastMessage.innerText = msg;
+            toastIcon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+
+            toast.classList.remove('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                dismissToast();
+            }, 5000);
+        }
+
+        function dismissToast() {
+            const toast = document.getElementById('toastNotification');
+            toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+            toast.classList.add('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+        }
+
+        /* -------------------- MOBILE MENU & LOGIN ACTION -------------------- */
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const icon = document.getElementById('mobileMenuIcon');
+
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.className = "fas fa-times text-xl";
+            } else {
+                menu.classList.add('hidden');
+                icon.className = "fas fa-bars text-xl";
+            }
+        }
+
+        function triggerLoginAction() {
+            showSimpleToast(
+                currentLang === 'es' ? "Navegación" : "Navigation",
+                currentLang === 'es' ? "Para iniciar sesión debes ir al inicio." : "To login please go to the home page.",
+                "fa-exclamation-circle"
+            );
+        }
+
+        /* INIT */
+        window.onload = function() {
+            updatePageLanguage();
+        }
+    </script>
+
+    <script type="text/javascript">
+      (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+      Cal("init", "30min", {origin:"https://app.cal.com"});
+
+      Cal.ns["30min"]("inline", {
+        elementOrSelector:"#my-cal-inline-30min",
+        config: {"layout":"month_view","useSlotsViewOnSmallScreen":"true","theme":"light"},
+        calLink: "copapp/30min",
+      });
+
+      Cal.ns["30min"]("ui", {"theme":"light","cssVarsPerTheme":{"light":{"cal-brand":"#ab8843"},"dark":{"cal-brand":"#ab8843"}},"hideEventTypeDetails":false,"layout":"month_view"});
+    </script>
+
+    <script>(function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://api.helpdesk.icu/widget2/load?id=934cada7-a976-3422-a1ab-a64078d1055c&r=' + encodeURIComponent(window.location);
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'anw2-sdk-p61Mk3apIjShq6ZAeNEFXA'));</script>
+    
+</body>
+</html>
