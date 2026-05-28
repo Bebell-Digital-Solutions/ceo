@@ -6,6 +6,45 @@
     <title>Jewelry Vendor Dashboard</title>
     <!-- Tailwind CSS for styling as requested -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+
+  
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://bucket.mlcdn.com/a/3336/3336910/images/05a2e5d302a90f9dc5944d6070bdbfabfc460d11.png">
+
+
+
+
+ <!-- ICONS CODE -->
+    <script> 
+        function removeFromLinks(rel) {
+            for (let link of document.head.getElementsByTagName("link")) {
+                if (link.rel == rel) {
+                    document.head.removeChild(link);
+                }
+            };
+        }
+        function createNewFavicon(rel, img) {
+            var newFavicon = document.createElement("link");
+            newFavicon.type = "image/png";
+            newFavicon.rel = rel;
+            newFavicon.href = img;
+            var firstHeadElement = document.head.firstChild;
+            document.head.insertBefore(newFavicon, firstHeadElement);
+        }
+        removeFromLinks("icon");
+        removeFromLinks("shortcut icon");
+        removeFromLinks("apple-touch-icon");
+        createNewFavicon("icon", "https://bucket.mlcdn.com/a/3336/3336910/images/161a5a399bcf19de4b00ecbe2abe0026fb1da08d.png");
+        createNewFavicon("shortcut icon", "https://bucket.mlcdn.com/a/3336/3336910/images/161a5a399bcf19de4b00ecbe2abe0026fb1da08d.png");
+        createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/images/161a5a399bcf19de4b00ecbe2abe0026fb1da08d.png"); 
+    </script>
+
+
+
+
+
+    
     <style>
         /* Preview page styling */
         body { font-family: 'Inter', sans-serif; }
