@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control para Joyería - Sabaro Gold</title>
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons para el Heatmap -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        #jewelry-market-dashboard {
+            --brand-gold: #d4af37;
+            --brand-dark: #1e293b;
+            --ticker-speed: 40s;
+        }
+
+        .jw-ticker-wrap {
+            background-color: var(--brand-dark);
+            color: white;
+            padding: 12px 0;
+            overflow: hidden;
+            display: flex;
+            white-space: nowrap;
+            box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .jw-ticker-track {
+            display: flex;
+            width: max-content;
+            animation: jwScroll var(--ticker-speed) linear infinite;
+        }
+
+        .jw-ticker-wrap:hover .jw-ticker-track {
+            animation-play-state: paused;
+        }
+
+        .jw-ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 1rem;
+        }
+
+        .jw-price-up { color: #4ade80; } 
+        .jw-price-down { color: #f87171; } 
+
+        @keyframes jwScroll {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
+
+        /* =========================================
+           ESTILOS DEL HEATMAP (Adaptado a Sabaro Gold)
+           ========================================= */
+        .heatmap-component {
+            width: 100%;
+            background: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+
+        .heatmap-header {
+            padding: 1.5rem 1.75rem 0.75rem 1.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+
+        .title-section h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b; /* slate-800 */
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .title-section p {
+            font-size: 0.8rem;
+            color: #64748b; /* slate-500 */
+            margin-top: 0.2rem;
+        }
+
+        .legend-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #f8fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .legend-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .legend-swatches { display: flex; gap: 5px; align-items: center; }
+
+        .swatch {
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            cursor: default;
+        }
+
+        /* Branding Colors (Amber/Gold scale) */
+        .level-0, .swatch-level-0 { background-color: #f8fafc; border: 1px solid #e2e8f0; } /* Slate 50 */
+        .level-1, .swatch-level-1 { background-color: #fde68a; border: 1px solid #fcd34d; } /* Amber 200 */
+        .level-2, .swatch-level-2 { background-color: #fbbf24; border: 1px solid #f59e0b; } /* Amber 400 */
+        .level-3, .swatch-level-3 { background-color: #d97706; border: 1px solid #b45309; } /* Amber 600 */
+        .level-4, .swatch-level-4 { background-color: #92400e; border: 1px solid #78350f; } /* Amber 800 */
+
+        .heatmap-scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 1.5rem 1.75rem 2rem 1.75rem;
+            scroll-behavior: smooth;
+        }
+        .heatmap-scroll-wrapper::-webkit-scrollbar { height: 6px; }
+        .heatmap-scroll-wrapper::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; margin: 0 1rem; }
+        .heatmap-scroll-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .heatmap-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-rows: repeat(7, 1fr);
+            grid-auto-flow: column;
+            gap: 4px;
+            width: max-content;
+        }
+
+        .heatmap-cell {
+            width: 24px; height: 24px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 8px rgba(217, 119, 6, 0.3); /* Amber shadow */
+            z-index: 10;
+        }
+
+        .heatmap-cell[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 140%; left: 50%;
+            transform: translateX(-50%);
+            background: #1e293bd9; /* slate-800 */
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 0.7rem; font-weight: 500;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .heatmap-footer {
+            padding: 1rem 1.75rem;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            background: #f8fafc;
+        }
+
+        .stats-badge {
+            background: #ffffff;
+            padding: 0.4rem 0.85rem;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #d97706; /* Amber 600 */
+            border: 1px solid #fde68a;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .date-range {
+            font-family: monospace; font-size: 0.75rem;
+            background: #ffffff; padding: 0.3rem 0.8rem;
+            border-radius: 20px; border: 1px solid #e2e8f0;
+        }
+
+        .sync-btn {
+            background: white; border: 1px solid #cbd5e1;
+            padding: 0.4rem 1rem; border-radius: 30px;
+            font-weight: 500; color: #334155;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .sync-btn:hover { background: #f8fafc; border-color: #94a3b8; }
+        .cell-pulse { animation: miniPulse 0.25s ease-out; }
+        
+        @keyframes miniPulse {
+            0% { transform: scale(1); filter: brightness(1);}
+            50% { transform: scale(1.3); filter: brightness(1.1);}
+            100% { transform: scale(1); filter: brightness(1);}
+        }
+    </style>
+</head>
+<body>
+
+<div id="jewelry-market-dashboard" class="overflow-hidden text-slate-800 font-sans relative bg-white pb-8">
+
+    <!-- Ticker de Precios en Vivo -->
+    <div class="jw-ticker-wrap uppercase border-b-4 border-amber-500">
+        <div class="jw-ticker-track" id="jw-ticker-content">
+            <div class="jw-ticker-item">CARGANDO DATOS DEL MERCADO EN VIVO...</div>
+        </div>
+    </div>
+
+    <div class="p-4 sm:p-6 lg:p-8">
+        
+        <!-- Encabezado -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 flex items-center gap-2">
+                    <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    <span>Inteligencia de Metales Preciosos</span>
+                </h2>
+                <p class="text-sm text-slate-500 mt-1">Inteligencia de metales y herramientas operativas. Base: USD y DOP.</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Última Actualización</span>
+                <div id="jw-last-updated" class="text-sm font-bold text-slate-700">--:--:--</div>
+                <div id="jw-dop-rate" class="text-sm text-amber-600 font-black mt-1">Tasa DOP: Cargando...</div>
+            </div>
+        </div>
+
+        <!-- Tarjetas KPI -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="jw-kpi-cards">
+            <div class="col-span-2 lg:col-span-4 text-center py-4 text-slate-400 text-sm">
+                Obteniendo precios al contado...
+            </div>
+        </div>
+
+        <!-- Fila 1: Gráfico y Valuador -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            
+            <!-- Gráfico Histórico Simulado -->
+            <div class="lg:col-span-2 bg-slate-50 rounded-xl p-4 border border-slate-200 shadow-sm relative">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-slate-700">Tendencias del Mercado (30 Días)</h3>
+                    <select id="jw-chart-selector" class="bg-white border border-slate-300 text-sm rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium">
+                        <option value="XAU">Oro (XAU)</option>
+                        <option value="XAG">Plata (XAG)</option>
+                        <option value="XPT">Platino (XPT)</option>
+                        <option value="XPD">Paladio (XPD)</option>
+                    </select>
+                </div>
+                <div class="w-full h-64 md:h-80 relative">
+                    <canvas id="jw-history-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Valuador de Material -->
+            <div class="bg-slate-800 text-white rounded-xl p-5 shadow-lg flex flex-col">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <span>Valuador de Material</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Estime el valor según tasas al contado en vivo.</p>
+                </div>
+
+                <div class="space-y-4 flex-grow">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Metal y Pureza</label>
+                        <select id="calc-alloy" class="w-full bg-slate-700 border border-slate-600 text-white rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <optgroup label="Oro">
+                                <option value="XAU_0.999">Oro Puro 24K (99.9%)</option>
+                                <option value="XAU_0.916">Oro 22K (91.6%)</option>
+                                <option value="XAU_0.750">Oro 18K (75.0%)</option>
+                                <option value="XAU_0.585" selected>Oro 14K (58.5%)</option>
+                                <option value="XAU_0.417">Oro 10K (41.7%)</option>
+                            </optgroup>
+                            <optgroup label="Plata">
+                                <option value="XAG_0.999">Plata Fina (99.9%)</option>
+                                <option value="XAG_0.925">Plata de Ley (92.5%)</option>
+                            </optgroup>
+                            <optgroup label="Platino/Paladio">
+                                <option value="XPT_0.950">Platino (95.0%)</option>
+                                <option value="XPD_0.950">Paladio (95.0%)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="flex-grow">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Peso</label>
+                            <input type="number" id="calc-weight" value="10" min="0" step="0.01" class="w-full bg-slate-700 border border-slate-600 text-white rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder-slate-400">
+                        </div>
+                        <div class="w-1/3">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Unidad</label>
+                            <select id="calc-unit" class="w-full bg-slate-700 border border-slate-600 text-white rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                <option value="g">Gramos</option>
+                                <option value="oz">Onza Troy</option>
+                                <option value="dwt">DWT</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-600 text-center">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block mb-1">Valor Estimado</span>
+                    <div id="calc-result-usd" class="text-3xl font-bold text-amber-400">$0.00</div>
+                    <div id="calc-result-dop" class="text-lg font-medium text-green-400 mt-1">RD$ 0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-slate-200 my-8">
+
+        <!-- Fila 2: Herramientas de Taller -->
+        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Herramientas de Taller
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- 1. Calculadora de Aleaciones -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-md font-bold text-slate-800 mb-1">⚖️ Mezclador de Aleación</h3>
+                <p class="text-xs text-slate-500 mb-4">Calcule la liga necesaria para bajar el quilataje.</p>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600">Peso Base (Gramos)</label>
+                        <input type="number" id="alloy-weight" value="10" step="0.1" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600">Pureza Actual</label>
+                            <select id="alloy-current" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                <option value="0.999">24K (99.9%)</option>
+                                <option value="0.916">22K (91.6%)</option>
+                                <option value="0.750">18K (75.0%)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600">Pureza Objetivo</label>
+                            <select id="alloy-target" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                <option value="0.750">18K (75.0%)</option>
+                                <option value="0.585" selected>14K (58.5%)</option>
+                                <option value="0.417">10K (41.7%)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                    <span class="text-xs text-amber-700 block">Agregar Liga (Cobre/Plata):</span>
+                    <div id="alloy-result" class="text-xl font-black text-amber-600">0.00 g</div>
+                </div>
+            </div>
+
+            <!-- 2. Conversor de Cera a Metal -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-md font-bold text-slate-800 mb-1">🕯️ Cera a Metal</h3>
+                <p class="text-xs text-slate-500 mb-4">Calcule el metal necesario para fundición.</p>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600">Peso de Cera (Gramos)</label>
+                        <input type="number" id="wax-weight" value="2.5" step="0.1" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600">Metal a Fundir</label>
+                        <select id="wax-metal" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="15.58">Oro 18K Amarillo (x15.58)</option>
+                            <option value="13.07" selected>Oro 14K Amarillo (x13.07)</option>
+                            <option value="11.52">Oro 10K Amarillo (x11.52)</option>
+                            <option value="10.36">Plata 925 (x10.36)</option>
+                            <option value="21.00">Platino 950 (x21.00)</option>
+                        </select>
+                    </div>
+                    <label class="flex items-center gap-2 text-xs text-slate-600 mt-2">
+                        <input type="checkbox" id="wax-button" checked class="w-4 h-4 text-amber-600 rounded">
+                        Incluir +10% para botón de fundición
+                    </label>
+                </div>
+                <div class="mt-4 p-3 bg-slate-100 rounded-lg border border-slate-200">
+                    <span class="text-xs text-slate-500 block">Metal Requerido:</span>
+                    <div id="wax-result" class="text-xl font-black text-slate-800">0.00 g</div>
+                </div>
+            </div>
+
+            <!-- 3. Cotizador Retail con ITBIS -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-green-500">
+                <h3 class="text-md font-bold text-slate-800 mb-1">💎 Cotizador Retail (RD$)</h3>
+                <p class="text-xs text-slate-500 mb-4">Generador de precios para cliente final.</p>
+                
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600">Costo Material ($)</label>
+                        <input type="number" id="retail-material" value="150" step="1" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600">Mano de Obra ($)</label>
+                        <input type="number" id="retail-labor" value="45" step="1" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600">Extras (Piedras) ($)</label>
+                        <input type="number" id="retail-extra" value="20" step="1" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600">Margen Beneficio (%)</label>
+                        <input type="number" id="retail-margin" value="100" step="5" class="w-full mt-1 border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                </div>
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-700 mb-4">
+                    <input type="checkbox" id="retail-itbis" checked class="w-4 h-4 text-green-600 rounded">
+                    Incluir 18% ITBIS (Comprobante Fiscal)
+                </label>
+                
+                <div class="p-3 bg-green-50 rounded-lg border border-green-200 text-center">
+                    <span class="text-xs text-green-700 font-bold block uppercase tracking-wider">Precio de Venta Sugerido</span>
+                    <div id="retail-result" class="text-2xl font-black text-green-700">RD$ 0.00</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==============================================
+             HEATMAP - REGISTRO DE ACTIVIDAD (GAS INTEGRATION)
+             ============================================== -->
+        <div class="heatmap-component" id="heatmapRoot">
+            <div class="heatmap-header">
+                <div class="title-section">
+                    <h2>
+                        <i data-lucide="activity" style="width: 22px; height: 22px; color: #d97706;"></i> 
+                        Registro de Actividad y Uso
+                    </h2>
+                    <p>Métricas de cálculos operacionales, valuación y uso del panel en los últimos 3 años</p>
+                </div>
+                <div class="legend-area">
+                    <span class="legend-label">Menos</span>
+                    <div class="legend-swatches">
+                        <div class="swatch swatch-level-0"></div>
+                        <div class="swatch swatch-level-1"></div>
+                        <div class="swatch swatch-level-2"></div>
+                        <div class="swatch swatch-level-3"></div>
+                        <div class="swatch swatch-level-4"></div>
+                    </div>
+                    <span class="legend-label">Más</span>
+                </div>
+            </div>
+        
+            <div class="heatmap-scroll-wrapper" id="heatmapScrollContainer">
+                <div id="heatmapGrid" class="heatmap-grid"></div>
+            </div>
+        
+            <div class="heatmap-footer">
+                <div class="stats-badge">
+                    <i data-lucide="calculator" style="width: 14px; height: 14px;"></i>
+                    <span id="totalCellsInfo">Calculando actividad...</span>
+                </div>
+                <div class="date-range">
+                    📅 <span id="dateRangeLabel">--</span>
+                </div>
+                <button class="sync-btn" id="syncBtn">
+                    <i data-lucide="refresh-cw" style="width: 14px; height: 14px;" id="syncIcon"></i> 
+                    Sincronizar
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+  
+
+    <script>
+        // ==========================================
+        // GOOGLE APPS SCRIPT URL
+        // ¡Pega aquí el enlace Web App que generaste!
+        // ==========================================
+        const GAS_URL = ""; 
+        // ==========================================
+
+        (function() {
+            // --- CONSTANTES DEL DASHBOARD ---
+            const SYMBOLS = ['XAU', 'XAG', 'XPT', 'XPD'];
+            const METAL_NAMES = { 'XAU': 'Oro', 'XAG': 'Plata', 'XPT': 'Platino', 'XPD': 'Paladio' };
+            const CONVERSIONS = { 'g': 31.1034768, 'oz': 1, 'dwt': 20 };
+            const REFRESH_RATE = 60000; 
+
+            // Global State
+            let currentRates = { XAU: 0, XAG: 0, XPT: 1050.00, XPD: 980.00, DOP: 58.50 }; 
+            let historicalData = {};
+            let chartInstance = null;
+
+            // --- FETCH DATA ---
+            async function fetchMetals() {
+                let rates = { XAU: null, XAG: null };
+                try {
+                    const res = await fetch('https://www.live-rates.com/rates');
+                    const data = await res.json();
+                    const gold = data.find(i => i.currency === 'GOLD');
+                    const silver = data.find(i => i.currency === 'SILVER');
+                    if (gold) rates.XAU = parseFloat(gold.rate);
+                    if (silver) rates.XAG = parseFloat(silver.rate);
+                } catch (e) {
+                    console.warn("Live-Rates falló, usando respaldo...");
+                }
+                if (!rates.XAU || !rates.XAG) {
+                    try {
+                        const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                        const data = await res.json();
+                        if (!rates.XAU) rates.XAU = 1 / data.usd.xau;
+                        if (!rates.XAG) rates.XAG = 1 / data.usd.xag;
+                    } catch (e) {
+                        rates.XAU = rates.XAU || 2350.50;
+                        rates.XAG = rates.XAG || 29.85;
+                    }
+                }
+                return rates;
+            }
+
+            async function fetchDOP() {
+                try {
+                    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                    const data = await res.json();
+                    return data.usd.dop;
+                } catch (e) {
+                    return 58.50; 
+                }
+            }
+
+            async function fetchMarketData() {
+                const metals = await fetchMetals();
+                const dopRate = await fetchDOP();
+                currentRates.XAU = metals.XAU; currentRates.XAG = metals.XAG; currentRates.DOP = dopRate;
+                document.getElementById('jw-dop-rate').innerText = `1 USD = RD$ ${dopRate.toFixed(2)}`;
+
+                const volatility = { 'XAU': 15, 'XAG': 0.8, 'XPT': 10, 'XPD': 12 };
+                let trends = {}; 
+                SYMBOLS.forEach(sym => {
+                    trends[sym] = (Math.random() * 2 - 1); 
+                    historicalData[sym] = [];
+                    let walk = currentRates[sym];
+                    for (let i = 30; i >= 0; i--) {
+                        historicalData[sym].unshift(walk);
+                        walk = walk - (Math.random() * volatility[sym] - (volatility[sym]/2));
+                    }
+                });
+                return trends;
+            }
+
+            // --- RENDER UI ---
+            function updateTicker(trends) {
+                const track = document.getElementById('jw-ticker-content');
+                const itemsHtml = SYMBOLS.map(sym => {
+                    const priceUSD = currentRates[sym];
+                    const isUp = trends[sym] >= 0;
+                    const colorClass = isUp ? 'jw-price-up' : 'jw-price-down';
+                    const arrow = isUp ? '▲' : '▼';
+                    const formattedUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(priceUSD);
+                    
+                    return `<div class="jw-ticker-item">
+                        <span class="font-bold mr-2 text-amber-500">${METAL_NAMES[sym]}</span>
+                        <span class="mr-2">${formattedUSD}</span>
+                        <span class="${colorClass} text-sm">${arrow}</span>
+                    </div>`;
+                }).join('<div class="text-slate-600 opacity-50 px-3">•</div>');
+
+                const repeatedGroup = Array(4).fill(itemsHtml).join('<div class="text-slate-600 opacity-50 px-3">•</div>');
+                track.innerHTML = `<div class="flex">${repeatedGroup}</div><div class="flex">${repeatedGroup}</div>`;
+                const now = new Date();
+                document.getElementById('jw-last-updated').innerText = now.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+
+            function updateKPICards(trends) {
+                const container = document.getElementById('jw-kpi-cards');
+                container.innerHTML = '';
+                SYMBOLS.forEach(sym => {
+                    const price = currentRates[sym];
+                    const isUp = trends[sym] >= 0;
+                    const histData = historicalData[sym];
+                    const min = Math.min(...histData); const max = Math.max(...histData);
+                    const range = max - min || 1;
+                    
+                    let svgPoints = histData.map((val, index) => {
+                        const x = (index / (histData.length - 1)) * 100;
+                        const y = 100 - (((val - min) / range) * 100);
+                        return `${x},${y}`;
+                    }).join(' ');
+
+                    const strokeColor = isUp ? '#4ade80' : '#f87171';
+                    const isFixed = (sym === 'XPT' || sym === 'XPD');
+                    const badge = isFixed ? `<span class="text-[10px] bg-slate-200 text-slate-500 px-1 rounded absolute top-2 right-2">Fijo</span>` : '';
+
+                    container.innerHTML += `
+                        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm relative hover:shadow-md transition-shadow">
+                            ${badge}
+                            <h4 class="font-bold text-slate-700 text-sm mb-1">${METAL_NAMES[sym]}</h4>
+                            <div class="text-xl font-black text-slate-900 mb-1">
+                                $${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span class="text-[10px] font-normal text-slate-400">/oz</span>
+                            </div>
+                            <div class="h-8 w-full relative mt-2">
+                                <svg viewBox="0 -10 100 120" class="w-full h-full preserve-3d" preserveAspectRatio="none">
+                                    <polyline fill="none" stroke="${strokeColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${svgPoints}" />
+                                </svg>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            function renderChart(symbol) {
+                const ctx = document.getElementById('jw-history-chart').getContext('2d');
+                const dataPoints = historicalData[symbol];
+                const labels = Array.from({length: 31}, (_, i) => {
+                    let d = new Date(); d.setDate(d.getDate() - (30 - i));
+                    return d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+                });
+
+                if (chartInstance) chartInstance.destroy();
+
+                let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(245, 158, 11, 0.4)'); 
+                gradient.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
+
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: `${METAL_NAMES[symbol]} (USD/oz)`, data: dataPoints,
+                            borderColor: '#f59e0b', backgroundColor: gradient,
+                            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
+                            fill: true, tension: 0.4 
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { display: false } },
+                        scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' } } }
+                    }
+                });
+            }
+
+            // --- ACTIVIDAD / HEATMAP LOGIC ---
+            // Local fallback array
+            let activityLogs = JSON.parse(localStorage.getItem('jw_logs') || '[]');
+            
+            // Heatmap Setup
+            const WEEKS_COUNT = 156; // 3 years
+            const DAYS_PER_WEEK = 7;
+            const gridContainer = document.getElementById('heatmapGrid');
+            const scrollContainer = document.getElementById('heatmapScrollContainer');
+
+            // Formats local date to YYYY-MM-DD reliably avoiding UTC shifts
+            function getLocalISODate(d) {
+                return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            }
+
+            // Log interactions internally and to GAS
+            let logDebounce = {};
+            function logActivity(actionName) {
+                if (logDebounce[actionName]) clearTimeout(logDebounce[actionName]);
+                
+                logDebounce[actionName] = setTimeout(() => {
+                    const ts = new Date().toISOString();
+                    activityLogs.push({ timestamp: ts, action: actionName });
+                    localStorage.setItem('jw_logs', JSON.stringify(activityLogs));
+                    refreshHeatmap(); // instantly show locally
+
+                    // Envío fire-and-forget a GAS
+                    if (GAS_URL) {
+                        fetch(GAS_URL, {
+                            method: 'POST',
+                            // text/plain previene bloqueo severo de CORS Preflight en scripts simples
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: JSON.stringify({ timestamp: ts, action: actionName })
+                        }).catch(e => console.log('Silenced GAS err:', e));
+                    }
+                }, 1000); // 1 sec debounce to prevent typing spam
+            }
+
+            async function syncFromGAS() {
+                if (!GAS_URL) return;
+                const icon = document.getElementById('syncIcon');
+                if (icon) icon.classList.add('animate-spin');
+                try {
+                    const res = await fetch(GAS_URL);
+                    const json = await res.json();
+                    if (json.status === "success" && json.data) {
+                        activityLogs = json.data;
+                        localStorage.setItem('jw_logs', JSON.stringify(activityLogs));
+                        refreshHeatmap();
+                    }
+                } catch(e) { console.error('Fallo sincronizando GAS:', e); }
+                if (icon) icon.classList.remove('animate-spin');
+            }
+
+            function refreshHeatmap() {
+                // Aggregate counts per day
+                const countsPerDay = {};
+                activityLogs.forEach(log => {
+                    // Normalize date (assuming stored logs are ISO)
+                    const dateObj = new Date(log.timestamp);
+                    const dateStr = getLocalISODate(dateObj);
+                    countsPerDay[dateStr] = (countsPerDay[dateStr] || 0) + 1;
+                });
+
+                const today = new Date();
+                const daysSinceSunday = today.getDay(); // 0 (Sun) - 6 (Sat)
+                
+                // Calculate start date (156 weeks back, starting on a Sunday)
+                const startDate = new Date(today);
+                startDate.setDate(today.getDate() - (WEEKS_COUNT * 7) + (6 - daysSinceSunday) + 1);
+
+                gridContainer.innerHTML = '';
+                let totalActions = 0;
+
+                for (let w = 0; w < WEEKS_COUNT; w++) {
+                    const weekCol = document.createDocumentFragment();
+                    for (let d = 0; d < DAYS_PER_WEEK; d++) {
+                        const cellDate = new Date(startDate);
+                        cellDate.setDate(startDate.getDate() + (w * 7) + d);
+                        
+                        let intensity = 0;
+                        let count = 0;
+                        const dateStr = getLocalISODate(cellDate);
+
+                        if (cellDate <= today) {
+                            count = countsPerDay[dateStr] || 0;
+                            totalActions += count;
+                            
+                            // Intensity Scale
+                            if (count >= 10) intensity = 4;
+                            else if (count >= 5) intensity = 3;
+                            else if (count >= 2) intensity = 2;
+                            else if (count >= 1) intensity = 1;
+                        }
+
+                        const cell = document.createElement('div');
+                        cell.className = `heatmap-cell level-${intensity}`;
+                        
+                        const formatOpts = { month: 'short', day: 'numeric', year: 'numeric' };
+                        const formattedDate = cellDate.toLocaleDateString('es-ES', formatOpts);
+                        const weekdays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                        const weekdayName = weekdays[d];
+
+                        let label = count === 0 ? 'Sin actividad' : `${count} cálculos registrados`;
+                        if (cellDate > today) label = "Futuro";
+
+                        cell.setAttribute('data-tooltip', `${weekdayName}, ${formattedDate} · ${label}`);
+                        weekCol.appendChild(cell);
+                    }
+                    gridContainer.appendChild(weekCol);
+                }
+
+                // Update Labels
+                document.getElementById('totalCellsInfo').innerHTML = `<b>${totalActions}</b> acciones registradas históricamente`;
+                
+                const startStr = startDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
+                const endStr = today.toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
+                document.getElementById('dateRangeLabel').innerText = `${startStr} – ${endStr}`;
+
+                // Auto Scroll to present
+                setTimeout(() => { if (scrollContainer) scrollContainer.scrollLeft = scrollContainer.scrollWidth; }, 50);
+                
+                if (window.lucide) lucide.createIcons();
+            }
+
+            // Bind sync button
+            document.getElementById('syncBtn').addEventListener('click', syncFromGAS);
+
+            // --- WORKSHOP TOOLS CALCULATIONS (Wrapped with Logging) ---
+            function calculateValuator() {
+                const alloyVal = document.getElementById('calc-alloy').value;
+                const weight = parseFloat(document.getElementById('calc-weight').value) || 0;
+                const unit = document.getElementById('calc-unit').value; 
+                const [symbol, purityStr] = alloyVal.split('_');
+                const finalValueUSD = (weight / CONVERSIONS[unit]) * parseFloat(purityStr) * (currentRates[symbol] || 0);
+                
+                document.getElementById('calc-result-usd').innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(finalValueUSD);
+                document.getElementById('calc-result-dop').innerText = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(finalValueUSD * currentRates.DOP);
+                
+                logActivity('Valuador de Material');
+            }
+
+            function calculateAlloy() {
+                const w = parseFloat(document.getElementById('alloy-weight').value) || 0;
+                const currentK = parseFloat(document.getElementById('alloy-current').value);
+                const targetK = parseFloat(document.getElementById('alloy-target').value);
+                
+                if (targetK >= currentK) { document.getElementById('alloy-result').innerText = "Imposible"; return; }
+                const alloyToAdd = ((w * currentK) / targetK) - w;
+                document.getElementById('alloy-result').innerText = alloyToAdd.toFixed(2) + " g";
+                
+                logActivity('Mezclador de Aleación');
+            }
+
+            function calculateWax() {
+                const w = parseFloat(document.getElementById('wax-weight').value) || 0;
+                const sg = parseFloat(document.getElementById('wax-metal').value);
+                const addButton = document.getElementById('wax-button').checked;
+                let total = w * sg; if (addButton) total = total * 1.10; 
+                document.getElementById('wax-result').innerText = total.toFixed(2) + " g";
+                
+                logActivity('Conversor Cera-Metal');
+            }
+
+            function calculateRetail() {
+                const mat = parseFloat(document.getElementById('retail-material').value) || 0;
+                const lab = parseFloat(document.getElementById('retail-labor').value) || 0;
+                const ext = parseFloat(document.getElementById('retail-extra').value) || 0;
+                const margin = parseFloat(document.getElementById('retail-margin').value) || 0;
+                const applyITBIS = document.getElementById('retail-itbis').checked;
+
+                let retailPriceUSD = (mat + lab + ext) * (1 + (margin / 100));
+                if (applyITBIS) retailPriceUSD = retailPriceUSD * 1.18;
+                
+                document.getElementById('retail-result').innerText = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(retailPriceUSD * currentRates.DOP);
+                logActivity('Cotizador Retail');
+            }
+
+            // Listeners
+            ['calc-alloy', 'calc-weight', 'calc-unit'].forEach(id => document.getElementById(id).addEventListener('input', calculateValuator));
+            ['alloy-weight', 'alloy-current', 'alloy-target'].forEach(id => document.getElementById(id).addEventListener('input', calculateAlloy));
+            ['wax-weight', 'wax-metal', 'wax-button'].forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateWax);
+                document.getElementById(id).addEventListener('change', calculateWax);
+            });
+            ['retail-material', 'retail-labor', 'retail-extra', 'retail-margin', 'retail-itbis'].forEach(id => {
+                document.getElementById(id).addEventListener('input', calculateRetail);
+                document.getElementById(id).addEventListener('change', calculateRetail);
+            });
+            document.getElementById('jw-chart-selector').addEventListener('change', (e) => renderChart(e.target.value));
+
+            // Main Init
+            async function initDashboard() {
+                const trends = await fetchMarketData();
+                updateTicker(trends);
+                updateKPICards(trends);
+                renderChart(document.getElementById('jw-chart-selector').value);
+            }
+
+            // Boot Sequence
+            initDashboard();
+            setInterval(initDashboard, REFRESH_RATE);
+            
+            // Render Heatmap (local cache first, then syncs with sheet)
+            refreshHeatmap(); 
+            syncFromGAS();
+            
+            // Run calculators once silently without triggering logActivity (mocking manual override to not spam on load)
+            const mockValuator = logActivity; 
+            logActivity = () => {}; 
+            calculateValuator(); calculateAlloy(); calculateWax(); calculateRetail();
+            logActivity = mockValuator; // Restore logger
+
+        })();
+    </script>
+</div>
+</body>
+</html>
