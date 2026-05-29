@@ -47,9 +47,9 @@
         removeFromLinks("icon");
         removeFromLinks("shortcut icon");
         removeFromLinks("apple-touch-icon");
-        createNewFavicon("icon", "https://bucket.mlcdn.com/a/3336/3336910/images/161a5a399bcf19de4b00ecbe2abe0026fb1da08d.png");
-        createNewFavicon("shortcut icon", "https://bucket.mlcdn.com/a/3336/3336910/images/161a5a399bcf19de4b00ecbe2abe0026fb1da08d.png");
-        createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/images/161a5a399bcf19de4b00ecbe2abe0026fb1da08d.png"); 
+        createNewFavicon("icon", "https://bucket.mlcdn.com/a/3336/3336910/images/a5d54971be936a20a4a768a021e590157f4aaca3.png");
+        createNewFavicon("shortcut icon", "https://bucket.mlcdn.com/a/3336/3336910/images/a5d54971be936a20a4a768a021e590157f4aaca3.png");
+        createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/images/a5d54971be936a20a4a768a021e590157f4aaca3.png"); 
     </script>
 
 
@@ -59,7 +59,7 @@
    <!-- ========== OPEN GRAPH / FACEBOOK META TAGS ========== -->
     <meta property="og:title" content="CEO | Tu Centro Privado de Operaciones Empresariales 🚀" />
     <meta property="og:description" content="Administra tu negocio desde un solo lugar. Controla contactos, documentos, proyectos y archivos con total privacidad y control de datos BYOK. Haz clic para más detalles" />
-    <meta property="og:image" content="https://bucket.mlcdn.com/a/3336/3336910/images/c7adb4250a5bfa775cee05604911eea1d968a4ed.jpeg" />
+    <meta property="og:image" content="https://bucket.mlcdn.com/a/3336/3336910/images/f77b75eea2d8344a734fa855ed66e7bfc3261563.jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="CEO Dashboard Preview - Centro de operaciones empresariales" />
@@ -73,7 +73,7 @@
     <meta name="twitter:site" content="@ceo" />
     <meta name="twitter:title" content="CEO | Tu Centro Privado de Operaciones Empresariales 🚀" />
     <meta name="twitter:description" content="Administra tu negocio desde un solo lugar. Todo tu negocio organizado en un solo Dashboard. Controla contactos, documentos, proyectos y archivos. Haz clic para más detalles" />
-    <meta name="twitter:image" content="https://bucket.mlcdn.com/a/3336/3336910/images/c7adb4250a5bfa775cee05604911eea1d968a4ed.jpeg" />
+    <meta name="twitter:image" content="https://bucket.mlcdn.com/a/3336/3336910/images/f77b75eea2d8344a734fa855ed66e7bfc3261563.jpeg" />
     <meta name="twitter:image:alt" content="CEO Dashboard Preview" />
 
 
@@ -329,35 +329,46 @@ body::before {
 </head>
 <body class="bg-mainBg font-sans text-gray-800 antialiased overflow-hidden">
 
+
+
+
+
+
+
+
+
     
 
     <!-- ==================== WELCOME OVERLAY ==================== -->
     <div id="welcome-overlay" class="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-1000 opacity-0">
         <div id="welcome-text" class="text-center transform scale-50 opacity-0 transition-all duration-1000 ease-out flex flex-col items-center justify-center p-8">
-            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-md">Bienvenido a tu Panel de Control</h2>
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-md">Bienvenido a tu Centro de Control</h2>
             <h1 id="welcome-username" class="block text-5xl md:text-8xl font-extrabold drop-shadow-2xl" style="color: var(--color-highlight);">Username</h1>
         </div>
     </div>
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
     
 
     <!-- ==================== LOGIN SCREEN ==================== -->
-    <div id="login-container" class="min-h-screen bg-bgPrimary flex items-center justify-center p-4 transition-colors">
-        <div class="bg-bgSecondary rounded-2xl shadow-2xl p-8 max-w-md w-full ">
+    <div id="login-container" class="min-h-screen bg-transparent flex items-center justify-center p-4 transition-colors">
+        <div class="bg-bgSecondary rounded-2xl shadow-2xl p-8 max-w-md w-full border border-borderColor">
             <div class="text-center mb-8">
                 <img src="https://bucket.mlcdn.com/a/3336/3336910/images/c8759c7e67be9be0e988a31809d45e5d2ed19c7c.png" 
                      alt="Logo" class="w-40 h-40 mx-auto mb-4">
-                <h1 class="text-2xl font-bold text-textPrimary">Centro Operativo</h1>
+                <h1 class="text-2xl font-bold text-textPrimary">Acceso Exclusivo</h1>
                 <p class="text-textSecondary mt-2">Portal de Administración</p>
             </div>
             
             <form id="login-form" onsubmit="requestOTP(event)">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-textSecondary mb-2">Email</label>
+                    <label class="block text-sm font-medium text-textSecondary mb-2">Dirección de Correo</label>
                     <input type="email" id="login-email" 
                            class="w-full px-4 py-3 bg-bgTertiary border border-borderColor rounded-lg focus:ring-2 focus:ring-authPrimary focus:border-authPrimary outline-none transition text-textPrimary placeholder-gray-500"
                            placeholder="tu@email.com" required>
@@ -393,6 +404,11 @@ body::before {
             <div id="login-status" class="hidden"></div>
         </div>
     </div>
+
+
+
+
+    
     
     <!-- ==================== LOADING SCREEN ==================== -->
     <div id="app-loader" class="min-h-screen bg-bgPrimary flex items-center justify-center hidden">
@@ -401,6 +417,8 @@ body::before {
             <p class="text-textSecondary font-medium animate-pulse">Cargando...</p>
         </div>
     </div>
+
+
 
     <!-- ==================== MAIN APP ==================== -->
     <div id="app-container" class="hidden h-screen w-full flex bg-mainBg overflow-hidden font-sans text-gray-800">
