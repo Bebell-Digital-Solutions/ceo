@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">CEO Eventos Corporativos RD | Panel de Control</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: '#171717',
+                            highlight: '#966d1d',
+                            bg: '#f5f5f5',
+                            sidebar: '#000000',
+                            led: '#ffffff',
+                            gold: '#b8861e',
+                            success: '#16a34a',
+                            danger: '#dc2626',
+                            warning: '#f59e0b',
+                            info: '#3b82f6',
+                            card: '#ffffff',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI',
+                            'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'
+                        ],
+                        led: ['DotGothic16', 'monospace'],
+                        display: ['Playfair Display', 'Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+
+    <!-- Leaflet JS (Map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest">
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon"
+    href="https://bucket.mlcdn.com/a/3336/3336910/images/161a5a399bcf19de4b00ecbe2abe0026fb1da08d.png">
+
+    <style>
+        :root {
+            --brand-black: #171717;
+            --brand-gold: #966d1d;
+            --brand-bg: #f5f5f5;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.10), 0 4px 10px rgba(0, 0, 0, 0.06);
+            --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f0f0;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(150, 109, 29, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 85% 60%, rgba(23, 23, 23, 0.02) 0%, transparent 50%);
+        }
+
+        /* Card Styles */
+        .dash-card {
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #e8e8e8;
+            transition: var(--transition-smooth);
+        }
+        .dash-card:hover {
+            box-shadow: var(--card-hover-shadow);
+            border-color: #d4d4d4;
+        }
+        .dash-card-stat {
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .dash-card-stat::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--brand-gold);
+            border-radius: 4px 0 0 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .dash-card-stat:hover::after {
+            opacity: 1;
+        }
+
+        /* Map */
+        #map {
+            z-index: 10;
+            border-radius: 0.75rem;
+        }
+        .custom-pin-gold {
+            background: #966d1d;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+            position: relative;
+        }
+        .custom-pin-gold::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 8px;
+            background: #966d1d;
+            border-radius: 1px;
+        }
+        .custom-pin-dark {
+            background: #171717;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        .leaflet-popup-content {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+        .leaflet-popup-content b {
+            color: #171717;
+        }
+
+        /* Heatmap */
+        .heatmap-grid {
+            display: grid;
+            grid-template-rows: repeat(7, 1fr);
+            grid-auto-flow: column;
+            gap: 4px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .heatmap-cell {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .heatmap-cell:hover {
+            transform: scale(1.25);
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+            z-index: 2;
+        }
+        .level-0 {
+            background-color: #f0f0f0;
+        }
+        .level-1 {
+            background-color: #d4d4d4;
+        }
+        .level-2 {
+            background-color: #a3a3a3;
+        }
+        .level-3 {
+            background-color: #5c5c5c;
+        }
+        .level-4 {
+            background-color: #171717;
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #a3a3a3;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #525252;
+        }
+        .custom-scrollbar {
+            scrollbar-color: #a3a3a3 #f5f5f5;
+            scrollbar-width: thin;
+        }
+
+        /* LED Marquee */
+        .marquee-container {
+            overflow: hidden;
+            background: linear-gradient(180deg, #0a0f14 0%, #09121c 100%);
+            white-space: nowrap;
+            position: relative;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #966d1d;
+        }
+        .marquee-container::before,
+        .marquee-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .marquee-container::before {
+            left: 0;
+            background: linear-gradient(to right, #09121c 0%, transparent 100%);
+        }
+        .marquee-container::after {
+            right: 0;
+            background: linear-gradient(to left, #09121c 0%, transparent 100%);
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 45s linear infinite;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.9), 0 0 14px rgba(255, 255, 255, 0.5), 0 0 24px rgba(150, 109, 29, 0.4);
+            will-change: transform;
+            letter-spacing: 0.25em;
+        }
+        @keyframes marquee {
+            0% {
+                transform: translateX(100vw);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Pipeline Funnel */
+        .funnel-bar {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+        .funnel-bar:hover {
+            filter: brightness(0.85);
+            transform: scaleX(1.02);
+        }
+        .funnel-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a3a3a3;
+            font-size: 0.75rem;
+            padding: 2px 0;
+        }
+
+        /* Pulse dot for alerts */
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc2626;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
+        }
+
+        /* Status badges */
+        .badge-confirmed {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        .badge-planning {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .badge-urgent {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* Trend arrow */
+        .trend-up {
+            color: #16a34a;
+        }
+        .trend-down {
+            color: #dc2626;
+        }
+        .trend-neutral {
+            color: #787878;
+        }
+
+        /* Glass effect for modal */
+        .glass-backdrop {
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        /* Event card accent bar */
+        .event-card-accent {
+            position: relative;
+            overflow: hidden;
+        }
+        .event-card-accent::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+        }
+        .accent-gold::before {
+            background: #966d1d;
+        }
+        .accent-black::before {
+            background: #171717;
+        }
+        .accent-blue::before {
+            background: #3b82f6;
+        }
+        .accent-green::before {
+            background: #16a34a;
+        }
+    </style>
+
+    <!-- Translation System -->
+    <script>
+        const i18n = {
+            en: {
+                title: "CEO Dashboard | Corporate Events DR",
+                marquee: "★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★",
+                header_title: "Your Business Performance",
+                header_desc: "Real-time event performance, revenue insights & operational metrics.",
+                header_date: "Today",
+                alert_new_lead: "New lead: Tech Conference Q4",
+                alert_deposit: "Pending deposit: Gala Anual Corp.",
+                alert_7days: "Event in 7 days: Retreat Samaná",
+                stat_events: "Events YTD",
+                stat_revenue: "Revenue YTD",
+                stat_upcoming: "Upcoming (60d)",
+                stat_clients: "Active Clients",
+                stat_margin: "Avg. Margin",
+                currency_suffix: "",
+                stat_events_change: "+18% vs LY",
+                stat_revenue_change: "+24% vs LY",
+                stat_upcoming_change: "12 events",
+                stat_clients_change: "+5 new",
+                stat_margin_change: "+3.2pp",
+                chart_donut_title: "Revenue by Event Type",
+                chart_combo_title: "Revenue & Events Trend",
+                chart_bar_label: "Revenue (RD$)",
+                chart_line_label: "Events",
+                months_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                event_type_conf: "Corp. Conferences",
+                event_type_gala: "Galas & Awards",
+                event_type_launch: "Product Launches",
+                event_type_retreat: "Team Retreats",
+                event_type_other: "Other Events",
+                map_title: "Event Venues & Operations",
+                map_badge: "Live Map",
+                pipeline_title: "Event Pipeline",
+                pipeline_badge: "Sales Funnel",
+                pipeline_lead: "Leads",
+                pipeline_proposal: "Proposals",
+                pipeline_negotiation: "Negotiation",
+                pipeline_confirmed: "Confirmed",
+                pipeline_executed: "Executed",
+                upcoming_title: "Upcoming Events",
+                upcoming_badge: "Next 30 Days",
+                upcoming_empty: "No upcoming events in the next 30 days.",
+                tasks_title: "Priority Tasks",
+                tasks_badge: "Checklist",
+                task_placeholder: "Add new task...",
+                heatmap_title: "Team Activity & Productivity",
+                heatmap_less: "Less",
+                heatmap_more: "More",
+                heatmap_desc: "Daily planning actions, client calls, site visits & task completions over the last 3 years.",
+                goals_title: "Strategic Goals & Targets",
+                goals_desc: "Track quarterly and annual objectives.",
+                goals_btn: "Set New Goal",
+                modal_title: "Set New Goal",
+                modal_metric: "Target Metric",
+                modal_sel_default: "Select metric...",
+                modal_sel_events: "Total Events",
+                modal_sel_revenue: "Revenue (RD$)",
+                modal_sel_clients: "New Clients",
+                modal_sel_margin: "Profit Margin %",
+                modal_target: "Target Value",
+                modal_target_ph: "e.g. 50 or 5000000",
+                modal_date: "Deadline",
+                modal_cancel: "Cancel",
+                modal_save: "Save Goal",
+                empty_goals: "No goals set. Click 'Set New Goal' to start tracking!",
+                goal_by: "By",
+                goal_type_events: "Total Events",
+                goal_type_revenue: "Revenue",
+                goal_type_clients: "New Clients",
+                goal_type_margin: "Margin %",
+                loc_hq: "HQ - Santo Domingo",
+                loc_pc: "Punta Cana Resort Hub",
+                loc_lr: "Casa de Campo - La Romana",
+                loc_stgo: "Santiago Center",
+                loc_sam: "Samaná Bay",
+                loc_pp: "Puerto Plata",
+                loc_cap: "Cap Cana",
+                loc_jd: "Juan Dolio Beach",
+                map_popup: "Active Venue Partner",
+                task_1: "Confirm catering for Gala Anual",
+                task_2: "Site inspection Punta Cana resort",
+                task_3: "Send proposal to TechCorp DR",
+                task_4: "Review AV contract for conference",
+                task_5: "Deposit follow-up: 3 clients",
+                event_name_1: "Gala Anual Corporativa",
+                event_client_1: "Banco Popular DR",
+                event_name_2: "Tech Summit 2026",
+                event_client_2: "Claro Dominicana",
+                event_name_3: "Retreat Ejecutivo",
+                event_client_3: "Grupo Punta Cana",
+                event_name_4: "Lanzamiento Producto",
+                event_client_4: "Cervecería Nacional",
+                event_name_5: "Conferencia Regional",
+                event_client_5: "Asociación Industrias RD",
+                venue_label: "Venue:",
+            },
+            es: {
+                title: "CEO Dashboard | Eventos Corporativos RD",
+                marquee: "★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★ THE WORLD IS YOURS ★ EL MUNDO ES TUYO ★ LE MONDE EST À TOI ★ 世界はあなたのもの ★ IL MONDO È TUO ★ DIE WELT GEHÖRT DIR ★ O MUNDO É SEU ★",
+                header_title: "Resumen Global",
+                header_desc: "Métricas de eventos en tiempo real, ingresos e indicadores operativos.",
+                header_date: "Hoy",
+                alert_new_lead: "Nuevo lead: Conferencia Tech Q4",
+                alert_deposit: "Depósito pendiente: Gala Anual Corp.",
+                alert_7days: "Evento en 7 días: Retiro Samaná",
+                stat_events: "Eventos Año",
+                stat_revenue: "Ingresos Año",
+                stat_upcoming: "Próximos (60d)",
+                stat_clients: "Clientes Activos",
+                stat_margin: "Margen Prom.",
+                currency_suffix: "",
+                stat_events_change: "+18% vs año ant.",
+                stat_revenue_change: "+24% vs año ant.",
+                stat_upcoming_change: "12 eventos",
+                stat_clients_change: "+5 nuevos",
+                stat_margin_change: "+3.2pp",
+                chart_donut_title: "Ingresos por Tipo de Evento",
+                chart_combo_title: "Tendencia de Ingresos y Eventos",
+                chart_bar_label: "Ingresos (RD$)",
+                chart_line_label: "Eventos",
+                months_short: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                event_type_conf: "Conferencias Corp.",
+                event_type_gala: "Galas y Premiaciones",
+                event_type_launch: "Lanzamientos",
+                event_type_retreat: "Retiros Corporativos",
+                event_type_other: "Otros Eventos",
+                map_title: "Sedes de Eventos y Operaciones",
+                map_badge: "Mapa en Vivo",
+                pipeline_title: "Pipeline de Eventos",
+                pipeline_badge: "Embudo de Ventas",
+                pipeline_lead: "Prospectos",
+                pipeline_proposal: "Propuestas",
+                pipeline_negotiation: "Negociación",
+                pipeline_confirmed: "Confirmados",
+                pipeline_executed: "Ejecutados",
+                upcoming_title: "Próximos Eventos",
+                upcoming_badge: "Próximos 30 Días",
+                upcoming_empty: "No hay eventos en los próximos 30 días.",
+                tasks_title: "Tareas Prioritarias",
+                tasks_badge: "Lista de Tareas",
+                task_placeholder: "Añadir nueva tarea...",
+                heatmap_title: "Actividad y Productividad del Equipo",
+                heatmap_less: "Menos",
+                heatmap_more: "Más",
+                heatmap_desc: "Acciones diarias de planificación, llamadas a clientes, visitas técnicas y tareas completadas en los últimos 3 años.",
+                goals_title: "Metas y Objetivos Estratégicos",
+                goals_desc: "Seguimiento de objetivos trimestrales y anuales.",
+                goals_btn: "Establecer Nueva Meta",
+                modal_title: "Establecer Nueva Meta",
+                modal_metric: "Métrica Objetivo",
+                modal_sel_default: "Seleccionar métrica...",
+                modal_sel_events: "Total Eventos",
+                modal_sel_revenue: "Ingresos (RD$)",
+                modal_sel_clients: "Nuevos Clientes",
+                modal_sel_margin: "Margen de Beneficio %",
+                modal_target: "Valor Objetivo",
+                modal_target_ph: "ej. 50 o 5000000",
+                modal_date: "Fecha Límite",
+                modal_cancel: "Cancelar",
+                modal_save: "Guardar Meta",
+                empty_goals: "Sin metas. ¡Haz clic en 'Establecer Nueva Meta'!",
+                goal_by: "Para el",
+                goal_type_events: "Total Eventos",
+                goal_type_revenue: "Ingresos",
+                goal_type_clients: "Nuevos Clientes",
+                goal_type_margin: "Margen %",
+                loc_hq: "Sede - Santo Domingo",
+                loc_pc: "Hub Punta Cana Resort",
+                loc_lr: "Casa de Campo - La Romana",
+                loc_stgo: "Centro Santiago",
+                loc_sam: "Bahía de Samaná",
+                loc_pp: "Puerto Plata",
+                loc_cap: "Cap Cana",
+                loc_jd: "Playa Juan Dolio",
+                map_popup: "Socio de Sede Activo",
+                task_1: "Confirmar catering Gala Anual",
+                task_2: "Inspección técnica resort Punta Cana",
+                task_3: "Enviar propuesta a TechCorp DR",
+                task_4: "Revisar contrato AV conferencia",
+                task_5: "Seguimiento depósitos: 3 clientes",
+                event_name_1: "Gala Anual Corporativa",
+                event_client_1: "Banco Popular DR",
+                event_name_2: "Tech Summit 2026",
+                event_client_2: "Claro Dominicana",
+                event_name_3: "Retiro Ejecutivo",
+                event_client_3: "Grupo Punta Cana",
+                event_name_4: "Lanzamiento Producto",
+                event_client_4: "Cervecería Nacional",
+                event_name_5: "Conferencia Regional",
+                event_client_5: "Asoc. Industrias RD",
+                venue_label: "Sede:",
+            }
+        };
+
+        const userLang = (navigator.language || navigator.userLanguage).startsWith('es') ? 'es' : 'en';
+        document.documentElement.lang = userLang;
+        const t = (key) => i18n[userLang][key] || key;
+        const localeStr = userLang === 'es' ? 'es-DO' : 'en-US';
+        const currencySymbol = 'RD$';
+
+        const applyTranslations = () => {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (el.tagName === 'INPUT' && el.type === 'text') {
+                    el.placeholder = t(key);
+                } else if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                    // skip
+                } else {
+                    el.innerText = t(key);
+                }
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+            });
+            document.title = t("title");
+        };
+    </script>
+</head>
+<body class="bg-brand-bg text-gray-800 min-h-screen opacity-0 transition-opacity duration-600 ease-out" id="main-body">
+
+    <!-- LED MARQUEE BANNER -->
+    <div class="marquee-container py-4 w-full">
+        <div class="marquee-content font-led text-white text-xl tracking-[0.25em]" data-i18n="marquee"></div>
+    </div>
+
+    <!-- ALERT TICKER BAR -->
+    <div class="bg-white border-b border-gray-200 px-6 py-2.5 flex items-center gap-4 overflow-hidden" id="alert-ticker">
+        <span class="flex items-center gap-1.5 text-xs font-semibold text-red-600 whitespace-nowrap shrink-0">
+            <span class="pulse-dot"></span> ALERTAS
+        </span>
+        <div class="flex gap-6 overflow-x-auto custom-scrollbar text-xs text-gray-600 whitespace-nowrap">
+            <span class="flex items-center gap-1.5 shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span data-i18n="alert_deposit"></span></span>
+            <span class="flex items-center gap-1.5 shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span data-i18n="alert_7days"></span></span>
+            <span class="flex items-center gap-1.5 shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span><span data-i18n="alert_new_lead"></span></span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="p-4 md:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto space-y-6">
+
+            <!-- HEADER -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-brand-sidebar tracking-tight" data-i18n="header_title"></h1>
+                    <p class="text-sm text-gray-500 mt-0.5" data-i18n="header_desc"></p>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <span class="text-gray-400" data-i18n="header_date"></span>
+                    <span class="font-semibold text-brand-sidebar" id="current-date"></span>
+                    <span class="px-3 py-1.5 bg-brand-primary text-white text-xs font-medium rounded-full flex items-center gap-1.5">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i> CEO View
+                    </span>
+                </div>
+            </div>
+
+            <!-- ROW 1: FIVE STAT CARDS -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- Events YTD -->
+                <div class="dash-card dash-card-stat p-5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="p-2.5 bg-gray-100 rounded-xl text-brand-primary">
+                            <i data-lucide="calendar-check" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs font-medium trend-up flex items-center gap-0.5"><i data-lucide="trending-up" class="w-3 h-3"></i> <span data-i18n="stat_events_change"></span></span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="stat_events"></p>
+                        <h3 class="text-2xl lg:text-3xl font-bold text-brand-sidebar counter" data-target="32">0</h3>
+                    </div>
+                </div>
+
+                <!-- Revenue YTD -->
+                <div class="dash-card dash-card-stat p-5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="p-2.5 bg-amber-50 rounded-xl text-brand-highlight">
+                            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs font-medium trend-up flex items-center gap-0.5"><i data-lucide="trending-up" class="w-3 h-3"></i> <span data-i18n="stat_revenue_change"></span></span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="stat_revenue"></p>
+                        <h3 class="text-2xl lg:text-3xl font-bold text-brand-sidebar">
+                            <span class="text-base align-top">RD$</span><span class="counter" data-target="24500000">0</span>
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div class="dash-card dash-card-stat p-5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="p-2.5 bg-blue-50 rounded-xl text-blue-600">
+                            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-500" data-i18n="stat_upcoming_change"></span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="stat_upcoming"></p>
+                        <h3 class="text-2xl lg:text-3xl font-bold text-brand-sidebar counter" data-target="12">0</h3>
+                    </div>
+                </div>
+
+                <!-- Active Clients -->
+                <div class="dash-card dash-card-stat p-5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="p-2.5 bg-green-50 rounded-xl text-green-600">
+                            <i data-lucide="building-2" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs font-medium trend-up flex items-center gap-0.5"><i data-lucide="trending-up" class="w-3 h-3"></i> <span data-i18n="stat_clients_change"></span></span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="stat_clients"></p>
+                        <h3 class="text-2xl lg:text-3xl font-bold text-brand-sidebar counter" data-target="38">0</h3>
+                    </div>
+                </div>
+
+                <!-- Avg Margin -->
+                <div class="dash-card dash-card-stat p-5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="p-2.5 bg-purple-50 rounded-xl text-purple-600">
+                            <i data-lucide="percent" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs font-medium trend-up flex items-center gap-0.5"><i data-lucide="trending-up" class="w-3 h-3"></i> <span data-i18n="stat_margin_change"></span></span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="stat_margin"></p>
+                        <h3 class="text-2xl lg:text-3xl font-bold text-brand-sidebar"><span class="counter" data-target="32">0</span><span class="text-lg">%</span></h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 2: DONUT CHART + COMBO CHART -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Donut Chart - Revenue by Event Type -->
+                <div class="dash-card p-6 col-span-1">
+                    <h3 class="text-base font-semibold text-brand-sidebar mb-1" data-i18n="chart_donut_title"></h3>
+                    <p class="text-xs text-gray-400 mb-4">Distribución porcentual del ingreso total</p>
+                    <div class="relative h-64 w-full flex justify-center">
+                        <canvas id="donutChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Combo Chart - Revenue & Events Trend -->
+                <div class="dash-card p-6 lg:col-span-2">
+                    <h3 class="text-base font-semibold text-brand-sidebar mb-1" data-i18n="chart_combo_title"></h3>
+                    <p class="text-xs text-gray-400 mb-4">Últimos 12 meses · Barras: Ingresos · Línea: N° de Eventos</p>
+                    <div class="relative h-72 w-full">
+                        <canvas id="comboChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 3: MAP + UPCOMING EVENTS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                <!-- Interactive DR Map -->
+                <div class="dash-card p-6 flex flex-col h-full min-h-[420px]">
+                    <div class="flex justify-between items-center mb-4 shrink-0">
+                        <h3 class="text-base font-semibold text-brand-sidebar" data-i18n="map_title"></h3>
+                        <span class="text-xs font-medium bg-gray-100 text-brand-primary px-3 py-1 rounded-full border border-gray-200"
+                        data-i18n="map_badge"></span>
+                    </div>
+                    <div id="map" class="w-full flex-1 min-h-[340px] rounded-xl z-10 border border-gray-200"></div>
+                </div>
+
+                <!-- Upcoming Events List -->
+                <div class="dash-card p-6 flex flex-col h-full min-h-[420px]">
+                    <div class="flex justify-between items-center mb-4 shrink-0">
+                        <h3 class="text-base font-semibold text-brand-sidebar" data-i18n="upcoming_title"></h3>
+                        <span class="text-xs font-medium bg-gray-100 text-brand-primary px-3 py-1 rounded-full border border-gray-200"
+                        data-i18n="upcoming_badge"></span>
+                    </div>
+                    <div id="upcomingEventsList" class="flex-1 overflow-y-auto min-h-0 space-y-3 pr-2 custom-scrollbar">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 4: PIPELINE FUNNEL + TASKS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                <!-- Event Pipeline Funnel -->
+                <div class="dash-card p-6 flex flex-col h-full">
+                    <div class="flex justify-between items-center mb-5 shrink-0">
+                        <h3 class="text-base font-semibold text-brand-sidebar" data-i18n="pipeline_title"></h3>
+                        <span class="text-xs font-medium bg-gray-100 text-brand-primary px-3 py-1 rounded-full border border-gray-200"
+                        data-i18n="pipeline_badge"></span>
+                    </div>
+                    <div id="pipelineFunnel" class="flex-1 flex flex-col justify-center gap-3 min-h-[280px]">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Quick Tasks Checklist -->
+                <div class="dash-card p-6 flex flex-col h-full">
+                    <div class="flex justify-between items-center mb-4 shrink-0">
+                        <h3 class="text-base font-semibold text-brand-sidebar" data-i18n="tasks_title"></h3>
+                        <span class="text-xs font-medium bg-gray-100 text-brand-primary px-3 py-1 rounded-full border border-gray-200"
+                        data-i18n="tasks_badge"></span>
+                    </div>
+                    <form id="taskForm" class="flex gap-2 mb-4 shrink-0">
+                        <input type="text" id="taskInput" data-i18n-placeholder="task_placeholder"
+                        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                        required>
+                        <input type="date" id="taskDate"
+                        class="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                        required>
+                        <button type="submit"
+                        class="bg-brand-primary text-white p-2 flex items-center justify-center rounded-lg hover:bg-brand-highlight transition-colors">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                    <ul id="taskList" class="flex-1 overflow-y-auto min-h-0 space-y-2 pr-2 custom-scrollbar">
+                        <!-- Injected by JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ROW 5: HEATMAP (FULL WIDTH) -->
+            <div class="dash-card p-6 w-full">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
+                    <div>
+                        <h3 class="text-base font-semibold text-brand-sidebar" data-i18n="heatmap_title"></h3>
+                        <p class="text-xs text-gray-400 mt-0.5" data-i18n="heatmap_desc"></p>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-gray-500 shrink-0">
+                        <span data-i18n="heatmap_less"></span>
+                        <div class="flex space-x-1 border border-gray-200 rounded p-1">
+                            <div class="w-3 h-3 rounded-sm level-0 border border-gray-200"></div>
+                            <div class="w-3 h-3 rounded-sm level-1"></div>
+                            <div class="w-3 h-3 rounded-sm level-2"></div>
+                            <div class="w-3 h-3 rounded-sm level-3"></div>
+                            <div class="w-3 h-3 rounded-sm level-4"></div>
+                        </div>
+                        <span data-i18n="heatmap_more"></span>
+                    </div>
+                </div>
+                <div id="heatmap-scroll-container" class="custom-scrollbar overflow-x-auto w-full pb-2 mt-4">
+                    <div id="heatmap" class="heatmap-grid w-max"></div>
+                </div>
+            </div>
+
+            <!-- ROW 6: GOALS (FULL WIDTH) -->
+            <div class="dash-card p-6 w-full">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <div>
+                        <h3 class="text-base font-semibold text-brand-sidebar" data-i18n="goals_title"></h3>
+                        <p class="text-xs text-gray-400 mt-0.5" data-i18n="goals_desc"></p>
+                    </div>
+                    <button onclick="openGoalModal()"
+                    class="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-highlight transition-colors flex items-center gap-2 text-sm font-medium whitespace-nowrap">
+                    <i data-lucide="target" class="w-4 h-4"></i> <span data-i18n="goals_btn"></span>
+                </button>
+            </div>
+            <div id="goalsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GOAL MODAL -->
+<div id="goalModal"
+class="fixed inset-0 bg-brand-sidebar/60 z-[100] hidden flex items-center justify-center glass-backdrop transition-opacity">
+<div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 transform scale-95 opacity-0 transition-all duration-200 border border-gray-200"
+id="goalModalContent">
+<div class="flex justify-between items-center mb-5">
+    <h3 class="text-lg font-bold text-brand-sidebar" data-i18n="modal_title"></h3>
+    <button onclick="closeGoalModal()" class="text-gray-400 hover:text-black transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+</div>
+<form id="goalForm" class="space-y-4">
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="modal_metric"></label>
+        <select id="goalType"
+        class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary bg-white cursor-pointer"
+        required>
+        <option value="" disabled selected data-i18n="modal_sel_default"></option>
+        <option value="events" data-i18n="modal_sel_events"></option>
+        <option value="revenue" data-i18n="modal_sel_revenue"></option>
+        <option value="clients" data-i18n="modal_sel_clients"></option>
+        <option value="margin" data-i18n="modal_sel_margin"></option>
+    </select>
+</div>
+<div>
+    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="modal_target"></label>
+    <input type="number" id="goalTarget" data-i18n-placeholder="modal_target_ph"
+    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+    min="1" required>
+</div>
+<div>
+    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="modal_date"></label>
+    <input type="date" id="goalDate"
+    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary cursor-pointer"
+    required>
+</div>
+<div class="flex justify-end gap-3 mt-8">
+    <button type="button" onclick="closeGoalModal()"
+    class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg transition-colors"
+    data-i18n="modal_cancel"></button>
+    <button type="submit"
+    class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-highlight rounded-lg transition-colors"
+    data-i18n="modal_save"></button>
+</div>
+</form>
+</div>
+</div>
+
+<script>
+    // ──────────────────────────────────────
+    // GLOBAL STATE
+    // ──────────────────────────────────────
+    let tasks = [];
+    let goals = [
+        { id: 1, type: "events", target: 48, date: "2026-12-31", progress: 32, label: 'goal_type_events' },
+        { id: 2, type: "revenue", target: 35000000, date: "2026-12-31", progress: 24500000,
+        label: 'goal_type_revenue' },
+        { id: 3, type: "clients", target: 50, date: "2026-12-31", progress: 38, label: 'goal_type_clients' },
+    ];
+
+    // ──────────────────────────────────────
+    // UTILS
+    // ──────────────────────────────────────
+    const formatCurrency = (val) => {
+        return 'RD$' + Math.round(val).toLocaleString(localeStr, { maximumFractionDigits: 0 });
+    };
+    const formatNumber = (val) => val.toLocaleString(localeStr);
+
+    // ──────────────────────────────────────
+    // 1. ANIMATED COUNTERS
+    // ──────────────────────────────────────
+    const animateCounters = () => {
+        const counters = document.querySelectorAll('.counter');
+        const speed = 180;
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target');
+                const currentText = counter.innerText.replace(/[^0-9]/g, '');
+                const count = parseInt(currentText) || 0;
+                const inc = Math.max(1, Math.ceil(target / speed));
+                if (count < target) {
+                    counter.innerText = Math.min(count + inc, target).toLocaleString(localeStr);
+                    setTimeout(updateCount, 12);
+                } else {
+                    counter.innerText = target.toLocaleString(localeStr);
+                }
+            };
+            updateCount();
+        });
+    };
+
+    // ──────────────────────────────────────
+    // 2. CHARTS
+    // ──────────────────────────────────────
+    const initCharts = () => {
+        const colors = {
+            primary: '#171717',
+            highlight: '#966d1d',
+            gold: '#b8861e',
+            blue: '#3b82f6',
+            green: '#16a34a',
+            purple: '#7c3aed',
+            gray: '#787878',
+            lightGold: '#f5e6cc',
+        };
+
+        // Donut Chart – Revenue by Event Type
+        const ctxDonut = document.getElementById('donutChart').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: [t('event_type_conf'), t('event_type_gala'), t('event_type_launch'), t(
+                    'event_type_retreat'), t('event_type_other')],
+                datasets: [{
+                    data: [35, 25, 20, 12, 8],
+                    backgroundColor: [colors.primary, colors.highlight, colors.blue,
+                        colors.green, colors.gray
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 18,
+                            font: { size: 11 }, color: '#525252' } },
+                    tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw}%` } }
+                },
+                cutout: '65%',
+            }
+        });
+
+        // Combo Chart – Bar (Revenue) + Line (Events)
+        const ctxCombo = document.getElementById('comboChart').getContext('2d');
+        const months = t('months_short');
+        const revenueData = [1.2, 1.5, 1.8, 2.1, 1.9, 2.4, 2.6, 2.2, 2.9, 3.1, 2.8, 3.5]; // in millions
+        const eventsData = [3, 4, 4, 5, 4, 6, 7, 5, 7, 8, 6, 9];
+
+        new Chart(ctxCombo, {
+            type: 'bar',
+            data: {
+                labels: months.slice(-12),
+                datasets: [{
+                    label: t('chart_bar_label'),
+                    data: revenueData.map(v => v * 1000000),
+                    backgroundColor: colors.primary + 'CC',
+                    borderColor: colors.primary,
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    order: 2,
+                    yAxisID: 'y',
+                }, {
+                    label: t('chart_line_label'),
+                    data: eventsData,
+                    type: 'line',
+                    borderColor: colors.highlight,
+                    backgroundColor: colors.lightGold,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: colors.highlight,
+                    pointBorderWidth: 2.5,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    order: 1,
+                    yAxisID: 'y1',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', align: 'end', labels: { usePointStyle: true,
+                            padding: 20, font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => ctx.datasetIndex === 0 ? formatCurrency(ctx.raw) :
+                                `${ctx.raw} eventos`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: false,
+                        min: 800000,
+                        max: 4000000,
+                        ticks: { callback: (v) => 'RD$' + (v / 1000000).toFixed(1) + 'M',
+                            font: { size: 10 } },
+                        grid: { borderDash: [3, 3], color: '#e8e8e8' },
+                        title: { display: true, text: 'Ingresos RD$', font: { size: 10,
+                                weight: 'bold' } }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        max: 14,
+                        ticks: { stepSize: 2, font: { size: 10 } },
+                        grid: { display: false },
+                        title: { display: true, text: 'N° Eventos', font: { size: 10,
+                            weight: 'bold' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    }
+                },
+                interaction: { mode: 'index', intersect: false },
+            }
+        });
+    };
+
+    // ──────────────────────────────────────
+    // 3. LEAFLET MAP – DR VENUES
+    // ──────────────────────────────────────
+    const initMap = () => {
+        const map = L.map('map').setView([18.95, -70.05], 8);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        const goldIcon = L.divIcon({
+            className: 'custom-pin-gold-container',
+            html: '<div class="custom-pin-gold"></div>',
+            iconSize: [22, 30],
+            iconAnchor: [11, 28],
+            popupAnchor: [0, -30]
+        });
+        const darkIcon = L.divIcon({
+            className: 'custom-pin-dark-container',
+            html: '<div class="custom-pin-dark"></div>',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8],
+            popupAnchor: [0, -10]
+        });
+
+        const venues = [
+            { coords: [18.4861, -69.9312], title: t('loc_hq'), type: 'gold',
+            desc: 'Oficina Central · Operaciones Nacionales' },
+            { coords: [18.5600, -68.3700], title: t('loc_pc'), type: 'gold',
+            desc: 'Centro de Eventos Resort · 3 salones' },
+            { coords: [18.4200, -68.9700], title: t('loc_lr'), type: 'gold',
+            desc: 'Eventos de Lujo · Campo de Golf' },
+            { coords: [19.4500, -70.7000], title: t('loc_stgo'), type: 'dark',
+            desc: 'Sede Regional Norte · Corporativo' },
+            { coords: [19.2000, -69.3300], title: t('loc_sam'), type: 'dark',
+            desc: 'Retiros Ejecutivos · Frente al Mar' },
+            { coords: [19.8000, -70.6900], title: t('loc_pp'), type: 'dark',
+            desc: 'Eventos Costeros · Turismo' },
+            { coords: [18.4800, -68.4200], title: t('loc_cap'), type: 'dark',
+            desc: 'Eventos Exclusivos · Alta Gama' },
+            { coords: [18.4300, -69.4200], title: t('loc_jd'), type: 'dark',
+            desc: 'Eventos de Playa · Convenciones' },
+        ];
+
+        venues.forEach(v => {
+            const icon = v.type === 'gold' ? goldIcon : darkIcon;
+            L.marker(v.coords, { icon }).addTo(map)
+                .bindPopup(`<b>${v.title}</b><br/><span style="font-size:11px;color:#666;">${v.desc}</span><br/><em style="font-size:10px;color:#966d1d;">${t('map_popup')}</em>`);
+        });
+    };
+
+    // ──────────────────────────────────────
+    // 4. PIPELINE FUNNEL
+    // ──────────────────────────────────────
+    const pipelineData = [
+        { key: 'pipeline_lead', count: 45, color: '#e8e8e8', textColor: '#525252' },
+        { key: 'pipeline_proposal', count: 28, color: '#d4d4d4', textColor: '#404040' },
+        { key: 'pipeline_negotiation', count: 15, color: '#a3a3a3', textColor: '#262626' },
+        { key: 'pipeline_confirmed', count: 8, color: '#966d1d', textColor: '#ffffff' },
+        { key: 'pipeline_executed', count: 32, color: '#171717', textColor: '#ffffff' },
+    ];
+
+    const renderPipeline = () => {
+        const container = document.getElementById('pipelineFunnel');
+        container.innerHTML = '';
+        const maxCount = Math.max(...pipelineData.map(p => p.count));
+
+        pipelineData.forEach((stage, i) => {
+            const widthPercent = Math.max(25, Math.round((stage.count / maxCount) * 100));
+            const conversion = i < pipelineData.length - 1 ?
+                Math.round((pipelineData[i + 1].count / stage.count) * 100) :
+                null;
+
+            const bar = document.createElement('div');
+            bar.className = 'funnel-bar flex items-center justify-between px-4 py-3 rounded-lg';
+            bar.style.width = `${widthPercent}%`;
+            bar.style.backgroundColor = stage.color;
+            bar.style.color = stage.textColor;
+            bar.style.minWidth = '120px';
+            bar.style.transition = 'all 0.4s ease';
+            bar.innerHTML = `
+            <span class="font-semibold text-sm">${t(stage.key)}</span>
+            <span class="flex items-center gap-2">
+              <span class="font-bold text-lg">${stage.count}</span>
+              ${conversion !== null ? `<span class="text-xs opacity-70 ml-2">→ ${conversion}%</span>` : '<span class="text-xs opacity-70 ml-2">✓</span>'}
+            </span>
+          `;
+            container.appendChild(bar);
+
+            if (i < pipelineData.length - 1) {
+                const arrow = document.createElement('div');
+                arrow.className = 'funnel-arrow';
+                arrow.innerHTML = '<i data-lucide="chevron-down" class="w-4 h-4"></i>';
+                arrow.style.paddingLeft = `${widthPercent * 0.4}%`;
+                container.appendChild(arrow);
+            }
+        });
+        lucide.createIcons();
+    };
+
+    // ──────────────────────────────────────
+    // 5. UPCOMING EVENTS
+    // ──────────────────────────────────────
+    const upcomingEvents = [
+        { name: t('event_name_1'), client: t('event_client_1'), date: '2026-06-05', venue: 'Hotel El Embajador',
+            status: 'confirmed', accent: 'accent-gold' },
+        { name: t('event_name_2'), client: t('event_client_2'), date: '2026-06-12', venue: 'Punta Cana Convention',
+            status: 'planning', accent: 'accent-blue' },
+        { name: t('event_name_3'), client: t('event_client_3'), date: '2026-06-18', venue: 'Samaná Bay Resort',
+            status: 'pending', accent: 'accent-black' },
+        { name: t('event_name_4'), client: t('event_client_4'), date: '2026-06-22', venue: 'Centro de Convenciones SD',
+            status: 'confirmed', accent: 'accent-gold' },
+        { name: t('event_name_5'), client: t('event_client_5'), date: '2026-06-28', venue: 'Santiago Business Center',
+            status: 'planning', accent: 'accent-blue' },
+    ];
+
+    const statusBadgeClass = (status) => {
+        if (status === 'confirmed') return 'badge-confirmed';
+        if (status === 'pending') return 'badge-pending';
+        if (status === 'planning') return 'badge-planning';
+        return 'badge-urgent';
+    };
+    const statusLabel = (status) => {
+        if (status === 'confirmed') return 'Confirmado';
+        if (status === 'pending') return 'Pendiente';
+        if (status === 'planning') return 'En Planificación';
+        return 'Urgente';
+    };
+
+    const renderUpcomingEvents = () => {
+        const container = document.getElementById('upcomingEventsList');
+        container.innerHTML = '';
+        if (upcomingEvents.length === 0) {
+            container.innerHTML =
+                `<p class="text-sm text-gray-400 italic text-center py-8">${t('upcoming_empty')}</p>`;
+            return;
+        }
+        upcomingEvents.forEach(ev => {
+            const dateObj = new Date(ev.date + 'T00:00:00');
+            const dayName = dateObj.toLocaleDateString(localeStr, { weekday: 'short' });
+            const dayNum = dateObj.getDate();
+            const monthName = dateObj.toLocaleDateString(localeStr, { month: 'short' });
+            const daysUntil = Math.ceil((dateObj - new Date()) / (1000 * 60 * 60 * 24));
+            const urgencyLabel = daysUntil <= 7 ? ' ⚡' : '';
+
+            const card = document.createElement('div');
+            card.className =
+                `event-card-accent ${ev.accent} flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-white hover:shadow-md transition-shadow cursor-pointer`;
+            card.innerHTML = `
+            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex flex-col items-center justify-center text-center">
+              <span class="text-xs font-medium text-gray-500 uppercase">${dayName}</span>
+              <span class="text-lg font-bold text-brand-sidebar leading-tight">${dayNum}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold text-brand-sidebar truncate">${ev.name}</h4>
+              <p class="text-xs text-gray-500 truncate">${ev.client}</p>
+              <p class="text-xs text-gray-400 mt-0.5">${t('venue_label')} ${ev.venue}</p>
+            </div>
+            <div class="flex-shrink-0 flex flex-col items-end gap-1">
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium ${statusBadgeClass(ev.status)}">${statusLabel(ev.status)}${urgencyLabel}</span>
+              <span class="text-xs text-gray-400">${daysUntil}d</span>
+            </div>
+          `;
+            container.appendChild(card);
+        });
+    };
+
+    // ──────────────────────────────────────
+    // 6. HEATMAP
+    // ──────────────────────────────────────
+    const generateHeatmap = () => {
+        const scrollContainer = document.getElementById('heatmap-scroll-container');
+        const grid = document.getElementById('heatmap');
+        grid.innerHTML = '';
+        for (let w = 0; w < 156; w++) { // ~3 years of weeks
+            for (let d = 0; d < 7; d++) {
+                const cell = document.createElement('div');
+                cell.classList.add('heatmap-cell');
+                const random = Math.random();
+                let level = 0;
+                if (random > 0.35) level = 1;
+                if (random > 0.60) level = 2;
+                if (random > 0.80) level = 3;
+                if (random > 0.93) level = 4;
+                cell.classList.add(`level-${level}`);
+                cell.title = `Actividad: Nivel ${level}`;
+                grid.appendChild(cell);
+            }
+        }
+        setTimeout(() => { scrollContainer.scrollLeft = scrollContainer.scrollWidth; }, 80);
+    };
+
+    // ──────────────────────────────────────
+    // 7. TASKS
+    // ──────────────────────────────────────
+    const renderTasks = () => {
+        const list = document.getElementById('taskList');
+        list.innerHTML = '';
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.className =
+                `flex items-center justify-between p-3 rounded-lg border transition-colors ${task.completed ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300 shadow-sm'}`;
+            li.innerHTML = `
+            <div class="flex items-center gap-3 overflow-hidden flex-1">
+              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})" class="flex-shrink-0 w-4 h-4 text-brand-primary rounded border-gray-300 focus:ring-brand-primary accent-brand-primary cursor-pointer">
+              <div class="flex flex-col flex-1 min-w-0">
+                ${task.isEditing ?
+                  `<input type="text" id="edit-input-${task.id}" value="${task.text}" class="text-sm font-medium border border-brand-primary rounded px-2 py-1 w-full focus:outline-none focus:ring-1 focus:ring-brand-primary bg-white" onkeydown="if(event.key==='Enter') saveEdit(${task.id})" onblur="saveEdit(${task.id})">`
+                  :
+                  `<span class="text-sm font-medium truncate w-full ${task.completed ? 'text-gray-400 line-through' : 'text-gray-800'}">${task.text}</span>`
+                }
+                <span class="text-xs mt-0.5 ${task.completed ? 'text-gray-400' : 'text-brand-highlight'} flex items-center gap-1">
+                  <i data-lucide="calendar" class="w-3 h-3"></i> ${task.date}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1 ml-2 flex-shrink-0">
+              ${task.isEditing ?
+                `<button onmousedown="saveEdit(${task.id})" class="text-brand-primary hover:text-brand-sidebar transition-colors cursor-pointer p-1"><i data-lucide="check" class="w-4 h-4"></i></button>`
+                :
+                `<button onclick="toggleEdit(${task.id})" class="text-gray-400 hover:text-brand-primary transition-colors cursor-pointer p-1" ${task.completed ? 'disabled style="opacity:0.5"' : ''}><i data-lucide="edit-2" class="w-4 h-4"></i></button>`
+              }
+              <button onclick="deleteTask(${task.id})" class="text-gray-400 hover:text-black transition-colors cursor-pointer p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+          `;
+            list.appendChild(li);
+        });
+        lucide.createIcons();
+    };
+
+    window.toggleEdit = (id) => {
+        const task = tasks.find(t => t.id === id);
+        if (task && !task.completed) { task.isEditing = true;
+            renderTasks();
+            setTimeout(() => { const inp = document.getElementById(`edit-input-${id}`); if (inp) { inp.focus();
+                    inp.selectionStart = inp.selectionEnd = inp.value.length; } }, 0); }
+    };
+    window.saveEdit = (id) => {
+        const task = tasks.find(t => t.id === id);
+        if (task && task.isEditing) { const inp = document.getElementById(`edit-input-${id}`); if (inp && inp.value
+                .trim() !== '') task.text = inp.value.trim();
+            task.isEditing = false;
+            renderTasks(); }
+    };
+    window.toggleTask = (id) => { const task = tasks.find(t => t.id === id); if (task) { task.completed = !task.completed;
+            renderTasks(); } };
+    window.deleteTask = (id) => { tasks = tasks.filter(t => t.id !== id);
+        renderTasks(); };
+
+    document.getElementById('taskForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const textInput = document.getElementById('taskInput');
+        const dateInput = document.getElementById('taskDate');
+        if (textInput.value && dateInput.value) {
+            tasks.unshift({ id: Date.now(), text: textInput.value, date: dateInput.value, completed: false,
+                isEditing: false });
+            textInput.value = '';
+            dateInput.value = '';
+            renderTasks();
+        }
+    });
+
+    // ──────────────────────────────────────
+    // 8. GOALS
+    // ──────────────────────────────────────
+    const getGoalIcon = (type) => {
+        const icons = { 'events': 'calendar-check', 'revenue': 'dollar-sign', 'clients': 'building-2',
+            'margin': 'percent' };
+        return icons[type] || 'target';
+    };
+    const getGoalColorClass = (type) => {
+        const colors = { 'events': 'text-gray-700 bg-gray-100', 'revenue': 'text-amber-700 bg-amber-50',
+            'clients': 'text-green-700 bg-green-50', 'margin': 'text-purple-700 bg-purple-50' };
+        return colors[type] || 'text-gray-600 bg-gray-100';
+    };
+
+    const renderGoals = () => {
+        const list = document.getElementById('goalsList');
+        list.innerHTML = '';
+        if (goals.length === 0) {
+            list.innerHTML =
+            `<p class="text-sm text-gray-400 italic col-span-full py-8 text-center">${t('empty_goals')}</p>`;
+            return;
+        }
+        goals.forEach(goal => {
+            const percent = Math.min(100, Math.round((goal.progress / goal.target) * 100)) || 0;
+            const displayProgress = goal.type === 'revenue' ? formatCurrency(goal.progress) : formatNumber(goal
+                .progress);
+            const displayTarget = goal.type === 'revenue' ? formatCurrency(goal.target) : formatNumber(goal.target);
+            const div = document.createElement('div');
+            div.className =
+                "border border-gray-200 bg-white rounded-xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow";
+            div.innerHTML = `
+            <div>
+              <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="p-2 rounded-lg border border-gray-100 ${getGoalColorClass(goal.type)}"><i data-lucide="${getGoalIcon(goal.type)}" class="w-4 h-4"></i></div>
+                  <div>
+                    <h4 class="text-sm font-bold text-brand-sidebar">${t(goal.label || 'goal_type_' + goal.type)}</h4>
+                    <p class="text-xs text-gray-500">${t('goal_by')} ${goal.date}</p>
+                  </div>
+                </div>
+                <span class="text-xs font-bold px-2 py-1 rounded bg-gray-100 border border-gray-200 text-brand-primary">${percent}%</span>
+              </div>
+            </div>
+            <div class="mt-3">
+              <div class="flex justify-between text-xs text-gray-500 mb-1 font-medium">
+                <span>${displayProgress}</span>
+                <span>${displayTarget}</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div class="bg-brand-primary h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${percent}%"></div>
+              </div>
+            </div>
+          `;
+            list.appendChild(div);
+        });
+        lucide.createIcons();
+    };
+
+    // ──────────────────────────────────────
+    // 9. GOAL MODAL
+    // ──────────────────────────────────────
+    window.openGoalModal = () => {
+        const modal = document.getElementById('goalModal');
+        const content = document.getElementById('goalModalContent');
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        });
+    };
+    window.closeGoalModal = () => {
+        const modal = document.getElementById('goalModal');
+        const content = document.getElementById('goalModalContent');
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => { modal.classList.add('hidden');
+            document.getElementById('goalForm').reset(); }, 200);
+    };
+    document.getElementById('goalModal').addEventListener('mousedown', (e) => { if (e.target.id === 'goalModal')
+            closeGoalModal(); });
+    document.getElementById('goalForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const type = document.getElementById('goalType').value;
+        const target = parseInt(document.getElementById('goalTarget').value);
+        const date = document.getElementById('goalDate').value;
+        let startingProgress = 0;
+        if (type === 'events') startingProgress = 32;
+        if (type === 'revenue') startingProgress = 24500000;
+        if (type === 'clients') startingProgress = 38;
+        if (type === 'margin') startingProgress = 32;
+        goals.push({ id: Date.now(), type, target, date, progress: startingProgress, label: 'goal_type_' + type });
+        renderGoals();
+        closeGoalModal();
+    });
+
+    // ──────────────────────────────────────
+    // INITIALIZATION
+    // ──────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+        applyTranslations();
+
+        // Set current date
+        const now = new Date();
+        document.getElementById('current-date').innerText = now.toLocaleDateString(localeStr, {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Initial tasks
+        tasks = [
+            { id: 1, text: t('task_1'), date: '2026-06-03', completed: false, isEditing: false },
+            { id: 2, text: t('task_2'), date: '2026-06-05', completed: false, isEditing: false },
+            { id: 3, text: t('task_3'), date: '2026-06-01', completed: true, isEditing: false },
+            { id: 4, text: t('task_4'), date: '2026-06-02', completed: false, isEditing: false },
+            { id: 5, text: t('task_5'), date: '2026-05-30', completed: false, isEditing: false },
+        ];
+
+        // Init all components
+        animateCounters();
+        initCharts();
+        initMap();
+        renderPipeline();
+        renderUpcomingEvents();
+        generateHeatmap();
+        renderTasks();
+        renderGoals();
+
+        // Reveal body
+        document.getElementById('main-body').classList.remove('opacity-0');
+
+        // Scrollbar cursor logic
+        document.querySelectorAll('.custom-scrollbar').forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const hHover = el.scrollWidth > el.clientWidth && e.offsetY >= el.clientHeight - 14;
+                const vHover = el.scrollHeight > el.clientHeight && e.offsetX >= el.clientWidth - 14;
+                el.style.cursor = (hHover || vHover) ? 'grab' : 'default';
+            });
+            el.addEventListener('mousedown', () => { if (el.style.cursor === 'grab') el.style.cursor =
+                    'grabbing'; });
+            el.addEventListener('mouseup', () => { if (el.style.cursor === 'grabbing') el.style.cursor = 'grab'; });
+            el.addEventListener('mouseleave', () => { el.style.cursor = 'default'; });
+        });
+
+        console.log('🚀 CEO Dashboard · Eventos Corporativos RD · Ready');
+    });
+</script>
+</body>
+</html>
