@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailerSend</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.292.0",
+        "canvas-confetti": "https://esm.sh/canvas-confetti@1.9.2"
+      }
+    }
+  </script>
+
+  <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/b8c73d70362873f64b413c404e256d402d1639e1.png">
+
+  <script> 
+    function removeFromLinks(rel) {
+      var links = document.head.getElementsByTagName("link");
+      for (var i = links.length - 1; i >= 0; i--) {
+        if (links[i].rel === rel) {
+          document.head.removeChild(links[i]);
+        }
+      }
+    }
+    
+    function createNewFavicon(rel, img) {
+      var newFavicon = document.createElement("link");
+      newFavicon.type = "image/png";
+      newFavicon.rel = rel;
+      newFavicon.href = img;
+      var firstHeadElement = document.head.firstChild;
+      document.head.insertBefore(newFavicon, firstHeadElement);
+    }
+    
+    removeFromLinks("icon");
+    removeFromLinks("shortcut icon");
+    removeFromLinks("apple-touch-icon");
+    createNewFavicon("icon", "https://bucket.mlcdn.com/a/3336/3336910/images/b8c73d70362873f64b413c404e256d402d1639e1.png");
+    createNewFavicon("shortcut icon", "https://bucket.mlcdn.com/a/3336/3336910/images/b8c73d70362873f64b413c404e256d402d1639e1.png");
+    createNewFavicon("apple-touch-icon", "https://bucket.mlcdn.com/a/3336/3336910/images/b8c73d70362873f64b413c404e256d402d1639e1.png"); 
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9c9eed; }
+    
+    @keyframes bounce-short {
+      0%, 100% { transform: translate(-50%, 0); }
+      50% { transform: translate(-50%, -10px); }
+    }
+    .animate-bounce-short { animation: bounce-short 0.5s ease-in-out; }
+    
+    .chart-bar { transition: height 1s ease-out; }
+  </style>
+</head>
+<body class="bg-white overflow-hidden">
+  
+  <div id="root">
+    <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f7f7fa; flex-direction:column; text-align:center; padding: 20px; font-family: sans-serif;">
+       <h2 style="color:#1f1a45; margin-bottom: 10px; font-size: 24px; font-weight: bold;">Loading Environment...</h2>
+       <p style="color:#6b7280; max-width: 400px; margin-bottom: 24px; line-height: 1.5; font-size: 14px;">If the app does not load within a few seconds, your browser memory is likely overwhelmed by a large embedded image. Click below to safely flush the corrupted data.</p>
+       <button onclick="localStorage.clear(); window.location.reload();" style="padding: 14px 28px; background:#ef4444; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">Emergency Data Reset</button>
+    </div>
+  </div>
+
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect, useRef, useMemo } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import confetti from 'canvas-confetti';
+    import { 
+      Mail, Settings, FileText, Send, Clock, Paperclip, 
+      Trash2, Plus, Bold, Italic, Underline, List, AlignLeft, 
+      AlignCenter, AlignRight, X, CheckCircle, AlertCircle, 
+      Save, Play, Info, Edit3, Users, Code, Image as ImageIcon, Video,
+      Activity, CheckSquare, History, Link as LinkIcon, MousePointerClick,
+      Award, Medal, Trophy, Crown, Wrench, LayoutDashboard, TrendingUp, BarChart3, PieChart, PenTool, Menu, Globe, Lock, ExternalLink, Gift
+    } from 'lucide-react';
+
+    // --- CONFIGURATION & COLORS ---
+    const COLORS = {
+      darkBg: '#3f3d56',
+      lightBg: '#f7f7fa',
+      primary: '#9c9eed',
+      highlight: '#dfa4d4',
+      white: '#ffffff',
+      textDark: '#1f1a45',
+      textGray: '#6b7280'
+    };
+
+    const LOGO_URL = 'https://bucket.mlcdn.com/a/3336/3336910/images/b8c73d70362873f64b413c404e256d402d1639e1.png';
+
+    // --- TRANSLATIONS DICTIONARY ---
+    const TRANSLATIONS = {
+      en: {
+        nav_overview: "Overview",
+        nav_compose: "Compose",
+        nav_templates: "Templates",
+        nav_signature: "Signature",
+        nav_contacts: "Contacts",
+        nav_logs: "Logs",
+        nav_setup: "Setup",
+        dash_title: "Dashboard Overview",
+        sent_short: "Sent",
+        compose_title: "Create Message",
+        edit_title: "Edit Message",
+        welcome_title: "Welcome back to MailerSend!",
+        welcome_desc: "Your secure, local-first email control center is ready. You've reached {count} contacts so far.",
+        compose_new: "Compose New Email",
+        rank: "Rank",
+        total_reach: "Total Reach",
+        templates: "Templates",
+        total_actions: "Total Actions",
+        active_aliases: "Active Aliases",
+        sending_activity: "Sending Activity",
+        last_7_days: "Last 7 Days",
+        quick_insights: "Quick Insights",
+        contact_segments: "Contact Segments",
+        tags: "tags",
+        template_usage: "Template Usage",
+        optimal: "Optimal",
+        low: "Low",
+        pro_tip: "Pro Tip",
+        pro_tip_desc: "Using templates can save you up to 80% of your manual composing time.",
+        quota: "Quota",
+        limit_info: "Google Daily Sending Limit",
+        recent_events: "Recent Events",
+        view_all_logs: "View All Logs",
+        no_activity: "No activity recorded yet.",
+        to: "To",
+        comma_separated: "(Comma separated)",
+        contact_select: "+ Contact",
+        sender_info: "Sender Info",
+        alias_name: "(Alias & Name)",
+        name_optional: "Name (Optional)",
+        subject: "Subject",
+        subject_ph: "Exciting News Inside!",
+        message_body: "Message Body",
+        attach_signature: "Attach Signature",
+        attachments: "Attachments",
+        add_file: "Add File",
+        no_files: "No files attached.",
+        schedule_email: "Schedule Email",
+        update: "Update",
+        save_template: "Save Template",
+        save_new: "Save as New",
+        schedule: "Schedule",
+        send_now: "Send Now",
+        processing: "Processing...",
+        create_template: "Create Template",
+        empty_body: "Empty body",
+        edit_use: "Edit / Use",
+        your_signature: "Your Email Signature",
+        signature_desc: "Create a professional signature to append to your outgoing emails.",
+        save_signature: "Save Signature",
+        signature_preview: "Signature Preview",
+        manage_recipients: "Manage your recipients. You can quickly insert them when composing.",
+        add_contact: "Add Contact",
+        no_contacts_yet: "No Contacts Yet",
+        no_contacts_desc: "Add contacts to easily select them when composing emails.",
+        name: "Name",
+        email: "Email",
+        business: "Business Name",
+        tag: "Tag (e.g. VIP, Client)",
+        actions: "Actions",
+        note: "Note",
+        cancel: "Cancel",
+        save_contact: "Save Contact",
+        edit_contact: "Edit Contact",
+        new_contact: "New Contact",
+        time: "Time",
+        category: "Category",
+        details: "Details",
+        clear_logs: "Clear Logs",
+        setup_title: "Bring Your Own Key",
+        setup_desc: "Connect your personal Google Apps Script backend",
+        badge_gold: "Gold Sender",
+        badge_silver: "Silver Sender",
+        badge_bronze: "Bronze Sender",
+        badge_starter: "New Sender",
+        badge_starter_short: "Emails",
+        claim_prize: "Click to Claim Prize",
+        claim_footer: "Click to Claim Prize / Offer",
+        gold_unlocked_title: "Congratulations!",
+        gold_unlocked_msg: "You have reached the GOLD Sender tier! Enjoy your rewards.",
+        notif_sent: "Email sent successfully!",
+        notif_saved: "Template saved successfully!",
+        notif_req: "Recipient and Subject are required.",
+        insert_link: "Insert Link",
+        insert_cta: "Insert CTA",
+        insert_image: "Insert Image",
+        insert_video: "Insert Video",
+        confirm_insert: "Confirm & Insert",
+        button_text: "Button Text",
+        button_url: "Button URL",
+        button_color: "Button Color",
+        image_url: "Image URL",
+        or: "OR",
+        upload_image: "Upload Image File directly",
+        thumb_url: "Thumbnail Image URL",
+        video_link: "Video Link (YouTube/Vimeo)",
+        rank_title: "Sender Rankings",
+        rank_starter_desc: "The starting line! Begin your journey by sending your first emails.",
+        rank_bronze_desc: "You're getting the hang of it! Reached at 10 total emails sent.",
+        rank_silver_desc: "A solid sender. Unlock this tier by reaching 50 total emails sent.",
+        rank_gold_desc: "A true professional. Reached at 100 total emails sent.",
+        req_emails: "Requires {count} emails",
+        current_rank: "Current Rank",
+        all_templates: "All Templates",
+        template_tag: "Template Tag",
+        tag_color: "Color",
+      },
+      es: {
+        nav_overview: "Resumen",
+        nav_compose: "Redactar",
+        nav_templates: "Plantillas",
+        nav_signature: "Firma",
+        nav_contacts: "Contactos",
+        nav_logs: "Registros",
+        nav_setup: "Configuración",
+        dash_title: "Resumen del Panel",
+        sent_short: "Enviados",
+        compose_title: "Crear Mensaje",
+        edit_title: "Editar Mensaje",
+        welcome_title: "¡Bienvenido a MailerSend!",
+        welcome_desc: "Tu centro de control de correo seguro está listo. Has alcanzado {count} contactos.",
+        compose_new: "Redactar Nuevo Correo",
+        rank: "Rango",
+        total_reach: "Alcance Total",
+        templates: "Plantillas",
+        total_actions: "Acciones Totales",
+        active_aliases: "Alias Activos",
+        sending_activity: "Actividad de Envío",
+        last_7_days: "Últimos 7 Días",
+        quick_insights: "Información Rápida",
+        contact_segments: "Segmentos",
+        tags: "etiquetas",
+        template_usage: "Uso de Plantillas",
+        optimal: "Óptimo",
+        low: "Bajo",
+        pro_tip: "Consejo Pro",
+        pro_tip_desc: "Usar plantillas puede ahorrarte hasta un 80% del tiempo de redacción manual.",
+        quota: "Cuota",
+        limit_info: "Límite de Envío Diario de Google",
+        recent_events: "Eventos Recientes",
+        view_all_logs: "Ver Todos los Registros",
+        no_activity: "Aún no hay actividad registrada.",
+        to: "Para",
+        comma_separated: "(Separado por comas)",
+        contact_select: "+ Contacto",
+        sender_info: "Remitente",
+        alias_name: "(Alias y Nombre)",
+        name_optional: "Nombre (Opcional)",
+        subject: "Asunto",
+        subject_ph: "¡Noticias emocionantes dentro!",
+        message_body: "Cuerpo del Mensaje",
+        attach_signature: "Adjuntar Firma",
+        attachments: "Adjuntos",
+        add_file: "Añadir Archivo",
+        no_files: "Sin archivos adjuntos.",
+        schedule_email: "Programar Correo",
+        update: "Actualizar",
+        save_template: "Guardar Plantilla",
+        save_new: "Guardar Nuevo",
+        schedule: "Programar",
+        send_now: "Enviar Ahora",
+        processing: "Procesando...",
+        create_template: "Crear Plantilla",
+        empty_body: "Cuerpo vacío",
+        edit_use: "Editar / Usar",
+        your_signature: "Tu Firma de Correo",
+        signature_desc: "Crea una firma profesional para añadir a tus correos.",
+        save_signature: "Guardar Firma",
+        signature_preview: "Vista Previa de Firma",
+        manage_recipients: "Gestiona tus destinatarios. Insértalos rápidamente al redactar.",
+        add_contact: "Añadir Contacto",
+        no_contacts_yet: "Sin Contactos",
+        no_contacts_desc: "Añade contactos para seleccionarlos fácilmente al redactar.",
+        name: "Nombre",
+        email: "Correo",
+        business: "Empresa",
+        tag: "Etiqueta (ej. VIP, Cliente)",
+        actions: "Acciones",
+        note: "Nota",
+        cancel: "Cancelar",
+        save_contact: "Guardar Contacto",
+        edit_contact: "Editar Contacto",
+        new_contact: "Nuevo Contacto",
+        time: "Hora",
+        category: "Categoría",
+        details: "Detalles",
+        clear_logs: "Limpiar Registros",
+        setup_title: "Configuración Backend",
+        setup_desc: "Conecta tu backend personal de Google Apps Script",
+        badge_gold: "Emisor Oro",
+        badge_silver: "Emisor Plata",
+        badge_bronze: "Emisor Bronce",
+        badge_starter: "Nuevo Emisor",
+        badge_starter_short: "Correos",
+        claim_prize: "Haz clic para reclamar premio",
+        claim_footer: "Haz clic para reclamar Oferta / Premio",
+        gold_unlocked_title: "¡Felicidades!",
+        gold_unlocked_msg: "¡Has alcanzado el nivel de Emisor ORO! Disfruta de tus recompensas.",
+        notif_sent: "¡Correo enviado con éxito!",
+        notif_saved: "¡Plantilla guardada con éxito!",
+        notif_req: "Destinatario y Asunto son obligatorios.",
+        insert_link: "Insertar Enlace",
+        insert_cta: "Insertar Botón CTA",
+        insert_image: "Insertar Imagen",
+        insert_video: "Insertar Video",
+        confirm_insert: "Confirmar e Insertar",
+        button_text: "Texto del Botón",
+        button_url: "URL del Botón",
+        button_color: "Color del Botón",
+        image_url: "URL de la Imagen",
+        or: "O",
+        upload_image: "Subir Archivo de Imagen",
+        thumb_url: "URL de Miniatura",
+        video_link: "Enlace del Video (YouTube/Vimeo)",
+        rank_title: "Clasificaciones de Emisor",
+        rank_starter_desc: "¡La línea de salida! Comienza tu viaje enviando tus primeros correos.",
+        rank_bronze_desc: "¡Le estás pillando el truco! Se alcanza a los 10 correos enviados.",
+        rank_silver_desc: "Un emisor sólido. Desbloquea este nivel al alcanzar 50 correos.",
+        rank_gold_desc: "Un verdadero profesional. Se alcanza a los 100 correos enviados.",
+        req_emails: "Requiere {count} correos",
+        current_rank: "Rango Actual",
+        all_templates: "Todas las Plantillas",
+        template_tag: "Etiqueta",
+        tag_color: "Color",
+      }
+    };
+
+    // --- GOOGLE APPS SCRIPT CODE ---
+    const GAS_CODE = `function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var currentQuota = MailApp.getRemainingDailyQuota();
+    
+    if (data.action === "ping") {
+      return ContentService.createTextOutput(JSON.stringify({status: "ok", quota: currentQuota})).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (data.action === "getAliases") {
+      var aliases = GmailApp.getAliases();
+      var mainEmail = Session.getEffectiveUser().getEmail();
+      if (mainEmail && aliases.indexOf(mainEmail) === -1) {
+        aliases.unshift(mainEmail);
+      }
+      aliases = aliases.filter(function(a) { return a && a.length > 0; });
+      return ContentService.createTextOutput(JSON.stringify({aliases: aliases, quota: currentQuota})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (data.action === "saveData") {
+      var sheet = getOrCreateDatabase();
+      var payloadStr = JSON.stringify(data.payload);
+      sheet.clearContents();
+      
+      // Chunk data to bypass Google Sheets 50,000 character limit per cell
+      var chunks = [];
+      var chunkSize = 40000;
+      for (var i = 0; i < payloadStr.length; i += chunkSize) {
+         chunks.push([payloadStr.substring(i, i + chunkSize)]);
+      }
+      sheet.getRange(1, 1, chunks.length, 1).setValues(chunks);
+      
+      return ContentService.createTextOutput(JSON.stringify({status: "saved", quota: currentQuota})).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (data.action === "getData") {
+      var sheet = getOrCreateDatabase();
+      var dataRows = sheet.getRange("A:A").getValues();
+      var fullStr = "";
+      for (var i = 0; i < dataRows.length; i++) {
+         if (dataRows[i][0]) fullStr += dataRows[i][0];
+      }
+      var parsed = fullStr ? JSON.parse(fullStr) : {};
+      parsed.quota = currentQuota;
+      return ContentService.createTextOutput(JSON.stringify(parsed)).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var to = data.to;
+    var subject = data.subject;
+    var body = data.body;
+    var senderName = data.senderName;
+    var fromAlias = data.fromAlias;
+    var scheduledTime = data.scheduledTime;
+    var attachments = data.attachments || [];
+
+    if (scheduledTime && scheduledTime > new Date().getTime()) {
+       var trigger = ScriptApp.newTrigger("sendScheduled").timeBased().at(new Date(scheduledTime)).create();
+       var props = PropertiesService.getScriptProperties();
+       props.setProperty(trigger.getUniqueId(), JSON.stringify(data));
+       return ContentService.createTextOutput(JSON.stringify({status: "scheduled", quota: currentQuota})).setMimeType(ContentService.MimeType.JSON);
+    } else {
+       sendMailHelper(data);
+       var newQuota = MailApp.getRemainingDailyQuota();
+       return ContentService.createTextOutput(JSON.stringify({status: "sent", quota: newQuota})).setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({error: err.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getOrCreateDatabase() {
+  var props = PropertiesService.getUserProperties();
+  var dbId = props.getProperty("MailerSend_DB_ID");
+  var ss;
+  if (dbId) {
+    try { ss = SpreadsheetApp.openById(dbId); } catch(e) { ss = null; }
+  }
+  if (!ss) {
+    ss = SpreadsheetApp.create("MailerSend_Database");
+    props.setProperty("MailerSend_DB_ID", ss.getId());
+  }
+  var sheet = ss.getSheetByName("DataStore");
+  if (!sheet) {
+    sheet = ss.insertSheet("DataStore");
+  }
+  return sheet;
+}
+
+function sendMailHelper(data) {
+   var blobs = [];
+   if (data.attachments) {
+     data.attachments.forEach(function(att) {
+       blobs.push(Utilities.newBlob(Utilities.base64Decode(att.data), att.mimeType, att.name));
+     });
+   }
+   var options = { htmlBody: data.body };
+   if (data.senderName) options.name = data.senderName;
+   if (data.fromAlias) options.from = data.fromAlias;
+   if (blobs.length > 0) options.attachments = blobs;
+   
+   GmailApp.sendEmail(data.to, data.subject, "", options);
+}
+
+function sendScheduled(e) {
+   var props = PropertiesService.getScriptProperties();
+   var dataStr = props.getProperty(e.triggerUid);
+   if (dataStr) {
+      sendMailHelper(JSON.parse(dataStr));
+      props.deleteProperty(e.triggerUid);
+   }
+   ScriptApp.getProjectTriggers().forEach(function(t) {
+     if (t.getUniqueId() === e.triggerUid) ScriptApp.deleteTrigger(t);
+   });
+}`;
+
+    // --- COMPONENTS ---
+    const Button = ({ children, onClick, variant = 'primary', className = '', type = 'button', disabled = false }) => {
+      const baseStyle = "px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
+      const variants = {
+        primary: `bg-[${COLORS.primary}] text-white hover:bg-opacity-90 shadow-md shadow-[#9c9eed]/30`,
+        highlight: `bg-[${COLORS.highlight}] text-white hover:bg-opacity-90 shadow-md shadow-[#dfa4d4]/30`,
+        outline: `border-2 border-[${COLORS.primary}] text-[${COLORS.primary}] hover:bg-[${COLORS.lightBg}]`,
+        ghost: `text-[${COLORS.textGray}] hover:bg-gray-100`,
+        danger: `text-red-500 hover:bg-red-50`
+      };
+
+      return (
+        <button type={type} onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
+          {children}
+        </button>
+      );
+    };
+
+    const AnimatedCounter = ({ value, label, icon: Icon, colorClass, iconPadding = 'p-3', iconClass = "w-5 h-5 xl:w-[22px] xl:h-[22px]", title }) => {
+      const [display, setDisplay] = useState(0);
+      
+      useEffect(() => {
+        let start = display;
+        const end = Number(value) || 0;
+        const duration = 1000;
+        const startT = performance.now();
+        const step = (now) => {
+          const progress = Math.min((now - startT) / duration, 1);
+          setDisplay(Math.floor(start + (end - start) * progress));
+          if (progress < 1) requestAnimationFrame(step);
+          else setDisplay(end);
+        };
+        requestAnimationFrame(step);
+      }, [value]);
+
+      return (
+        <div title={title} className="flex items-center gap-2 xl:gap-3 bg-white px-3 xl:px-4 py-3 xl:py-4 rounded-xl xl:rounded-2xl shadow-sm border border-gray-100 flex-1">
+          <div className={`${iconPadding} rounded-lg xl:rounded-xl ${colorClass} flex items-center justify-center shrink-0 overflow-hidden`}>
+            <Icon size={22} className={iconClass}/>
+          </div>
+          <div>
+            <div className="text-xl xl:text-2xl font-bold text-gray-800 leading-none mb-1">{display}</div>
+            <div className="text-[9px] xl:text-[10px] text-gray-500 font-bold uppercase tracking-wider leading-none whitespace-nowrap">{label}</div>
+          </div>
+        </div>
+      );
+    };
+
+    // --- CUSTOM BADGE ICONS ---
+    const TopContactsCoverImage = ({ className }) => <img src="https://bucket.mlcdn.com/a/3336/3336910/images/5c554c9f2ff7d61d64b6f7e6485b7cb9937c1147.png" alt="Contacts" className={`${className} object-cover hover:scale-110 transition-transform duration-300 cursor-pointer`} />;
+    const TopQuotaCoverImage = ({ className }) => <img src="https://bucket.mlcdn.com/a/3336/3336910/images/25b2cc4e298d909d7b72f8abcb09dbf599fdd95c.png" alt="Quota" className={`${className} object-cover hover:scale-110 transition-transform duration-300 cursor-pointer`} />;
+    const TopSentCoverImage = ({ className }) => <img src="https://bucket.mlcdn.com/a/3336/3336910/images/b8c73d70362873f64b413c404e256d402d1639e1.png" alt="Sent Emails" className={`${className} object-cover hover:scale-110 transition-transform duration-300 cursor-pointer`} />;
+    const BadgeDefault = ({ size, className }) => <img src="https://bucket.mlcdn.com/a/3336/3336910/images/2beacad4ff4db7fe84448df907631076ae5d153a.png" alt="Badge" className={`${className || ''} hover:scale-110 transition-transform duration-300 cursor-pointer`} style={{ width: size, height: size, objectFit: 'contain' }} />;
+    const BadgeBronze = ({ size, className }) => <img src="https://bucket.mlcdn.com/a/3336/3336910/images/c89c156a2cac09aa58a0d34db8553fd3d5a59e56.png" alt="Badge" className={`${className || ''} hover:scale-110 transition-transform duration-300 cursor-pointer`} style={{ width: size, height: size, objectFit: 'contain' }} />;
+    const BadgeSilver = ({ size, className }) => <img src="https://bucket.mlcdn.com/a/3336/3336910/images/e05ce0f729d5335dd62dff0e439937332125e9e8.png" alt="Badge" className={`${className || ''} hover:scale-110 transition-transform duration-300 cursor-pointer`} style={{ width: size, height: size, objectFit: 'contain' }} />;
+    const BadgeGold = ({ size, className }) => <img src="https://bucket.mlcdn.com/a/3336/3336910/images/db45307bfeb4abb0f455cef4c83dfc0ca5ba4b52.png" alt="Badge" className={`${className || ''} hover:scale-110 transition-transform duration-300 cursor-pointer`} style={{ width: size, height: size, objectFit: 'contain' }} />;
+
+    const RichTextEditor = ({ value, onChange, t }) => {
+      const editorRef = useRef(null);
+      const [isHtmlMode, setIsHtmlMode] = useState(false);
+      const [modalConfig, setModalConfig] = useState(null);
+      const [savedRange, setSavedRange] = useState(null);
+      const [modalInputs, setModalInputs] = useState({});
+
+      useEffect(() => {
+        if (!isHtmlMode && editorRef.current && editorRef.current.innerHTML !== (value || '')) {
+          editorRef.current.innerHTML = value || '';
+        }
+      }, [value, isHtmlMode]);
+
+      const execCommand = (command, val = null) => {
+        if (isHtmlMode) return;
+        document.execCommand(command, false, val);
+        editorRef.current.focus();
+        onChange(editorRef.current.innerHTML);
+      };
+
+      const openModal = (type) => {
+        if (isHtmlMode) return;
+        const sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          setSavedRange(range);
+          if (type === 'link') setModalInputs({ text: range.toString() });
+          else setModalInputs({});
+        } else {
+          setSavedRange(null);
+          setModalInputs({});
+        }
+        
+        if (type === 'cta') setModalInputs(prev => ({...prev, color: '#9c9eed', text: 'Click Here'}));
+        setModalConfig(type);
+      };
+
+      const handleModalSubmit = (e) => {
+        e.preventDefault();
+        setModalConfig(null);
+        
+        setTimeout(() => {
+          editorRef.current.focus();
+          if (savedRange) {
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(savedRange);
+          }
+
+          if (modalConfig === 'link') {
+            if (modalInputs.text && (!savedRange || savedRange.toString() !== modalInputs.text)) {
+               execCommand('insertHTML', `<a href="${modalInputs.url}" target="_blank">${modalInputs.text}</a>`);
+            } else {
+               execCommand('createLink', modalInputs.url);
+            }
+          } else if (modalConfig === 'cta') {
+            const html = `<div style="text-align:center; margin: 20px 0;"><a href="${modalInputs.url}" target="_blank" style="display:inline-block;background-color:${modalInputs.color};color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;font-family:sans-serif;">${modalInputs.text}</a></div><br/>`;
+            execCommand('insertHTML', html);
+          } else if (modalConfig === 'image') {
+            if (modalInputs.base64) {
+              execCommand('insertImage', modalInputs.base64);
+            } else if (modalInputs.url) {
+              execCommand('insertImage', modalInputs.url);
+            }
+          } else if (modalConfig === 'video') {
+            const htmlSnippet = `<a href="${modalInputs.videoUrl}" target="_blank"><img src="${modalInputs.imgUrl}" alt="Watch Video" style="max-width: 100%; border-radius: 8px; margin: 10px 0;" /></a>&nbsp;`;
+            execCommand('insertHTML', htmlSnippet);
+          }
+        }, 10);
+      };
+
+      return (
+        <div className="relative border border-gray-200 rounded-xl overflow-hidden bg-white flex flex-col focus-within:border-[#9c9eed] focus-within:ring-1 focus-within:ring-[#9c9eed] transition-all">
+          {modalConfig && (
+            <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex items-center justify-center p-4">
+              <form onSubmit={handleModalSubmit} className="bg-white border border-gray-200 shadow-xl rounded-xl p-5 w-full max-w-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="font-bold text-gray-800 capitalize flex items-center gap-2">
+                    {modalConfig === 'link' && <LinkIcon size={18} className="text-[#9c9eed]" />}
+                    {modalConfig === 'cta' && <MousePointerClick size={18} className="text-[#9c9eed]" />}
+                    {modalConfig === 'image' && <ImageIcon size={18} className="text-[#9c9eed]" />}
+                    {modalConfig === 'video' && <Video size={18} className="text-[#9c9eed]" />}
+                    {t(`insert_${modalConfig}`)}
+                  </h4>
+                  <button type="button" onClick={() => setModalConfig(null)} className="text-gray-400 hover:text-gray-700 bg-gray-50 p-1.5 rounded-md"><X size={16}/></button>
+                </div>
+                
+                {modalConfig === 'link' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">URL Link</label>
+                      <input required type="url" placeholder="https://..." className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#9c9eed] outline-none" value={modalInputs.url || ''} onChange={e => setModalInputs({...modalInputs, url: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('button_text')} (Optional)</label>
+                      <input type="text" placeholder="Click here" className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#9c9eed] outline-none" value={modalInputs.text || ''} onChange={e => setModalInputs({...modalInputs, text: e.target.value})} />
+                    </div>
+                  </div>
+                )}
+
+                {modalConfig === 'cta' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('button_text')}</label>
+                      <input required type="text" className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#9c9eed] outline-none" value={modalInputs.text || ''} onChange={e => setModalInputs({...modalInputs, text: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('button_url')}</label>
+                      <input required type="url" placeholder="https://..." className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#9c9eed] outline-none" value={modalInputs.url || ''} onChange={e => setModalInputs({...modalInputs, url: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('button_color')}</label>
+                      <input required type="color" className="w-full h-10 p-1 border border-gray-200 rounded-lg cursor-pointer" value={modalInputs.color || '#9c9eed'} onChange={e => setModalInputs({...modalInputs, color: e.target.value})} />
+                    </div>
+                  </div>
+                )}
+
+                {modalConfig === 'image' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('image_url')}</label>
+                      <input type="url" placeholder="https://..." className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#9c9eed] outline-none" value={modalInputs.url || ''} onChange={e => setModalInputs({...modalInputs, url: e.target.value, base64: null})} />
+                    </div>
+                    <div className="relative text-center">
+                      <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+                      <span className="relative bg-white px-2 text-xs font-bold uppercase text-gray-400">{t('or')}</span>
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('upload_image')}</label>
+                      <input type="file" accept="image/*" className="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#9c9eed]/10 file:text-[#9c9eed] hover:file:bg-[#9c9eed]/20 cursor-pointer" onChange={(e) => {
+                        const file = e.target.files[0];
+                        if(file) {
+                            const reader = new FileReader();
+                            reader.onload = (evt) => setModalInputs({...modalInputs, base64: evt.target.result, url: ''});
+                            reader.readAsDataURL(file);
+                        }
+                      }} />
+                      {modalInputs.base64 && <div className="text-xs text-emerald-500 font-semibold mt-2 bg-emerald-50 p-2 rounded flex items-center gap-1"><CheckCircle size={14}/> Image attached</div>}
+                    </div>
+                  </div>
+                )}
+
+                {modalConfig === 'video' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('thumb_url')}</label>
+                      <input required type="url" placeholder="https://..." className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#9c9eed] outline-none" value={modalInputs.imgUrl || ''} onChange={e => setModalInputs({...modalInputs, imgUrl: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('video_link')}</label>
+                      <input required type="url" placeholder="https://..." className="w-full text-sm p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#9c9eed] outline-none" value={modalInputs.videoUrl || ''} onChange={e => setModalInputs({...modalInputs, videoUrl: e.target.value})} />
+                    </div>
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full mt-5">{t('confirm_insert')}</Button>
+              </form>
+            </div>
+          )}
+
+          <div className={`bg-[${COLORS.lightBg}] border-b border-gray-200 p-2 flex gap-1 flex-wrap justify-between`}>
+            <div className="flex gap-1 flex-wrap">
+              <button type="button" onClick={() => execCommand('bold')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50"><Bold size={16} /></button>
+              <button type="button" onClick={() => execCommand('italic')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50"><Italic size={16} /></button>
+              <button type="button" onClick={() => execCommand('underline')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50"><Underline size={16} /></button>
+              <div className="w-px h-6 bg-gray-300 mx-1 self-center"></div>
+              <button type="button" onClick={() => execCommand('insertUnorderedList')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50"><List size={16} /></button>
+              <div className="w-px h-6 bg-gray-300 mx-1 self-center"></div>
+              <button type="button" onClick={() => execCommand('justifyLeft')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50"><AlignLeft size={16} /></button>
+              <button type="button" onClick={() => execCommand('justifyCenter')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50"><AlignCenter size={16} /></button>
+              <button type="button" onClick={() => execCommand('justifyRight')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50"><AlignRight size={16} /></button>
+              <div className="w-px h-6 bg-gray-300 mx-1 self-center"></div>
+              <button type="button" onClick={() => openModal('link')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50" title={t('insert_link')}><LinkIcon size={16} /></button>
+              <button type="button" onClick={() => openModal('cta')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50" title={t('insert_cta')}><MousePointerClick size={16} /></button>
+              <button type="button" onClick={() => openModal('image')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50" title={t('insert_image')}><ImageIcon size={16} /></button>
+              <button type="button" onClick={() => openModal('video')} disabled={isHtmlMode} className="p-1.5 hover:bg-white rounded text-gray-700 disabled:opacity-50" title={t('insert_video')}><Video size={16} /></button>
+            </div>
+            <button type="button" onClick={() => setIsHtmlMode(!isHtmlMode)} className={`p-1.5 rounded text-gray-700 transition-colors ${isHtmlMode ? 'bg-[#9c9eed] text-white' : 'hover:bg-white'}`} title="Toggle HTML View"><Code size={16} /></button>
+          </div>
+          {isHtmlMode ? (
+            <textarea 
+              className="p-4 min-h-[300px] w-full outline-none font-mono text-sm text-gray-800 resize-y bg-gray-50" 
+              value={value || ''} 
+              onChange={(e) => onChange(e.target.value)} 
+              placeholder=""
+            />
+          ) : (
+            <div 
+              ref={editorRef}
+              contentEditable
+              className="p-4 min-h-[300px] max-h-[500px] overflow-y-auto outline-none prose prose-sm max-w-none text-gray-800"
+              onInput={(e) => onChange(e.currentTarget.innerHTML)}
+              onBlur={(e) => onChange(e.currentTarget.innerHTML)}
+            />
+          )}
+        </div>
+      );
+    };
+
+    // --- SAFE STORAGE HELPERS ---
+    const safeGetLocal = (key, fallback) => {
+      try {
+        const item = localStorage.getItem(key);
+        if (!item) return fallback;
+        const parsed = JSON.parse(item);
+        if (key === 'mailerSend_templates' && !Array.isArray(parsed)) return fallback;
+        if (key === 'mailerSend_contacts' && !Array.isArray(parsed)) return fallback;
+        if (key === 'mailerSend_logs' && !Array.isArray(parsed)) return fallback;
+        if (key === 'mailerSend_stats' && typeof parsed !== 'object') return fallback;
+        return parsed;
+      } catch (e) {
+        console.error(`Error parsing ${key} from local storage:`, e);
+        return fallback; 
+      }
+    };
+
+    const safeSetLocal = (key, value) => {
+      try {
+        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+      } catch (e) {
+        console.error(`Error saving ${key} to local storage (Storage full?):`, e);
+        alert("Storage Warning: Could not save data. Your browser storage might be full. Try deleting templates with large embedded images.");
+      }
+    };
+
+    // --- ERROR BOUNDARY (Prevents Blank Pages for React Render Errors) ---
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="flex flex-col items-center justify-center h-screen bg-[#f7f7fa] p-6 text-center">
+              <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md border border-red-100">
+                <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle size={32} />
+                </div>
+                <h1 className="text-2xl font-bold text-gray-800 mb-2">Oops! App Crashed.</h1>
+                <p className="text-sm text-gray-600 mb-6">Your local data became corrupted or the browser storage limit was exceeded. Resetting your local data will instantly restore access to the app.</p>
+                <button 
+                  onClick={() => { localStorage.clear(); window.location.reload(); }} 
+                  className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-md"
+                >
+                  Hard Reset & Recover App
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    // --- MAIN APPLICATION ---
+    function App() {
+      const [lang, setLang] = useState('en');
+
+      // INDESTRUCTIBLE HELPER: Prevents browser memory crashes by hiding massive images in previews safely
+      const getSafePreview = (html) => {
+        if (!html || typeof html !== 'string') return '';
+        try {
+          return html.replace(/src=["']data:image\/[^;]+;base64,[^"']+["']/gi, 'alt="[Large Image Hidden in Preview]"');
+        } catch (e) {
+          return '';
+        }
+      };
+      
+      const [view, setView] = useState('overview');
+      const [gasUrl, setGasUrl] = useState('');
+      const [showSetup, setShowSetup] = useState(false);
+      const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+      
+      const [templates, setTemplates] = useState([]);
+      const [contacts, setContacts] = useState([]);
+      const [logs, setLogs] = useState([]);
+      const [stats, setStats] = useState({ sent: 0 });
+      
+      const [aliases, setAliases] = useState([]);
+      const [fromAlias, setFromAlias] = useState('');
+      
+      const [editingTemplateId, setEditingTemplateId] = useState(null);
+      
+      const [to, setTo] = useState('');
+      const [senderName, setSenderName] = useState('');
+      const [subject, setSubject] = useState('');
+      const [body, setBody] = useState('');
+      const [attachments, setAttachments] = useState([]);
+      const [scheduleDate, setScheduleDate] = useState('');
+      const [scheduleTime, setScheduleTime] = useState('');
+      
+      const [templateTag, setTemplateTag] = useState('');
+      const [templateTagColor, setTemplateTagColor] = useState('#9c9eed');
+      const [activeTag, setActiveTag] = useState('All');
+
+      const [signature, setSignature] = useState('');
+      const [attachSignature, setAttachSignature] = useState(false);
+
+      const [isLoading, setIsLoading] = useState(false);
+      const [notification, setNotification] = useState(null);
+      
+      const [showContactForm, setShowContactForm] = useState(false);
+      const [contactForm, setContactForm] = useState({ id: '', name: '', email: '', business: '', phone: '', tag: '', note: '' });
+
+      const [quota, setQuota] = useState(null);
+      const [showGoldPopup, setShowGoldPopup] = useState(false);
+
+      const [isDataLoaded, setIsDataLoaded] = useState(false);
+      const [isSyncing, setIsSyncing] = useState(false);
+      const [lastSynced, setLastSynced] = useState(null);
+      const [hasConnectionError, setHasConnectionError] = useState(false);
+      const isFirstMount = useRef(true);
+      const [isRankSidebarOpen, setIsRankSidebarOpen] = useState(false);
+
+      const t = (key, params = {}) => {
+        let str = TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en'][key] || key;
+        Object.keys(params).forEach(k => {
+          str = str.replace(`{${k}}`, params[k]);
+        });
+        return str;
+      };
+
+      const toggleLanguage = () => {
+        const newLang = lang === 'en' ? 'es' : 'en';
+        setLang(newLang);
+        safeSetLocal('mailerSend_lang', newLang);
+      };
+
+      useEffect(() => {
+        try {
+          const savedLang = localStorage.getItem('mailerSend_lang');
+          if (savedLang) {
+            setLang(savedLang);
+          } else {
+            const browserLang = navigator.language || navigator.userLanguage;
+            if (browserLang && browserLang.toLowerCase().startsWith('es')) {
+              setLang('es');
+              safeSetLocal('mailerSend_lang', 'es'); 
+            }
+          }
+        } catch (e) {
+          console.warn("Storage access prevented on load.");
+        }
+
+        const loadLocalFallback = () => {
+          setTemplates(safeGetLocal('mailerSend_templates', []));
+          setContacts(safeGetLocal('mailerSend_contacts', []));
+          setLogs(safeGetLocal('mailerSend_logs', []));
+          setStats(safeGetLocal('mailerSend_stats', { sent: 0 }));
+          
+          const savedSignature = safeGetLocal('mailerSend_signature', '');
+          if (savedSignature && typeof savedSignature === 'string') setSignature(savedSignature);
+          
+          setAttachSignature(safeGetLocal('mailerSend_attachSignature', false));
+          setIsDataLoaded(true);
+        };
+
+        try {
+          const savedUrl = localStorage.getItem('mailerSend_gasUrl');
+          if (savedUrl) {
+            setGasUrl(savedUrl);
+            fetchAliases(savedUrl);
+            setIsSyncing(true);
+
+            fetch(savedUrl, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'getData' }),
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            }).then(res => {
+              if (!res.ok) throw new Error("Backend connection failed");
+              return res.json();
+            }).then(result => {
+               if (result && !result.error && Object.keys(result).length > 0) {
+                 if(result.templates) { setTemplates(result.templates); safeSetLocal('mailerSend_templates', result.templates); }
+                 if(result.contacts) { setContacts(result.contacts); safeSetLocal('mailerSend_contacts', result.contacts); }
+                 if(result.logs) { setLogs(result.logs); safeSetLocal('mailerSend_logs', result.logs); }
+                 if(result.stats) { setStats(result.stats); safeSetLocal('mailerSend_stats', result.stats); }
+                 if(result.signature !== undefined) { setSignature(result.signature); safeSetLocal('mailerSend_signature', result.signature); }
+                 if(result.attachSignature !== undefined) { setAttachSignature(result.attachSignature); safeSetLocal('mailerSend_attachSignature', result.attachSignature); }
+                 if(result.quota !== undefined) { setQuota(result.quota); }
+               } else {
+                 loadLocalFallback();
+               }
+               setIsDataLoaded(true);
+               setLastSynced(new Date());
+               setHasConnectionError(false);
+            }).catch(e => {
+               console.error("Cloud restore failed", e);
+               loadLocalFallback();
+               setHasConnectionError(true);
+            }).finally(() => setIsSyncing(false));
+          } else {
+            loadLocalFallback();
+            setShowSetup(true);
+          }
+        } catch (err) {
+          loadLocalFallback();
+          setShowSetup(true);
+        }
+      }, []);
+
+      useEffect(() => {
+        if (!isDataLoaded || !gasUrl) return;
+        if (isFirstMount.current) {
+          isFirstMount.current = false;
+          return;
+        }
+
+        const timeoutId = setTimeout(() => {
+          setIsSyncing(true);
+          const payload = { templates, contacts, logs, stats, signature, attachSignature };
+          fetch(gasUrl, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'saveData', payload }),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+          }).then(() => {
+            setLastSynced(new Date());
+            setHasConnectionError(false);
+          }).catch(() => {
+            setHasConnectionError(true);
+          }).finally(() => setIsSyncing(false));
+        }, 1500); 
+
+        return () => clearTimeout(timeoutId);
+      }, [templates, contacts, logs, stats, signature, attachSignature, gasUrl, isDataLoaded]);
+
+      const fetchAliases = async (url) => {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'getAliases' }),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+          });
+          const result = await response.json();
+          if (result.aliases && result.aliases.length > 0) {
+            setAliases(result.aliases);
+            setFromAlias(result.aliases[0]);
+          }
+          if (result.quota !== undefined) {
+            setQuota(result.quota);
+          }
+        } catch (err) {
+          console.error("Failed to fetch aliases", err);
+          setHasConnectionError(true);
+        }
+      };
+
+      const showNotif = (msg, type = 'success') => {
+        setNotification({ msg, type });
+        setTimeout(() => setNotification(null), 4000);
+      };
+
+      const addLog = (action, details, type = 'info') => {
+        const newLog = { 
+          id: Date.now().toString(), 
+          action, 
+          details, 
+          type, 
+          timestamp: Date.now(),
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' ' + new Date().toLocaleDateString()
+        };
+        setLogs(prev => {
+          const updated = [newLog, ...prev].slice(0, 100); 
+          safeSetLocal('mailerSend_logs', updated);
+          return updated;
+        });
+      };
+
+      const handleSaveGasUrl = async (url) => {
+        setGasUrl(url);
+        safeSetLocal('mailerSend_gasUrl', url);
+        setShowSetup(false);
+        fetchAliases(url);
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: [COLORS.primary, COLORS.highlight, '#ffffff'] });
+        
+        setIsSyncing(true);
+        try {
+          const res = await fetch(url, {
+             method: 'POST',
+             body: JSON.stringify({ action: 'getData' }),
+             headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+          });
+          const result = await res.json();
+          
+          if (result && !result.error && Object.keys(result).length > 0) {
+             if(result.templates) { setTemplates(result.templates); safeSetLocal('mailerSend_templates', result.templates); }
+             if(result.contacts) { setContacts(result.contacts); safeSetLocal('mailerSend_contacts', result.contacts); }
+             if(result.logs) { setLogs(result.logs); safeSetLocal('mailerSend_logs', result.logs); }
+             if(result.stats) { setStats(result.stats); safeSetLocal('mailerSend_stats', result.stats); }
+             if(result.signature !== undefined) { setSignature(result.signature); safeSetLocal('mailerSend_signature', result.signature); }
+             if(result.attachSignature !== undefined) { setAttachSignature(result.attachSignature); safeSetLocal('mailerSend_attachSignature', result.attachSignature); }
+             if(result.quota !== undefined) { setQuota(result.quota); }
+             showNotif('Backend connected & Cloud data restored!');
+             addLog('System', 'Connected Backend & Restored Cloud Data', 'success');
+          } else {
+             const payload = { templates, contacts, logs, stats, signature, attachSignature };
+             await fetch(url, {
+               method: 'POST',
+               body: JSON.stringify({ action: 'saveData', payload }),
+               headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+             });
+             showNotif('Backend URL Saved & Database Initialized!');
+             addLog('System', 'Connected Backend URL and Created Database', 'success');
+          }
+          setLastSynced(new Date());
+          setHasConnectionError(false);
+        } catch(e) {
+          showNotif('Connected, but cloud sync failed.', 'error');
+          setHasConnectionError(true);
+        } finally {
+          setIsSyncing(false);
+        }
+      };
+
+      const saveTemplate = () => {
+        if (!subject && !body) return showNotif(t('notif_req'), 'error');
+        
+        if (editingTemplateId) {
+          const updated = templates.map(tItem => 
+            tItem.id === editingTemplateId ? { ...tItem, name: subject || 'Untitled Template', subject, body, senderName, tag: templateTag, tagColor: templateTagColor } : tItem
+          );
+          setTemplates(updated);
+          safeSetLocal('mailerSend_templates', updated);
+          addLog('Template', `Updated template: ${subject || 'Untitled'}`, 'info');
+          showNotif(t('notif_saved'));
+        } else {
+          const newTemplate = {
+            id: Date.now().toString(),
+            name: subject || 'Untitled Template',
+            subject,
+            body,
+            senderName,
+            tag: templateTag,
+            tagColor: templateTagColor
+          };
+          const updated = [...templates, newTemplate];
+          setTemplates(updated);
+          safeSetLocal('mailerSend_templates', updated);
+          setEditingTemplateId(newTemplate.id);
+          addLog('Template', `Created new template: ${subject || 'Untitled'}`, 'success');
+          showNotif(t('notif_saved'));
+        }
+      };
+
+      const deleteTemplate = (id) => {
+        const updated = templates.filter(tItem => tItem.id !== id);
+        setTemplates(updated);
+        safeSetLocal('mailerSend_templates', updated);
+        addLog('Template', `Deleted a template`, 'warning');
+      };
+            
+      const saveSignature = () => {
+        safeSetLocal('mailerSend_signature', signature);
+        showNotif('Signature saved!');
+      };
+
+      const saveContact = () => {
+        if (!contactForm.name || !contactForm.email) return showNotif('Name and Email are required', 'error');
+        let updated;
+        if (contactForm.id) {
+          updated = contacts.map(c => c.id === contactForm.id ? contactForm : c);
+          addLog('Contact', `Updated contact: ${contactForm.name}`, 'info');
+        } else {
+          updated = [...contacts, { ...contactForm, id: Date.now().toString() }];
+          addLog('Contact', `Added new contact: ${contactForm.name}`, 'success');
+        }
+        setContacts(updated);
+        safeSetLocal('mailerSend_contacts', updated);
+        setShowContactForm(false);
+        setContactForm({ id: '', name: '', email: '', business: '', phone: '', tag: '', note: '' });
+      };
+
+      const deleteContact = (id) => {
+        const updated = contacts.filter(c => c.id !== id);
+        setContacts(updated);
+        safeSetLocal('mailerSend_contacts', updated);
+        addLog('Contact', `Deleted a contact`, 'warning');
+      };
+
+      const editContact = (contact) => {
+        setContactForm(contact);
+        setShowContactForm(true);
+      };
+
+      const loadTemplate = (template) => {
+        setSubject(template.subject);
+        setBody(template.body);
+        if(template.senderName) setSenderName(template.senderName);
+        if(template.tag) setTemplateTag(template.tag); else setTemplateTag('');
+        if(template.tagColor) setTemplateTagColor(template.tagColor); else setTemplateTagColor('#9c9eed');
+        setEditingTemplateId(template.id);
+        setView('compose');
+      };
+
+      const resetForm = () => {
+        setTo('');
+        setSubject('');
+        setBody('');
+        setSenderName('');
+        if (aliases.length > 0) setFromAlias(aliases[0]);
+        setAttachments([]);
+        setScheduleDate('');
+        setScheduleTime('');
+        setTemplateTag('');
+        setTemplateTagColor('#9c9eed');
+        setEditingTemplateId(null);
+      };
+
+      const handleFileUpload = (e) => {
+        const files = Array.from(e.target.files);
+        let totalSize = attachments.reduce((acc, file) => acc + file.size, 0);
+        const newAttachments = [];
+        
+        files.forEach(file => {
+          if (totalSize + file.size > 10 * 1024 * 1024) {
+            showNotif(`Skipped ${file.name}: Exceeds 10MB.`, 'error');
+            return;
+          }
+          totalSize += file.size;
+          
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            newAttachments.push({
+              id: Math.random().toString(36).substr(2, 9),
+              name: file.name,
+              mimeType: file.type,
+              data: event.target.result.split(',')[1],
+              size: file.size
+            });
+            if (newAttachments.length === files.length) {
+               setAttachments(prev => [...prev, ...newAttachments]);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+
+      const removeAttachment = (id) => {
+        setAttachments(attachments.filter(a => a.id !== id));
+      };
+
+      const sendEmail = async () => {
+        if (!gasUrl) return setShowSetup(true);
+        if (!to || !subject) return showNotif(t('notif_req'), 'error');
+
+        setIsLoading(true);
+
+        let scheduledTimestamp = null;
+        if (scheduleDate && scheduleTime) {
+          scheduledTimestamp = new Date(`${scheduleDate}T${scheduleTime}`).getTime();
+          if (scheduledTimestamp <= new Date().getTime()) {
+            setIsLoading(false);
+            return showNotif('Scheduled time must be in the future.', 'error');
+          }
+        }
+
+        let finalBody = body;
+        if (attachSignature && signature) {
+          finalBody += `<br/><br/>${signature}`;
+        }
+
+        const payload = {
+          to, subject, body: finalBody, senderName, fromAlias,
+          attachments: attachments.map(({name, mimeType, data}) => ({name, mimeType, data})),
+          scheduledTime: scheduledTimestamp
+        };
+
+        try {
+          const response = await fetch(gasUrl, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+          });
+
+          const contentType = response.headers.get("content-type");
+          if (contentType && !contentType.includes("application/json")) {
+             throw new Error("Invalid response format. Re-deploy script as 'Web App' with access 'Anyone'.");
+          }
+
+          const result = await response.json();
+          if (result.error) throw new Error(result.error);
+
+          if (result.status === 'scheduled') {
+            showNotif(`Email scheduled for ${scheduleDate} ${scheduleTime}`);
+            addLog('Email', `Scheduled email to: ${to}`, 'success');
+          } else {
+            showNotif(t('notif_sent'));
+            addLog('Email', `Sent email to: ${to}`, 'success');
+
+            const newSentCount = (stats.sent || 0) + 1;
+            const newStats = { ...stats, sent: newSentCount };
+            setStats(newStats);
+            safeSetLocal('mailerSend_stats', newStats);
+
+            if (newSentCount === 10) {
+              setTimeout(() => confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: [COLORS.primary, COLORS.highlight, '#ffffff', '#c0c0c0'] }), 500);
+            } else if (newSentCount === 50) {
+              setTimeout(() => confetti({ particleCount: 300, spread: 120, origin: { y: 0.5 }, colors: [COLORS.primary, COLORS.highlight, '#ffffff', '#FFD700'] }), 500);
+            } else if (newSentCount === 100) {
+              setShowGoldPopup(true);
+              const duration = 5 * 1000;
+              const animationEnd = Date.now() + duration;
+              const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+              const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+              }, 250);
+            } else if (newSentCount === 1) {
+              setTimeout(() => confetti({ particleCount: 150, spread: 70, origin: { y: 0.5 }, colors: [COLORS.primary, COLORS.highlight, '#ffffff'] }), 500);
+            }
+          }
+          
+          if (result.quota !== undefined) {
+             setQuota(result.quota);
+          }
+
+          setTo('');
+          setAttachments([]);
+          setScheduleDate('');
+          setScheduleTime('');
+          setHasConnectionError(false);
+        } catch (err) {
+          console.error(err);
+          const diagMsg = err.message.includes('Unexpected token') || err.message.includes('format') 
+              ? 'Backend returned invalid format. Check deployment settings (Anyone).' 
+              : `Failed to send: ${err.message}`;
+          showNotif(diagMsg, 'error');
+          addLog('Error', `Send failed: ${err.message}`, 'error');
+          setHasConnectionError(true);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      const clearLogs = () => {
+        if(confirm('Are you sure?')) {
+          setLogs([]);
+          safeSetLocal('mailerSend_logs', []);
+        }
+      };
+
+      const getBadgeProps = (count, isTopCounter = false) => {
+        if (count >= 100) return { icon: BadgeGold, colorClass: "bg-purple-100", label: t('badge_gold') };
+        if (count >= 50) return { icon: BadgeSilver, colorClass: "bg-yellow-100", label: t('badge_silver') };
+        if (count >= 10) return { icon: BadgeBronze, colorClass: "bg-slate-100", label: t('badge_bronze') };
+        
+        if (isTopCounter) {
+           return { icon: BadgeDefault, colorClass: "bg-[#f0e6ff]", label: t('badge_starter_short') };
+        }
+        return { icon: BadgeDefault, colorClass: "bg-[#f0e6ff]", label: t('badge_starter') };
+      };
+
+      const overviewBadgeProps = getBadgeProps(stats.sent || 0, false);
+      const OverviewBadgeIcon = overviewBadgeProps.icon;
+
+      const displayQuota = useMemo(() => {
+        if (quota !== null) return quota;
+        const startOfDay = new Date(new Date().setHours(0,0,0,0)).getTime();
+        const sentToday = logs.filter(l => l.action === 'Email' && l.timestamp && l.timestamp >= startOfDay).length;
+        return Math.max(0, 100 - sentToday);
+      }, [quota, logs]);
+
+      const activityData = useMemo(() => {
+        const last7Days = Array.from({length: 7}, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          return d;
+        });
+        
+        const counts = last7Days.map((targetDate) => {
+          const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()).getTime();
+          const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
+          
+          return logs.filter(l => {
+            if (l.action !== 'Email') return false;
+            if (l.timestamp) {
+              return l.timestamp >= startOfDay && l.timestamp < endOfDay;
+            }
+            const dateStr = targetDate.toLocaleDateString();
+            return l.time && l.time.includes(dateStr);
+          }).length;
+        });
+
+        const max = Math.max(...counts, 5);
+        return counts.map((count, i) => ({
+          label: last7Days[i].toLocaleDateString([], {weekday: 'short'}),
+          value: count,
+          height: (count / max) * 100
+        }));
+      }, [logs]);
+
+      const uniqueTags = useMemo(() => {
+         const tags = new Map();
+         templates.forEach(t => {
+            if(t.tag && t.tag.trim() !== '') tags.set(t.tag, t.tagColor || '#9c9eed');
+         });
+         return Array.from(tags.entries()).map(([name, color]) => ({name, color}));
+      }, [templates]);
+
+      return (
+        <div className="flex flex-col h-screen font-sans text-gray-800 selection:bg-[#dfa4d4] selection:text-white">
+          
+          {/* TOP NAVIGATION */}
+          <nav className={`bg-[${COLORS.darkBg}] text-white flex items-center justify-between px-4 xl:px-6 py-3 shrink-0 relative z-50 shadow-md gap-4`}>
+            <div className="flex items-center gap-3 shrink-0">
+              <img src={LOGO_URL} alt="Logo" className="w-8 h-8 object-contain drop-shadow-md rounded-[7px] bg-white/10 p-1 hover:scale-110 transition-transform duration-300 cursor-pointer" />
+              <h1 className="text-xl font-bold tracking-wide">MailerSend</h1>
+            </div>
+
+            <div className="flex flex-1 justify-end items-center gap-3 xl:gap-5">
+              
+              {/* Desktop Nav Links */}
+              <div className="hidden xl:flex items-center gap-1.5">
+                <button onClick={() => { setView('overview'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${view === 'overview' ? `bg-[${COLORS.primary}] text-white shadow-md shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
+                  <LayoutDashboard size={18} /> <span className="font-medium text-sm">{t('nav_overview')}</span>
+                </button>
+                <button onClick={() => { setView('compose'); resetForm(); setIsMobileMenuOpen(false); }} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${view === 'compose' ? `bg-[${COLORS.primary}] text-white shadow-md shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
+                  <Send size={18} /> <span className="font-medium text-sm">{t('nav_compose')}</span>
+                </button>
+                <button onClick={() => { setView('templates'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${view === 'templates' ? `bg-[${COLORS.primary}] text-white shadow-md shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
+                  <FileText size={18} /> <span className="font-medium text-sm">{t('nav_templates')}</span>
+                </button>
+                <button onClick={() => { setView('signature'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${view === 'signature' ? `bg-[${COLORS.primary}] text-white shadow-md shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
+                  <PenTool size={18} /> <span className="font-medium text-sm">{t('nav_signature')}</span>
+                </button>
+                <button onClick={() => { setView('contacts'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${view === 'contacts' ? `bg-[${COLORS.primary}] text-white shadow-md shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
+                  <Users size={18} /> <span className="font-medium text-sm">{t('nav_contacts')}</span>
+                </button>
+                <button onClick={() => { setView('logs'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${view === 'logs' ? `bg-[${COLORS.primary}] text-white shadow-md shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}>
+                  <Activity size={18} /> <span className="font-medium text-sm">{t('nav_logs')}</span>
+                </button>
+              </div>
+
+              {/* Desktop Setup Button & Tools */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                
+                {/* Dynamic LED Dot Sync Status Indicator */}
+                <div className="hidden xl:flex items-center gap-2 px-3 py-2 text-gray-300 text-sm font-medium cursor-default">
+                  {isSyncing ? (
+                    <><div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse drop-shadow-[0_0px_5px_rgba(250,204,21,0.8)]"></div> Syncing</>
+                  ) : hasConnectionError ? (
+                    <><div className="w-2 h-2 rounded-full bg-red-500 drop-shadow-[0_0px_5px_rgba(239,68,68,0.8)]"></div> Error</>
+                  ) : lastSynced ? (
+                    <><div className="w-2 h-2 rounded-full bg-emerald-400 drop-shadow-[0_0px_5px_rgba(52,211,153,0.8)]"></div> Synced</>
+                  ) : (
+                    <><div className="w-2 h-2 rounded-full bg-slate-500"></div> Local</>
+                  )}
+                </div>
+
+                <button onClick={toggleLanguage} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all text-sm font-medium" title="Switch Language">
+                  <Globe size={18} /> <span className="uppercase">{lang}</span>
+                </button>
+                <button onClick={() => { setShowSetup(true); setIsMobileMenuOpen(false); }} className="hidden xl:flex items-center gap-2 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+                  <Settings size={18} /> <span>{t('nav_setup')}</span>
+                </button>
+                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="xl:hidden text-gray-300 hover:text-white p-1 ml-2">
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Dropdown Menu */}
+            {isMobileMenuOpen && (
+              <div className={`absolute top-full left-0 w-full bg-[${COLORS.darkBg}] border-t border-white/10 p-4 flex flex-col gap-2 z-50 xl:hidden shadow-xl`}>
+                <button onClick={() => { setView('overview'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${view === 'overview' ? `bg-[${COLORS.primary}] text-white shadow-xl shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/5'}`}>
+                  <LayoutDashboard size={20} /> <span className="font-medium">{t('nav_overview')}</span>
+                </button>
+                <button onClick={() => { setView('compose'); resetForm(); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${view === 'compose' ? `bg-[${COLORS.primary}] text-white shadow-xl shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/5'}`}>
+                  <Send size={20} /> <span className="font-medium">{t('nav_compose')}</span>
+                </button>
+                <button onClick={() => { setView('templates'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${view === 'templates' ? `bg-[${COLORS.primary}] text-white shadow-xl shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/5'}`}>
+                  <FileText size={20} /> <span className="font-medium">{t('nav_templates')}</span>
+                </button>
+                <button onClick={() => { setView('signature'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${view === 'signature' ? `bg-[${COLORS.primary}] text-white shadow-xl shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/5'}`}>
+                  <PenTool size={20} /> <span className="font-medium">{t('nav_signature')}</span>
+                </button>
+                <button onClick={() => { setView('contacts'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${view === 'contacts' ? `bg-[${COLORS.primary}] text-white shadow-xl shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/5'}`}>
+                  <Users size={20} /> <span className="font-medium">{t('nav_contacts')}</span>
+                </button>
+                <button onClick={() => { setView('logs'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${view === 'logs' ? `bg-[${COLORS.primary}] text-white shadow-xl shadow-[#9c9eed]/20` : 'text-gray-300 hover:bg-white/5'}`}>
+                  <Activity size={20} /> <span className="font-medium">{t('nav_logs')}</span>
+                </button>
+                <div className="h-px bg-white/10 my-1 w-full"></div>
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                    {isSyncing ? (
+                      <><div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse drop-shadow-[0_0px_5px_rgba(250,204,21,0.8)]"></div> Syncing</>
+                    ) : hasConnectionError ? (
+                      <><div className="w-2 h-2 rounded-full bg-red-500 drop-shadow-[0_0px_5px_rgba(239,68,68,0.8)]"></div> Error</>
+                    ) : lastSynced ? (
+                      <><div className="w-2 h-2 rounded-full bg-emerald-400 drop-shadow-[0_0px_5px_rgba(52,211,153,0.8)]"></div> Synced</>
+                    ) : (
+                      <><div className="w-2 h-2 rounded-full bg-slate-500"></div> Local</>
+                    )}
+                  </div>
+                  <button onClick={() => { setShowSetup(true); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 px-4 py-2 rounded-xl text-gray-300 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+                    <Settings size={18} /> {t('nav_setup')}
+                  </button>
+                </div>
+              </div>
+            )}
+          </nav>
+
+          {/* MAIN CONTAINER */}
+          <div className="flex-1 flex flex-col relative overflow-hidden bg-[#fafafa] w-full">
+            {notification && (
+              <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl animate-bounce-short ${notification.type === 'error' ? 'bg-red-500 text-white' : `bg-[${COLORS.primary}] text-white`}`}>
+                {notification.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
+                <span className="font-medium whitespace-nowrap">{notification.msg}</span>
+              </div>
+            )}
+
+            <header className="min-h-[5rem] py-3 xl:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 xl:px-8 border-b border-gray-100 bg-white shadow-sm shrink-0 gap-3 sm:gap-0">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl xl:text-2xl font-bold text-gray-800 capitalize truncate">
+                  {view === 'overview' ? t('dash_title') : view === 'compose' ? (editingTemplateId ? t('edit_title') : t('compose_title')) : t(`nav_${view}`)}
+                </h2>
+              </div>
+              
+              <div className="flex items-center gap-2 xl:gap-4 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto hide-scrollbar">
+                <div className="flex gap-2 xl:gap-4 my-1 xl:my-2 min-w-max">
+                  <AnimatedCounter 
+                    value={contacts.length} 
+                    label={t('nav_contacts')} 
+                    icon={TopContactsCoverImage} 
+                    colorClass="bg-transparent" 
+                    iconPadding="p-0" 
+                    iconClass="w-9 h-9 xl:w-[42px] xl:h-[42px]" 
+                  />
+                  <AnimatedCounter 
+                    value={displayQuota} 
+                    label={t('quota')} 
+                    icon={TopQuotaCoverImage} 
+                    colorClass="bg-transparent" 
+                    iconPadding="p-0" 
+                    iconClass="w-9 h-9 xl:w-[42px] xl:h-[42px]" 
+                    title={t('limit_info')}
+                  />
+                  <AnimatedCounter 
+                    value={stats.sent || 0} 
+                    label={t('sent_short')} 
+                    icon={TopSentCoverImage} 
+                    colorClass="bg-transparent" 
+                    iconPadding="p-0" 
+                    iconClass="w-9 h-9 xl:w-[42px] xl:h-[42px]" 
+                  />
+                </div>
+
+                {view === 'compose' && (
+                   <div className="relative shrink-0">
+                     <button 
+                       onClick={() => { if(confirm('Are you sure you want to clear the entire form?')) resetForm(); }} 
+                       className="w-[58px] h-[58px] xl:w-[68px] xl:h-[68px] flex flex-col items-center justify-center bg-white border border-gray-100 rounded-xl xl:rounded-2xl shadow-sm hover:bg-red-50 hover:border-red-100 group transition-all" 
+                       title="Clear Form"
+                     >
+                       <div className="p-1.5 bg-[#f7f7fa] group-hover:bg-red-100 text-[#9c9eed] group-hover:text-red-500 rounded-lg xl:rounded-xl transition-colors">
+                         <Trash2 size={20} className="w-[18px] h-[18px] xl:w-[20px] xl:h-[20px]" />
+                       </div>
+                       <span className="text-[9px] xl:text-[10px] font-bold text-gray-400 group-hover:text-red-400 uppercase tracking-wide mt-1">Clear</span>
+                     </button>
+                   </div>
+                )}
+                {view === 'logs' && logs.length > 0 && (
+                   <Button variant="ghost" onClick={clearLogs} className="text-xs xl:text-sm py-1.5 px-3 text-red-500 hover:bg-red-50 shrink-0">{t('clear_logs')}</Button>
+                )}
+              </div>
+            </header>
+
+            <main className="flex-1 overflow-y-auto p-4 xl:p-8">
+              <div className="max-w-6xl mx-auto">
+                
+                {/* --- OVERVIEW VIEW --- */}
+                {view === 'overview' && (
+                  <div className="space-y-6 xl:space-y-8">
+                    {/* Welcome Banner */}
+                    <div className={`p-6 xl:p-8 rounded-2xl xl:rounded-3xl bg-[${COLORS.primary}] text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6`}>
+                      <div className="relative z-10 text-center md:text-left w-full md:w-auto">
+                        <img 
+                          src="https://bucket.mlcdn.com/a/3336/3336910/images/8e943a32c827c4f5a8059c24d8e5489b1f75363b.png" 
+                          alt="Mobile Logo" 
+                          className="w-[70px] h-[70px] mx-auto mb-4 md:hidden object-contain drop-shadow-md"
+                        />
+                        <h3 className="text-2xl xl:text-3xl font-bold mb-2">{t('welcome_title')}</h3>
+                        <p className="opacity-90 max-w-md mx-auto md:mx-0 text-sm xl:text-base">{t('welcome_desc', { count: contacts.length })}</p>
+                        <Button variant="highlight" onClick={() => setView('compose')} className="mt-6 !bg-white !text-[#9c9eed] mx-auto md:mx-0">
+                          <Plus size={18} /> {t('compose_new')}
+                        </Button>
+                      </div>
+                      
+                      {/* Interactive Rank Badge */}
+                      <div 
+                        className="relative z-10 bg-white/20 p-6 rounded-2xl backdrop-blur-md flex flex-col items-center cursor-pointer hover:bg-white/30 transition-all hover:scale-105 active:scale-95 shadow-lg border border-white/10 group"
+                        onClick={() => setIsRankSidebarOpen(true)}
+                        title="View Ranking Details"
+                      >
+                        <OverviewBadgeIcon size={48} className="mb-2 drop-shadow-md group-hover:scale-110 transition-transform" />
+                        <span className="text-xs font-bold uppercase tracking-widest opacity-80 flex items-center gap-1"><Info size={12}/> {t('rank')}</span>
+                        <span className="text-xl font-black text-center">{overviewBadgeProps.label}</span>
+                      </div>
+
+                      <div className="absolute top-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                      <div className="absolute bottom-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full translate-x-1/4 translate-y-1/4"></div>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-6">
+                      <AnimatedCounter value={contacts.length} label={t('total_reach')} icon={Users} colorClass="bg-blue-50 text-blue-600" />
+                      <AnimatedCounter value={templates.length} label={t('templates')} icon={FileText} colorClass="bg-orange-50 text-orange-600" />
+                      <AnimatedCounter value={logs.length} label={t('total_actions')} icon={Activity} colorClass="bg-purple-50 text-purple-600" />
+                      <AnimatedCounter value={aliases.length} label={t('active_aliases')} icon={Mail} colorClass="bg-emerald-50 text-emerald-600" />
+                    </div>
+
+                    {/* Charts Row */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 xl:gap-6">
+                      <div className="xl:col-span-2 bg-white p-5 xl:p-6 rounded-2xl xl:rounded-3xl border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-8">
+                          <h4 className="font-bold text-gray-700 flex items-center gap-2"><TrendingUp size={20} className="text-[#9c9eed]" /> {t('sending_activity')}</h4>
+                          <span className="text-[10px] xl:text-xs font-bold text-gray-400 bg-gray-50 px-2 xl:px-3 py-1 rounded-full uppercase tracking-widest">{t('last_7_days')}</span>
+                        </div>
+                        <div className="flex items-end justify-between h-40 xl:h-48 gap-2 xl:gap-4 px-2 xl:px-4 mt-4">
+                          {activityData.map((day, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-2 xl:gap-3 h-full">
+                              <div className="relative group w-full flex-1 flex items-end">
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                                  {day.value} emails
+                                </div>
+                                <div 
+                                  className="chart-bar w-full rounded-t-lg xl:rounded-t-xl bg-[#9c9eed] group-hover:bg-[#dfa4d4] cursor-help shadow-sm"
+                                  style={{ height: `${Math.max(day.height, 5)}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-[9px] xl:text-[10px] font-bold text-gray-400 uppercase shrink-0">{day.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className={`bg-[${COLORS.lightBg}] p-5 xl:p-6 rounded-2xl xl:rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between`}>
+                        <div>
+                          <h4 className="font-bold text-gray-700 mb-4 flex items-center gap-2"><PieChart size={20} className="text-[#dfa4d4]" /> {t('quick_insights')}</h4>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between text-xs xl:text-sm">
+                              <span className="text-gray-500">{t('contact_segments')}</span>
+                              <span className="font-bold">{[...new Set(contacts.map(c => c.tag))].filter(Boolean).length} {t('tags')}</span>
+                            </div>
+                            <div className="w-full bg-white/50 h-2 rounded-full overflow-hidden" title={`${contacts.length > 0 ? Math.round((contacts.filter(c => c.tag && c.tag.trim() !== '').length / contacts.length) * 100) : 0}% of contacts are tagged`}>
+                              <div className="bg-[#9c9eed] h-full transition-all duration-1000 ease-out" style={{width: `${contacts.length > 0 ? Math.round((contacts.filter(c => c.tag && c.tag.trim() !== '').length / contacts.length) * 100) : 0}%`}}></div>
+                            </div>
+                            <div className="flex items-center justify-between text-xs xl:text-sm">
+                              <span className="text-gray-500">{t('template_usage')}</span>
+                              <span className="font-bold">{templates.length >= 3 ? t('optimal') : t('low')}</span>
+                            </div>
+                            <div className="w-full bg-white/50 h-2 rounded-full overflow-hidden" title={`${templates.length} templates created`}>
+                              <div className="bg-[#dfa4d4] h-full transition-all duration-1000 ease-out" style={{width: `${Math.min((templates.length / 5) * 100, 100)}%`}}></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-white p-4 rounded-xl xl:rounded-2xl mt-6 border border-gray-100">
+                           <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">{t('pro_tip')}</p>
+                           <p className="text-xs text-gray-600 leading-relaxed">{t('pro_tip_desc')}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-2xl xl:rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                      <div className="p-5 xl:p-6 border-b border-gray-50 flex items-center justify-between">
+                        <h4 className="font-bold text-gray-700 flex items-center gap-2"><History size={20} className="text-[#9c9eed]" /> {t('recent_events')}</h4>
+                        <button onClick={() => setView('logs')} className="text-[10px] xl:text-xs font-bold text-[#9c9eed] hover:underline">{t('view_all_logs')}</button>
+                      </div>
+                      <div className="divide-y divide-gray-50">
+                        {logs.slice(0, 5).map(log => (
+                          <div key={log.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-4">
+                              <div className={`p-2 rounded-lg ${log.type === 'success' ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
+                                {log.action === 'Email' ? <Send size={14} /> : <Activity size={14} />}
+                              </div>
+                              <div>
+                                <p className="text-xs xl:text-sm font-semibold text-gray-800 line-clamp-1">{log.details}</p>
+                                <p className="text-[9px] xl:text-[10px] text-gray-400 font-medium uppercase mt-0.5">{log.action} • {log.time}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {logs.length === 0 && (
+                          <div className="p-8 xl:p-12 text-center text-gray-400 italic text-sm">{t('no_activity')}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- COMPOSE VIEW --- */}
+                {view === 'compose' && (
+                  <div className="space-y-4 xl:space-y-6">
+                    <div className={`bg-[${COLORS.lightBg}] p-4 xl:p-6 rounded-xl xl:rounded-2xl border border-gray-100 shadow-sm space-y-4`}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-semibold text-gray-600">{t('to')} <span className="text-gray-400 font-normal">{t('comma_separated')}</span></label>
+                            {contacts.length > 0 && (
+                               <select 
+                                 className="text-xs border border-gray-200 rounded p-1 text-gray-600 bg-white outline-none cursor-pointer max-w-[120px] xl:max-w-none"
+                                 onChange={(e) => {
+                                   if(e.target.value) {
+                                     setTo(to ? `${to}, ${e.target.value}` : e.target.value);
+                                     e.target.value = "";
+                                   }
+                                 }}
+                               >
+                                 <option value="">{t('contact_select')}</option>
+                                 {contacts.map(c => <option key={c.id} value={c.email}>{c.name}</option>)}
+                               </select>
+                            )}
+                          </div>
+                          <input type="text" value={to} onChange={(e) => setTo(e.target.value)} placeholder="recipient@example.com" className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] bg-white text-sm xl:text-base" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-semibold text-gray-600">{t('sender_info')} <span className="text-gray-400 font-normal">{t('alias_name')}</span></label>
+                          </div>
+                          <div className="flex gap-2">
+                            {aliases.length > 0 && (
+                               <select 
+                                 value={fromAlias} 
+                                 onChange={e => setFromAlias(e.target.value)} 
+                                 className="w-1/2 px-3 xl:px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] bg-white text-sm truncate"
+                               >
+                                 {aliases.map(a => <option key={a} value={a}>{a}</option>)}
+                               </select>
+                            )}
+                            <input type="text" value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder={t('name_optional')} className={`${aliases.length > 0 ? 'w-1/2' : 'w-full'} px-3 xl:px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#dfa4d4] bg-white text-sm`} />
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-600 mb-1">{t('subject')}</label>
+                        <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={t('subject_ph')} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] bg-white font-medium text-base xl:text-lg" />
+                      </div>
+                      <div className="flex gap-4 pt-4 border-t border-gray-100">
+                        <div className="flex-1">
+                          <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">{t('template_tag')} (Optional)</label>
+                          <input type="text" value={templateTag} onChange={e => setTemplateTag(e.target.value)} placeholder="e.g. Sales, Follow-up" className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] bg-white text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">{t('tag_color')}</label>
+                          <input type="color" value={templateTagColor} onChange={e => setTemplateTagColor(e.target.value)} className="w-[60px] h-[36px] p-0.5 rounded-lg border border-gray-200 cursor-pointer bg-white block" />
+                        </div>
+                      </div>
+                    </div>
+
+         <div className="bg-white p-1 rounded-xl xl:rounded-2xl">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 px-1 gap-2">
+    <label className="block text-sm font-semibold text-gray-600">{t('message_body')}</label>
+    <label className="flex items-center gap-2 cursor-pointer group w-fit">
+      <input 
+        type="checkbox" 
+        checked={attachSignature} 
+        onChange={e => {
+          setAttachSignature(e.target.checked);
+          safeSetLocal('mailerSend_attachSignature', e.target.checked);
+        }} 
+        className="w-4 h-4 text-[#9c9eed] border-gray-300 rounded focus:ring-[#9c9eed]"
+      />
+      <span className="text-xs xl:text-sm font-medium text-gray-500 group-hover:text-gray-700 transition-colors">{t('attach_signature')}</span>
+    </label>
+  </div>
+  <RichTextEditor value={body} onChange={setBody} t={t} />
+</div>
+                    
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6">
+                      <div className={`bg-[${COLORS.lightBg}] p-4 xl:p-5 rounded-xl xl:rounded-2xl border border-gray-100 shadow-sm`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="text-xs xl:text-sm font-semibold text-gray-600 flex items-center gap-2"><Paperclip size={16} /> {t('attachments')}</label>
+                          <label className="cursor-pointer text-xs xl:text-sm font-medium text-[#9c9eed] hover:text-[#dfa4d4] flex items-center gap-1"><Plus size={16}/> {t('add_file')}
+                            <input type="file" multiple className="hidden" onChange={handleFileUpload} />
+                          </label>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {attachments.length === 0 ? <p className="text-xs xl:text-sm text-gray-400 italic">{t('no_files')}</p> : attachments.map(att => (
+                            <div key={att.id} className="flex items-center gap-2 bg-white px-2 xl:px-3 py-1.5 rounded-lg border border-gray-200 text-xs xl:text-sm shadow-sm group">
+                              <span className="truncate max-w-[80px] xl:max-w-[120px]">{att.name}</span>
+                              <span className="text-gray-400 text-[10px] xl:text-xs">({(att.size/1024).toFixed(0)}kb)</span>
+                              <button onClick={() => removeAttachment(att.id)} className="text-red-400 opacity-100 xl:opacity-0 group-hover:opacity-100"><X size={14} /></button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className={`bg-[${COLORS.lightBg}] p-4 xl:p-5 rounded-xl xl:rounded-2xl border border-gray-100 shadow-sm`}>
+                        <label className="text-xs xl:text-sm font-semibold text-gray-600 flex items-center gap-2 mb-3"><Clock size={16} /> {t('schedule_email')}</label>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} className="flex-1 px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] bg-white text-sm" />
+                          <input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="flex-1 px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] bg-white text-sm" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-gray-200 gap-4">
+                      <div className="flex gap-2 xl:gap-3 w-full sm:w-auto overflow-x-auto hide-scrollbar">
+                        <Button variant="outline" onClick={saveTemplate} className="!border-gray-300 !text-gray-600 hover:!bg-gray-50 flex-1 sm:flex-none text-sm xl:text-base whitespace-nowrap">
+                          {editingTemplateId ? <><Edit3 size={16} className="xl:w-[18px] xl:h-[18px]" /> {t('update')}</> : <><Save size={16} className="xl:w-[18px] xl:h-[18px]" /> {t('save_template')}</>}
+                        </Button>
+                        {editingTemplateId && <Button variant="ghost" onClick={() => { setEditingTemplateId(null); saveTemplate(); }} className="text-sm xl:text-base whitespace-nowrap">{t('save_new')}</Button>}
+                      </div>
+                      <Button variant="primary" onClick={sendEmail} disabled={isLoading} className="w-full sm:w-auto px-6 xl:px-8 py-3 text-base xl:text-lg">
+                        {isLoading ? <span className="animate-pulse">{t('processing')}</span> : (scheduleDate && scheduleTime) ? <><Clock size={20} /> {t('schedule')}</> : <><Play size={20} /> {t('send_now')}</>}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- TEMPLATES VIEW --- */}
+                {view === 'templates' && (
+                  <div className="space-y-6">
+                    {uniqueTags.length > 0 && (
+                      <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2">
+                        <button onClick={() => setActiveTag('All')} className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${activeTag === 'All' ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>{t('all_templates')}</button>
+                        {uniqueTags.map(tagObj => (
+                          <button key={tagObj.name} onClick={() => setActiveTag(tagObj.name)} className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2`} style={{ backgroundColor: activeTag === tagObj.name ? tagObj.color : `${tagObj.color}15`, color: activeTag === tagObj.name ? '#fff' : tagObj.color, border: `1px solid ${tagObj.color}` }}>
+                            {tagObj.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-6">
+                      {templates.filter(t => activeTag === 'All' || t.tag === activeTag).map(tpl => (
+                        <div key={tpl.id} className="bg-white border border-gray-200 rounded-2xl p-4 xl:p-5 hover:shadow-xl hover:border-[#9c9eed] transition-all flex flex-col group h-[280px] relative overflow-hidden">
+                          {tpl.tag && <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full text-[10px] font-bold text-white shadow-sm tracking-wide z-10" style={{backgroundColor: tpl.tagColor || '#9c9eed'}}>{tpl.tag}</div>}
+                          <div className="flex-1 flex flex-col mb-4 overflow-hidden">
+                            <h4 className="font-bold text-base xl:text-lg text-gray-800 mb-1 truncate pr-16">{tpl.subject || '(No Subject)'}</h4>
+                            <p className="text-[10px] xl:text-xs font-semibold text-[#dfa4d4] mb-3 truncate">Sender: {tpl.senderName || 'Default'}</p>
+                            <div className="text-xs xl:text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100 flex-1 overflow-hidden relative">
+                              <div className="line-clamp-4" dangerouslySetInnerHTML={{__html: getSafePreview(tpl.body) || `<i>${t('empty_body')}</i>`}}></div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 pt-4 border-t border-gray-100 shrink-0">
+                            <Button variant="primary" className="flex-1 py-1.5 xl:py-2 text-xs xl:text-sm" onClick={() => loadTemplate(tpl)}>{t('edit_use')}</Button>
+                            <Button variant="danger" className="p-1.5 xl:p-2" onClick={() => deleteTemplate(tpl.id)}><Trash2 size={16} className="xl:w-[18px] xl:h-[18px]" /></Button>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="border-2 border-dashed border-gray-200 rounded-2xl p-5 flex flex-col items-center justify-center gap-3 xl:gap-4 text-gray-400 hover:border-[#9c9eed] hover:text-[#9c9eed] transition-all cursor-pointer h-[280px]" onClick={() => setView('compose')}>
+                         <Plus size={28} className="xl:w-8 xl:h-8" />
+                         <span className="font-bold text-sm xl:text-base">{t('create_template')}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- SIGNATURE VIEW --- */}
+                {view === 'signature' && (
+                  <div className="space-y-4 xl:space-y-6">
+                    <div className={`bg-[${COLORS.lightBg}] p-6 xl:p-8 rounded-2xl xl:rounded-3xl border border-gray-100 shadow-sm`}>
+                      <div className="flex items-center gap-3 xl:gap-4 mb-4 xl:mb-6">
+                        <div className={`p-2 xl:p-3 bg-[${COLORS.primary}] text-white rounded-xl shadow-md`}><PenTool size={20} className="xl:w-6 xl:h-6" /></div>
+                        <div>
+                          <h3 className="text-xl xl:text-2xl font-bold text-gray-800">{t('your_signature')}</h3>
+                          <p className="text-xs xl:text-sm text-gray-500">{t('signature_desc')}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-xl xl:rounded-2xl p-1 xl:p-2 shadow-sm border border-gray-100 mb-4 xl:mb-6">
+                        <RichTextEditor value={signature} onChange={setSignature} t={t} />
+                      </div>
+                      
+                      <div className="flex justify-end border-t border-gray-200 pt-4 xl:pt-6">
+                        <Button variant="primary" onClick={saveSignature} className="w-full sm:w-auto px-6 xl:px-8 py-2.5 xl:py-3 text-sm xl:text-base">
+                          <Save size={18} /> {t('save_signature')}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {signature && (
+                      <div className="bg-white p-6 xl:p-8 rounded-2xl xl:rounded-3xl border border-gray-100 shadow-sm overflow-x-auto">
+                        <h4 className="font-bold text-gray-400 mb-4 xl:mb-6 text-[10px] xl:text-xs uppercase tracking-widest flex items-center gap-2"><CheckCircle size={16} className="text-[#9c9eed]"/> {t('signature_preview')}</h4>
+                        <div className="p-4 xl:p-6 rounded-xl xl:rounded-2xl border border-dashed border-gray-300 bg-gray-50 min-w-[300px]">
+                           <div className="prose prose-sm max-w-none text-gray-800" dangerouslySetInnerHTML={{__html: signature}}></div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* MailerSign Promotional Banner */}
+                    <div className="w-full mt-4 hover:opacity-95 hover:scale-[1.01] transition-all duration-200">
+                      <a href="https://sociedadelite.club" target="_blank" rel="noopener noreferrer" className="block w-full">
+                        <img 
+                          src="https://bucket.mlcdn.com/a/3336/3336910/images/7a1d47dba796b8c919d5b510b2729a2c358522a5.png" 
+                          alt="Discover MailerSign.pro" 
+                          className="w-full h-auto rounded-2xl xl:rounded-3xl shadow-sm border border-gray-100 object-cover min-h-[80px]"
+                        />
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* --- CONTACTS VIEW --- */}
+                {view === 'contacts' && (
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 xl:mb-6 gap-3">
+                      <p className="text-sm xl:text-base text-gray-600">{t('manage_recipients')}</p>
+                      <Button onClick={() => { setContactForm({ id: '', name: '', email: '', business: '', phone: '', tag: '', note: '' }); setShowContactForm(true); }} className="w-full sm:w-auto text-sm xl:text-base py-2 xl:py-2.5"><Plus size={16} className="xl:w-[18px] xl:h-[18px]" /> {t('add_contact')}</Button>
+                    </div>
+
+                    {contacts.length === 0 ? (
+                      <div className="text-center py-12 xl:py-20 bg-white border border-gray-200 rounded-2xl">
+                        <div className={`w-16 h-16 xl:w-20 xl:h-20 bg-[${COLORS.lightBg}] rounded-full flex items-center justify-center mx-auto mb-4 xl:mb-6 text-[${COLORS.primary}]`}><Users size={32} className="xl:w-10 xl:h-10" /></div>
+                        <h3 className="text-lg xl:text-xl font-bold text-gray-700 mb-2">{t('no_contacts_yet')}</h3>
+                        <p className="text-sm xl:text-base text-gray-500">{t('no_contacts_desc')}</p>
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs xl:text-sm text-gray-600 min-w-[600px]">
+                            <thead className={`bg-[${COLORS.lightBg}] text-gray-700`}>
+                              <tr>
+                                <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold">{t('name')}</th>
+                                <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold">{t('email')}</th>
+                                <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold">{t('business')}</th>
+                                <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold">{t('tag')}</th>
+                                <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold text-right">{t('actions')}</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                              {contacts.map(c => (
+                                <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+                                  <td className="px-4 xl:px-6 py-3 xl:py-4 font-medium text-gray-800">{c.name}</td>
+                                  <td className="px-4 xl:px-6 py-3 xl:py-4">{c.email}</td>
+                                  <td className="px-4 xl:px-6 py-3 xl:py-4">{c.business || '-'}</td>
+                                  <td className="px-4 xl:px-6 py-3 xl:py-4">
+                                    {c.tag && <span className="px-2 py-1 bg-[#9c9eed]/10 text-[#9c9eed] rounded-lg text-[10px] xl:text-xs font-medium border border-[#9c9eed]/20 whitespace-nowrap">{c.tag}</span>}
+                                  </td>
+                                  <td className="px-4 xl:px-6 py-3 xl:py-4 text-right flex justify-end gap-2 xl:gap-3">
+                                    <button onClick={() => editContact(c)} className="text-[#9c9eed] hover:text-[#dfa4d4] transition-colors p-1"><Edit3 size={16} className="xl:w-[18px] xl:h-[18px]" /></button>
+                                    <button onClick={() => deleteContact(c.id)} className="text-red-400 hover:text-red-600 transition-colors p-1"><Trash2 size={16} className="xl:w-[18px] xl:h-[18px]" /></button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {showContactForm && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#3f3d56]/80 backdrop-blur-sm">
+                        <div className="bg-white rounded-2xl xl:rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-[#9c9eed]/20 max-h-[90vh] flex flex-col">
+                          <div className={`bg-[${COLORS.lightBg}] p-4 xl:p-6 border-b border-gray-100 flex items-center justify-between shrink-0`}>
+                            <h3 className="text-lg xl:text-xl font-bold text-gray-800">{contactForm.id ? t('edit_contact') : t('new_contact')}</h3>
+                            <button onClick={() => setShowContactForm(false)} className="text-gray-400 hover:text-gray-700 bg-white p-1.5 xl:p-2 rounded-full shadow-sm"><X size={20} /></button>
+                          </div>
+                          <div className="p-4 xl:p-6 space-y-4 overflow-y-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">{t('name')} *</label>
+                                <input type="text" value={contactForm.name} onChange={e => setContactForm({...contactForm, name: e.target.value})} className="w-full px-3 xl:px-4 py-2 xl:py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] text-sm xl:text-base" />
+                              </div>
+                              <div>
+                                <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">{t('email')} *</label>
+                                <input type="email" value={contactForm.email} onChange={e => setContactForm({...contactForm, email: e.target.value})} className="w-full px-3 xl:px-4 py-2 xl:py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] text-sm xl:text-base" />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">{t('business')}</label>
+                                <input type="text" value={contactForm.business} onChange={e => setContactForm({...contactForm, business: e.target.value})} className="w-full px-3 xl:px-4 py-2 xl:py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] text-sm xl:text-base" />
+                              </div>
+                              <div>
+                                <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">Phone Number</label>
+                                <input type="text" value={contactForm.phone} onChange={e => setContactForm({...contactForm, phone: e.target.value})} className="w-full px-3 xl:px-4 py-2 xl:py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] text-sm xl:text-base" />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">{t('tag')}</label>
+                              <input type="text" value={contactForm.tag} onChange={e => setContactForm({...contactForm, tag: e.target.value})} placeholder="e.g. VIP" className="w-full px-3 xl:px-4 py-2 xl:py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] text-sm xl:text-base" />
+                            </div>
+                            <div>
+                              <label className="block text-xs xl:text-sm font-semibold text-gray-600 mb-1">{t('note')}</label>
+                              <textarea value={contactForm.note} onChange={e => setContactForm({...contactForm, note: e.target.value})} rows="3" className="w-full px-3 xl:px-4 py-2 xl:py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] resize-none text-sm xl:text-base"></textarea>
+                            </div>
+                            <div className="pt-4 border-t border-gray-100 flex justify-end gap-3 mt-2 shrink-0">
+                              <Button variant="ghost" onClick={() => setShowContactForm(false)} className="py-2 text-sm xl:text-base">{t('cancel')}</Button>
+                              <Button onClick={saveContact} className="py-2 text-sm xl:text-base">{t('save_contact')}</Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* --- LOGS VIEW --- */}
+                {view === 'logs' && (
+                  <div className="bg-white border border-gray-200 rounded-2xl xl:rounded-3xl overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs xl:text-sm text-gray-600 min-w-[600px]">
+                        <thead className={`bg-[${COLORS.lightBg}] text-gray-700`}>
+                          <tr>
+                            <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold w-1/4">{t('time')}</th>
+                            <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold w-1/4">{t('category')}</th>
+                            <th className="px-4 xl:px-6 py-3 xl:py-4 font-semibold w-2/4">{t('details')}</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {logs.map(log => {
+                            const getBadgeColors = (type) => {
+                              if(type === 'success') return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                              if(type === 'error') return 'bg-red-50 text-red-600 border-red-200';
+                              if(type === 'warning') return 'bg-orange-50 text-orange-600 border-orange-200';
+                              return 'bg-blue-50 text-blue-600 border-blue-200';
+                            };
+                            return (
+                              <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-4 xl:px-6 py-3 xl:py-4 text-[10px] xl:text-xs whitespace-nowrap font-medium text-gray-400">{log.time}</td>
+                                <td className="px-4 xl:px-6 py-3 xl:py-4">
+                                  <span className={`px-2 xl:px-2.5 py-1 rounded-md text-[10px] xl:text-xs font-semibold border ${getBadgeColors(log.type)} uppercase tracking-widest`}>
+                                    {log.action}
+                                  </span>
+                                </td>
+                                <td className="px-4 xl:px-6 py-3 xl:py-4 font-semibold text-gray-700">{log.details}</td>
+                              </tr>
+                            );
+                          })}
+                          {logs.length === 0 && (
+                            <tr><td colSpan="3" className="px-4 xl:px-6 py-12 xl:py-20 text-center text-gray-400 italic">{t('no_activity')}</td></tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </main>
+
+            {/* Mobile Floating Compose Button */}
+            {view !== 'compose' && (
+              <button
+                onClick={() => { setView('compose'); resetForm(); setIsMobileMenuOpen(false); }}
+                className="xl:hidden fixed bottom-6 right-6 z-40 bg-[#9c9eed] text-white p-4 rounded-full shadow-[0_4px_20px_rgba(156,158,237,0.4)] hover:bg-[#8d8fda] transition-all focus:outline-none active:scale-95"
+                title={t('compose_new')}
+              >
+                <Edit3 size={24} />
+              </button>
+            )}
+          </div>
+
+          {/* RANKING SIDEBAR */}
+          <div className={`fixed inset-0 bg-[#3f3d56]/40 backdrop-blur-sm z-[70] transition-opacity duration-300 ${isRankSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setIsRankSidebarOpen(false)}></div>
+
+          <div className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-2xl z-[80] transform transition-transform duration-300 ease-in-out ${isRankSidebarOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50/50 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl shadow-md overflow-hidden shrink-0 bg-[${COLORS.primary}]`}>
+                  <img src="https://bucket.mlcdn.com/a/3336/3336910/images/fb905003cd9a14334590934d352e6f2549d5e61c.png" alt="Rankings" className="w-full h-full object-cover" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">{t('rank_title')}</h2>
+              </div>
+              <button onClick={() => setIsRankSidebarOpen(false)} className="p-2 text-gray-400 hover:text-gray-700 bg-white rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/30">
+              {[
+                { threshold: 100, id: 'gold', icon: BadgeGold, color: 'bg-purple-100 border-purple-200', text: 'text-purple-700', label: t('badge_gold'), desc: t('rank_gold_desc'), url: 'https://example.com/gold-prize' },
+                { threshold: 50, id: 'silver', icon: BadgeSilver, color: 'bg-yellow-100 border-yellow-200', text: 'text-yellow-700', label: t('badge_silver'), desc: t('rank_silver_desc'), url: 'https://example.com/silver-prize' },
+                { threshold: 10, id: 'bronze', icon: BadgeBronze, color: 'bg-slate-100 border-slate-200', text: 'text-slate-700', label: t('badge_bronze'), desc: t('rank_bronze_desc'), url: 'https://example.com/bronze-prize' },
+                { threshold: 0, id: 'starter', icon: BadgeDefault, color: 'bg-[#f0e6ff] border-[#e0ccff]', text: 'text-[#7e7ac8]', label: t('badge_starter'), desc: t('rank_starter_desc'), url: 'https://example.com/starter-info' },
+              ].map((rank, index, array) => {
+                const currentSent = stats.sent || 0;
+                const isCurrentRank = currentSent >= rank.threshold && (index === 0 || currentSent < array[index - 1].threshold);
+                const isUnlocked = currentSent >= rank.threshold;
+                const RankIcon = rank.icon;
+
+                return (
+                  <div 
+                    key={rank.id} 
+                    onClick={() => { if(isUnlocked) window.open(rank.url, '_blank', 'noopener,noreferrer'); }}
+                    className={`relative p-5 rounded-2xl border-2 transition-all duration-300 ${isUnlocked ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg' : ''} ${isCurrentRank ? `border-[${COLORS.primary}] shadow-md bg-white scale-[1.02]` : 'border-transparent bg-white shadow-sm'}`}
+                  >
+                    <div className="flex flex-col items-start gap-4">
+                      <div className="flex items-center gap-4 w-full">
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border ${rank.color} ${!isUnlocked ? 'opacity-50 grayscale' : ''}`}>
+                          <RankIcon size={40} className={!isUnlocked ? 'opacity-70' : 'drop-shadow-md'} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`text-lg font-bold ${!isUnlocked ? 'text-gray-400' : 'text-gray-800'}`}>{rank.label}</h3>
+                          <div className="flex items-center gap-2 mt-1 mb-2">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded text-gray-500 bg-gray-100`}>
+                              {rank.threshold === 0 ? 'Default' : t('req_emails', { count: rank.threshold })}
+                            </span>
+                            {!isUnlocked && <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1"><Lock size={10}/> Locked</span>}
+                          </div>
+                          <p className={`text-sm leading-relaxed ${!isUnlocked ? 'text-gray-400' : 'text-gray-600'}`}>{rank.desc}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Interactive Footer Button for Claiming Prize */}
+                      {isUnlocked && rank.threshold > 0 && (
+                        <div className="w-full mt-2 pt-3 border-t border-gray-100">
+                           <div className="w-full inline-flex items-center justify-center gap-2 text-xs font-bold text-[#9c9eed] uppercase tracking-wider bg-[#9c9eed]/10 hover:bg-[#9c9eed]/20 transition-colors px-4 py-2.5 rounded-xl shadow-sm">
+                             <MousePointerClick size={16} /> {t('claim_prize')}
+                           </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Progress bar for next level if this is current rank */}
+                    {isCurrentRank && index > 0 && (
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                         <div className="flex justify-between text-xs font-semibold mb-1">
+                           <span className="text-gray-500">Progress to {array[index-1].label}</span>
+                           <span className={`text-[${COLORS.primary}]`}>{currentSent} / {array[index-1].threshold}</span>
+                         </div>
+                         <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                           <div className={`h-full bg-[${COLORS.primary}] transition-all duration-1000`} style={{ width: `${Math.min((currentSent / array[index-1].threshold) * 100, 100)}%`}}></div>
+                         </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Sidebar Footer Message */}
+            <div className="p-4 bg-white border-t border-gray-100 text-center shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+               <p className="text-xs xl:text-sm font-bold text-[#9c9eed] flex items-center justify-center gap-2 uppercase tracking-wider">
+                  <MousePointerClick size={18} /> {t('claim_footer')}
+               </p>
+            </div>
+          </div>
+
+        {/* SETUP MODAL */}
+      {showSetup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#3f3d56]/80 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl xl:rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#9c9eed]/20">
+            <div className={`bg-[${COLORS.lightBg}] p-4 xl:p-6 border-b border-gray-100 flex items-center justify-between shrink-0`}>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 bg-[${COLORS.primary}] text-white rounded-xl shadow-md`}>
+                  <Settings size={20} className="xl:w-6 xl:h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg xl:text-xl font-bold text-gray-800">{t('setup_title')}</h3>
+                  <p className="text-xs xl:text-sm text-gray-500">{t('setup_desc')}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowSetup(false)} className="text-gray-400 hover:text-gray-700 bg-white p-1.5 xl:p-2 rounded-full shadow-sm">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-4 xl:p-6 overflow-y-auto flex-1 space-y-4 xl:space-y-6 text-sm text-gray-700">
+              <div className={`p-3 xl:p-4 rounded-xl border border-[#9c9eed]/30 bg-[#9c9eed]/5 text-[#3f3d56] flex gap-2 xl:gap-3`}>
+                <Info className="shrink-0 text-[#9c9eed] mt-0.5 w-4 h-4 xl:w-5 xl:h-5" />
+                <p className="text-xs xl:text-sm">MailerSend runs locally on your browser. To send emails via Gmail, create a simple script in your Google Account. <b>Your data never leaves your device except directly to your Google account.</b></p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-base xl:text-lg mb-2 xl:mb-3 flex items-center gap-2">
+                  <span className={`bg-[${COLORS.highlight}] text-white w-5 h-5 xl:w-6 xl:h-6 rounded-full flex items-center justify-center text-[10px] xl:text-xs`}>1</span> 
+                  Create the Script (Now with Sheets Backup!)
+                </h4>
+                <p className="text-[10px] xl:text-xs font-semibold text-gray-500 mb-2">Open <a href="https://script.google.com/" target="_blank" rel="noreferrer" className="text-[#9c9eed] underline hover:text-[#dfa4d4] transition-colors">Google Apps Script</a> and create a New Project. The script will now automatically create a hidden spreadsheet in your Google Drive to securely back up your templates and contacts across devices.</p>
+                <p className="text-[10px] xl:text-xs font-semibold text-red-500 mb-2">⚠️ Note: If you connected previously, copy and deploy the NEW script code to unlock Aliases, Data Backup, and live Quota Tracking!</p>
+                <div className="relative">
+                  <textarea readOnly value={GAS_CODE} className="w-full h-32 xl:h-48 bg-gray-900 text-green-400 font-mono text-[10px] xl:text-xs p-3 xl:p-4 rounded-xl focus:outline-none"/>
+                  <Button variant="primary" className="absolute top-2 right-2 xl:top-3 xl:right-3 text-[10px] xl:text-xs py-1 px-2 xl:px-3 shadow-none border border-white/20" onClick={() => { navigator.clipboard.writeText(GAS_CODE); showNotif('Code copied to clipboard!'); }}>Copy Code</Button>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-base xl:text-lg mb-2 xl:mb-3 flex items-center gap-2">
+                  <span className={`bg-[${COLORS.highlight}] text-white w-5 h-5 xl:w-6 xl:h-6 rounded-full flex items-center justify-center text-[10px] xl:text-xs`}>2</span> 
+                  Deploy as Web App
+                </h4>
+                <ol className="list-decimal pl-5 space-y-1 xl:space-y-2 text-gray-600 text-xs xl:text-sm">
+                  <li>Click <b>Deploy</b> &gt; <b>New deployment</b>.</li>
+                  <li>Select type <b>Web app</b>.</li>
+                  <li>Set "Who has access" to <b>Anyone</b>.</li>
+                  <li>Click <b>Deploy</b> and copy the <b>Web app URL</b>.</li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-base xl:text-lg mb-2 xl:mb-3 flex items-center gap-2">
+                  <span className={`bg-[${COLORS.highlight}] text-white w-5 h-5 xl:w-6 xl:h-6 rounded-full flex items-center justify-center text-[10px] xl:text-xs`}>3</span> 
+                  Connect MailerSend
+                </h4>
+                <div className="pl-6 xl:pl-8 flex flex-col sm:flex-row gap-2 xl:gap-3">
+                  <input type="url" defaultValue={gasUrl} id="gasUrlInput" placeholder="https://script.google.com/macros/s/..." className="flex-1 px-3 xl:px-4 py-2.5 xl:py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9c9eed] bg-white font-mono text-xs" />
+                  <Button variant="primary" onClick={() => {
+                    const url = document.getElementById('gasUrlInput').value;
+                    if(url.includes('script.google.com')) handleSaveGasUrl(url);
+                    else showNotif('Please enter a valid Google Script URL', 'error');
+                  }} className="py-2.5 xl:py-3 text-xs xl:text-sm">Save Key</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GOLD UNLOCKED MODAL */}
+      {showGoldPopup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#3f3d56]/80 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-bounce-short border-4 border-yellow-400">
+            <div className="w-24 h-24 mx-auto mb-6 bg-yellow-50 rounded-full flex items-center justify-center shadow-inner border border-yellow-200">
+              <BadgeGold size={60} />
+            </div>
+            <h2 className="text-2xl font-black text-gray-800 mb-2 uppercase tracking-wide">{t('gold_unlocked_title')}</h2>
+            <p className="text-gray-600 mb-8">{t('gold_unlocked_msg')}</p>
+            <Button onClick={() => setShowGoldPopup(false)} className="w-full py-3 text-lg" variant="highlight">Awesome!</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const root = createRoot(document.getElementById('root'));
+root.render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);
+</script>
+</body>
+</html>
